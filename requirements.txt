@@ -1,3 +1,4 @@
 datasets
 huggingface_hub[hf_transfer]
 jsonargparse[all]
+wandb
