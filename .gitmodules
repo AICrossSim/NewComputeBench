@@ -1,0 +1,3 @@
+[submodule "submodules/torchtitan"]
+	path = submodules/torchtitan
+	url = https://github.com/pytorch/torchtitan.git

@@ -1,0 +1,7 @@
+/.vscode/
+/experiments/llm-digital/pretrain/outputs/
+/experiments/llm-digital/pretrain/tokenizers/
+/experiments/llm-digital/pretrain/aixsim-60M/
+
+
+__pycache__/
