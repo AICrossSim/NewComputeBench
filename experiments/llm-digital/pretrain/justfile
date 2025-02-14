@@ -1,0 +1,67 @@
+dev_run := "true"
+tokenizer_name := "HuggingFaceTB/cosmo2-tokenizer"
+# tokenizer_repo_path := "original" # this is for downloading the tiktoken tokenizer checkpoint in meta-llama/Llama-3.1-8B
+model_arch := "aixsim"
+model_flavor := "60M"
+nnodes := "1"
+ngpus := "2"
+local_rank := "0"
+export HF_HUB_CACHE := "/data/hf_hub"
+# training setup
+batch_size := "22"
+data_parallel_replicate_degree := "1"
+data_parallel_shard_degree := "2"
+tensor_parallel_degree := "1"
+token_num_scale := "22.0"
+
+@check-vars:
+    echo "========================================="
+    echo "dev run: {{dev_run}}"
+    echo "tokenizer name: {{tokenizer_name}}"
+    echo "hf hub cache dir: $HF_HUB_CACHE"
+    echo "model arch: {{model_arch}}"
+    echo "model flavor: {{model_flavor}}"
+    echo "nnodes: {{nnodes}}"
+    echo "ngpus: {{ngpus}}"
+    echo "local rank: {{local_rank}}"
+    echo "batch size: {{batch_size}}"
+    echo "data parallel replicate degree: {{data_parallel_replicate_degree}}"
+    echo "data parallel shard degree: {{data_parallel_shard_degree}}"
+    echo "tensor parallel degree: {{tensor_parallel_degree}}"
+    echo "token num scale: {{token_num_scale}}"
+    echo "========================================="
+
+download-tokenizer: check-vars
+    python run.py download-hf-tokenizer {{tokenizer_name}} ./tokenizers/{{tokenizer_name}}
+
+count-params: check-vars
+    python run.py count-params {{model_arch}} {{model_flavor}} ./tokenizers/{{tokenizer_name}}
+
+generate-cfg: check-vars
+    python run.py generate-cfg --model_arch {{model_arch}} --model_flavor {{model_flavor}} --tokenizer_path {{tokenizer_name}} \
+        --batch_size {{batch_size}} \
+        --data_parallel_replicate_degree {{data_parallel_replicate_degree}} \
+        --data_parallel_shard_degree {{data_parallel_shard_degree}} \
+        --tensor_parallel_degree {{tensor_parallel_degree}} \
+        --token_num_scale {{token_num_scale}}
+
+estimate-mem: generate-cfg
+    WORLD_SIZE=$(({{ngpus}}*{{nnodes}})) LOCAL_RANK={{local_rank}} python run.py estimate-mem \
+        --config configs/{{model_arch}}-{{model_flavor}}.yaml \
+        --memory_estimation_args.enabled true
+
+pretrain: check-vars
+    if [ "{{dev_run}}" = "true" ]; then \
+        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
+        torchrun --nproc_per_node={{ngpus}} --rdzv_backend c10d \
+        --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
+        --role rank --tee 3 \
+        run.py pretrain --config configs/debug_model.yaml; \
+    else \
+        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
+        torchrun --nproc_per_node={{ngpus}} --rdzv_backend c10d \
+        --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
+        --role rank --tee 3 \
+        run.py pretrain --config configs/{{model_arch}}-{{model_flavor}}.yaml; \
+    fi
+
