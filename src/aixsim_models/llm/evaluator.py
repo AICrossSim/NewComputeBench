@@ -151,7 +151,7 @@ def evaluate_ppl(
 
 def check_hf_ppl(
     model_name_or_path: Union[str, transformers.PreTrainedModel],
-    dtype: Literal["float32", "float16", "bfloat16"] = "float32",
+    dtype: Literal["float32", "float16", "bfloat16"] = "bfloat16",
     dataset_name: str = "fineweb",
     dataset_subset: str = "HuggingFaceFW/fineweb",
     batch_size: int = 32,
@@ -164,7 +164,7 @@ def check_hf_ppl(
     Args:
         model_name_or_path (str): Name or path of the Hugging Face model to evaluate
         dtype (Literal["float32", "float16", "bfloat16"]): Data type for model computation.
-            Defaults to "float32".
+            Defaults to "bfloat16".
         dataset_name (str): Name of the dataset to use. Defaults to "fineweb".
         dataset_subset (str): Specific subset of the dataset. Defaults to "HuggingFaceFW/fineweb".
         batch_size (int): Number of sequences per batch. Defaults to 32.
