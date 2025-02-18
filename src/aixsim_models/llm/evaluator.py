@@ -240,6 +240,7 @@ def hf_generate(
     do_sample: bool = True,
     temperature: float = 1.0,
     top_p: float = 0.9,
+    top_k: int = 50,
 ):
     """
     Generate text using a Hugging Face model.
@@ -253,6 +254,7 @@ def hf_generate(
         do_sample (bool, optional): Whether to use sampling; if False, uses greedy decoding. Defaults to True.
         temperature (float, optional): The sampling temperature; higher values mean more random generations. Defaults to 1.0.
         top_p (float, optional): The cumulative probability for nucleus sampling. Defaults to 0.9.
+        top_k (int, optional): The number of top tokens to sample from. Defaults to 50.
 
     Returns:
         None
@@ -273,6 +275,7 @@ def hf_generate(
         do_sample=do_sample,
         temperature=temperature,
         top_p=top_p,
+        top_k=top_k,
     )
     print(f"🔣\tPrompt:\n{prompt}")
     response = tokenizer.batch_decode(
