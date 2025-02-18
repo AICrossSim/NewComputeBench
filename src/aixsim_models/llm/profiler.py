@@ -37,12 +37,6 @@ from .arg_manager import (
 
 logger = logging.getLogger(__name__)
 
-# Copyright (c) Meta Platforms, Inc. and affiliates.
-# All rights reserved.
-#
-# This source code is licensed under the BSD-style license found in the
-# LICENSE file in the root directory of this source tree.
-
 
 def beatify_num_params(num_params: int) -> str:
     if num_params < 1e6:
@@ -62,6 +56,19 @@ def profile_num_params(
     exclude_embedding: Optional[bool] = True,
     silent: Optional[bool] = False,
 ):
+    """
+    Profiles the number of parameters in a specified model architecture and flavor.
+
+    Args:
+        model_arch (str): The architecture of the model (e.g., 'aixsim').
+        model_flavor (str): The specific flavor or variant of the model (e.g., '60M', '200M').
+        tokenizer_path (str): The name/path to the tokenizer files (e.g., 'HuggingFaceTB/cosmo2-tokenizer').
+        exclude_embedding (Optional[bool], optional): Whether to exclude the embedding parameters from the count. Defaults to True.
+        silent (Optional[bool], optional): If True, suppresses logging output. Defaults to False.
+
+    Returns:
+        int: The number of parameters in the model.
+    """
     tokenizer_type = model_name_to_tokenizer[model_arch]
     tokenizer = build_tokenizer(tokenizer_type, tokenizer_path)
     model_cls = model_name_to_cls[model_arch]
@@ -95,6 +102,9 @@ def estimate_memory(
     comm_args: Optional[ArgComm] = ArgComm(),
     memory_estimation_args: Optional[ArgMemoryEstimation] = ArgMemoryEstimation(),
 ):
+    """
+    Estimate the memory usage of a model during training.
+    """
     args = PreTrainArgs(
         job=job_args,
         profiling=profiling_args,

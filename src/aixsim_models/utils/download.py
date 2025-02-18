@@ -55,6 +55,24 @@ def download_dataset(
     symlink_to: Optional[Path] = None,
     hf_token: Optional[str] = None,
 ) -> None:
+    """Download a dataset from HuggingFace Hub and optionally create a symlink.
+
+    This function downloads a dataset from the HuggingFace Hub and stores it locally.
+    It can optionally create a symlink to the downloaded dataset directory.
+
+    Args:
+        dataset_name (str): The name of the dataset to download from HuggingFace Hub
+        cache_dir (Path, optional): Directory to cache the downloaded files. If None,
+            uses HF_HUB_CACHE environment variable or default directory.
+        allow_pattern (str, optional): If specified, only files matching this pattern
+            will be downloaded.
+        symlink_to (Path, optional): If specified, creates a symbolic link from the
+            downloaded directory to this location.
+        hf_token (str, optional): HuggingFace authentication token for private datasets.
+
+    Returns:
+        None
+    """
     if cache_dir is None:
         cache_dir = os.environ.get("HF_HUB_CACHE", None)
         if cache_dir is None:

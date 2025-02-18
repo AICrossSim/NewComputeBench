@@ -10,7 +10,6 @@ from torch.distributed.elastic.multiprocessing.errors import record
 from torchtitan import utils
 from torchtitan.checkpoint import CheckpointManager, TrainState
 
-# from torchtitan.config_manager import JobConfig
 from torchtitan.datasets import build_hf_data_loader, build_tokenizer
 from torchtitan.float8 import Float8Handler
 from torchtitan.logging import init_logger, logger
@@ -60,6 +59,9 @@ def pretrain(
     comm_args: Optional[ArgComm] = ArgComm(),
     memory_estimation_args: Optional[ArgMemoryEstimation] = ArgMemoryEstimation(),
 ):
+    """
+    Pretrain a model using the provided arguments.
+    """
     args = PreTrainArgs(
         job=job_args,
         profiling=profiling_args,
@@ -536,7 +538,7 @@ def train_loop(
                 metric_logger.log(metrics, step=train_state.step)
 
                 logger.info(
-                    f"{color.cyan}step: {train_state.step:2}  "
+                    f"{color.cyan}step: {train_state.step:2}/{args.training.steps} = {train_state.step / args.training.steps:.4%}  "
                     f"{color.green}loss: {global_avg_loss:7.4f}  "
                     f"{color.yellow}memory: {device_mem_stats.max_reserved_gib:5.2f}GiB"
                     f"({device_mem_stats.max_reserved_pct:.2f}%)  "
