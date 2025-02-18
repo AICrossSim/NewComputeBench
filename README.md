@@ -12,7 +12,7 @@
 We adopt Llama-3 architecture and aim to support the following features:
 
 - Pretraining
-- `🚧 TODO`: Generation (inference)
+- Generation (inference)
 - `🚧 TODO`: Parameter-efficient fine-tuning;
 - `🚧 TODO` `🐌 LowPriority`: Supervised-fine-tuning
 - `🚧 TODO` `🐌 LowPriority`: Evaluation
@@ -24,6 +24,11 @@ The LLM pretraining is built on top of [torchtitan](https://github.com/pytorch/t
 - Model architecture: [`Llama3`](/src/torchtitan/models/llama/model.py)
 - Model configs: [`60M`, `200M`, `400M`, `600M`, `1.1B`](src/aixsim_models/llm/model_config.py)
 - Datasets: [`HuggingFaceFW/fineweb`](/src/aixsim_models/llm/pretrain_data.py)
+
+#### Generation
+
+We recommend using the HuggingFace Transformers library for generation tasks.
+We provide a script to convert the torchtitan checkpoint to a HuggingFace checkpoint (See [this file](/experiments/llm-digital/pretrain/README.md)).
 
 
 #### Parameter-Efficient Fine-tuning

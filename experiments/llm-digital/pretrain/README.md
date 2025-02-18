@@ -97,6 +97,11 @@ just model_flavor=60M hf_ckpt=./outputs/huggingface/aixsim-60M/ check-hf-ppl
 # ppl = 125.90
 ```
 
+- Generate text using HuggingFace model
+```bash
+just hf_ckpt=./outputs/huggingface/aixsim-60M/ generate-hf
+```
+
 ### Others
 
 #### Count-Params
