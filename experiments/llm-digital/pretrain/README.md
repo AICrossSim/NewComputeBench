@@ -36,7 +36,34 @@ python run.py generate-config -h
 We also wrap it as a command in the justfile.
 
 ```bash
-just nnodes=1 ngpus=4 data_parallel_replicate_degree=4 batch_size=32 generate-cfg
+just model_flavor=60M nnodes=1 ngpus=4 data_parallel_replicate_degree=4 batch_size=32 generate-cfg
+```
+
+## PreTraining
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1 just model_flavor=60M dev_run=false pretrain
+```
+
+## Evaluating Perplexity
+
+```bash
+# this runs on a single GPU
+just model_flavor=60M pt_ckpt=./outputs/checkpoints/aixsim-60M/20250216-191903/step-7075 eval-ppl
+# ppl = 125.41
+```
+
+## Convert to HuggingFace Checkpoint
+
+- Convert torchtitan checkpoint (pt_ckpt) to HuggingFace PreTrainedModel and PreTrainedTokenizer (hf_ckpt)
+```bash
+just model_flavor=60M pt_ckpt=./outputs/checkpoints/aixsim-60M/20250216-191903/step-7075/ hf_ckpt=./outputs/huggingface/aixsim-60M/ convert-ckpt
+```
+
+- Check HuggingFace perplexity
+```bash
+just model_flavor=60M hf_ckpt=./outputs/huggingface/aixsim-60M/ check-hf-ppl
+# ppl = 125.90
 ```
 
 ## Others

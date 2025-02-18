@@ -3,16 +3,11 @@ import datetime
 import yaml
 import math
 
-from aixsim_models.llm.profile import profile_num_params, estimate_memory
+from aixsim_models.llm.profiler import profile_num_params, estimate_memory
 from aixsim_models.llm import register_model_configs, register_pretrain_dataset
-from aixsim_models.utils.download import (
-    download_dataset,
-    download_tiktoken_tokenizer,
-    download_hf_tokenizer,
-)
-from aixsim_models.utils.convert_ckpt import dcp_to_torch, torch_to_dcp
+from aixsim_models.utils.download import download_dataset
 from aixsim_models.utils.logging import set_logging_verbosity
-from aixsim_models.llm.pretrain import pretrain
+from aixsim_models.llm.pretrainer import pretrain
 from aixsim_models.llm.arg_manager import (
     ArgJob,
     ArgProfiling,
@@ -28,6 +23,8 @@ from aixsim_models.llm.arg_manager import (
     ArgMemoryEstimation,
     PreTrainArgs,
 )
+from aixsim_models.llm.evaluator import evaluate_ppl, check_hf_ppl, hf_generate
+from aixsim_models.llm.utils import convert_torch_to_hf
 
 register_model_configs()
 register_pretrain_dataset()
@@ -48,7 +45,40 @@ def generate_pretrain_cfg(
     seed: int = 42,
     save_path: Optional[str] = None,
     keep_last_k_ckpts: int = 3,
+    seq_len: int = 2048,
 ):
+    """
+    Generate a configuration for pre-training a language model.
+
+    This function creates a complete configuration for pre-training either an AIXSim or LLaMA model,
+    including settings for distributed training, optimization, checkpointing, and more.
+
+    Args:
+        model_arch (Literal["aixsim", "llama"]): Architecture of the model to train. Defaults to "aixsim".
+        model_flavor (str): Model size/variant (e.g., "60M"). Defaults to "60M".
+        tokenizer_path (str): Path to the tokenizer. Defaults to "HuggingFaceTB/cosmo2-tokenizer".
+        batch_size (int): Training batch size per device. Defaults to 8.
+        data_parallel_replicate_degree (int): Number of data parallel replications. Defaults to 1.
+        data_parallel_shard_degree (int): Degree of data parallel sharding (-1 for auto). Defaults to -1.
+        tensor_parallel_degree (int): Degree of tensor parallelism. Defaults to 1.
+        mixed_precision_param (Literal["bfloat16", "float32"]): Parameter precision type. Defaults to "bfloat16".
+        token_num_scale (float): Scale factor for total training tokens. Defaults to 22.0.
+        compile (bool): Whether to compile the model. Defaults to False.
+        learning_rate (float): Training learning rate. Defaults to 1e-4.
+        seed (int): Random seed for reproducibility. Defaults to 42.
+        save_path (Optional[str]): Path to save the config file. Defaults to None.
+        keep_last_k_ckpts (int): Number of latest checkpoints to keep. Defaults to 3.
+        seq_len (int): Sequence length for training. Defaults to 2048.
+
+    Returns:
+        None. Saves the configuration to a YAML file at the specified path.
+
+    Notes:
+        - The total number of training tokens is calculated as token_num_scale * number of model parameters
+        - The effective batch size is batch_size * data_parallel_replicate_degree * data_parallel_shard_degree
+        - The number of training steps is computed based on total tokens and effective batch size
+        - Configuration is saved in YAML format with timestamp-based checkpoint folders
+    """
     timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     num_params = profile_num_params(
         model_arch=model_arch,
@@ -61,9 +91,11 @@ def generate_pretrain_cfg(
     effective_batch_size = (
         batch_size * data_parallel_replicate_degree * data_parallel_shard_degree
     )
-    num_steps = math.ceil(num_tokens / effective_batch_size)
+    num_steps = math.ceil(num_tokens / (effective_batch_size * seq_len))
 
-    print(f"Estimated number of tokens: {num_tokens}")
+    print(
+        f"Estimated number of tokens = token_num_scale * num_params = {token_num_scale} * {num_params} = {num_tokens}"
+    )
     print(f"Effective batch size: {effective_batch_size}")
     print(f"Estimated number of steps: {num_steps}")
 
@@ -119,16 +151,17 @@ if __name__ == "__main__":
     set_logging_verbosity("INFO")
 
     cli_map = {
-        "download-tiktoken-tokenizer": download_tiktoken_tokenizer,
-        "download-hf-tokenizer": download_hf_tokenizer,
-        "download-dataset": download_dataset,
         "count-params": profile_num_params,
         "estimate-mem": estimate_memory,
         "pretrain": pretrain,
+        "eval-ppl": evaluate_ppl,
+        "generate-hf": hf_generate,
+        "check-hf-ppl": check_hf_ppl,
         "convert-ckpt": {
-            "dcp2torch": dcp_to_torch,
+            "pt2hf": convert_torch_to_hf,
         },
         "generate-cfg": generate_pretrain_cfg,
+        "download-dataset": download_dataset,
     }
 
     CLI(cli_map)

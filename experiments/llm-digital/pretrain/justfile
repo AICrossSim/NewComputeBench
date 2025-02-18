@@ -6,13 +6,20 @@ model_flavor := "60M"
 nnodes := "1"
 ngpus := "2"
 local_rank := "0"
+seed := "42"
 export HF_HUB_CACHE := "/data/hf_hub"
 # training setup
-batch_size := "22"
+batch_size := "48"
 data_parallel_replicate_degree := "1"
 data_parallel_shard_degree := "2"
 tensor_parallel_degree := "1"
 token_num_scale := "22.0"
+torch_compiled := "true"
+# eval
+pt_ckpt := ""
+hf_ckpt := ""
+prompt := "Once upon a time, there was a pineapple named Steve"
+push_to_hub := ""
 
 @check-vars:
     echo "========================================="
@@ -29,6 +36,9 @@ token_num_scale := "22.0"
     echo "data parallel shard degree: {{data_parallel_shard_degree}}"
     echo "tensor parallel degree: {{tensor_parallel_degree}}"
     echo "token num scale: {{token_num_scale}}"
+    echo "torch compiled: {{torch_compiled}}"
+    echo "pytorch checkpoint path: {{pt_ckpt}}"
+    echo "hf checkpoint path: {{hf_ckpt}}"
     echo "========================================="
 
 download-tokenizer: check-vars
@@ -43,7 +53,9 @@ generate-cfg: check-vars
         --data_parallel_replicate_degree {{data_parallel_replicate_degree}} \
         --data_parallel_shard_degree {{data_parallel_shard_degree}} \
         --tensor_parallel_degree {{tensor_parallel_degree}} \
-        --token_num_scale {{token_num_scale}}
+        --token_num_scale {{token_num_scale}} \
+        --compile {{torch_compiled}} \
+        --seed {{seed}}
 
 estimate-mem: generate-cfg
     WORLD_SIZE=$(({{ngpus}}*{{nnodes}})) LOCAL_RANK={{local_rank}} python run.py estimate-mem \
@@ -65,3 +77,38 @@ pretrain: check-vars
         run.py pretrain --config configs/{{model_arch}}-{{model_flavor}}.yaml; \
     fi
 
+
+eval-ppl: check-vars
+    if [ -z "{{pt_ckpt}}" ]; then \
+        echo "⚠️ Please provide pt_ckpt"; \
+    else \
+        python run.py eval-ppl {{model_arch}} {{model_flavor}} \
+            {{tokenizer_name}} {{pt_ckpt}} ; \
+    fi
+
+
+convert-ckpt: check-vars
+    if [ -z "{{pt_ckpt}}" ]; then \
+        echo "⚠️ Please provide pt_ckpt"; \
+    elif [ -z "{{hf_ckpt}}" ]; then \
+        echo "⚠️ Please provide hf_ckpt"; \
+    else \
+        python run.py convert-ckpt pt2hf {{model_arch}} {{model_flavor}} \
+            {{tokenizer_name}} {{pt_ckpt}} {{hf_ckpt}} \
+            --push_to_hub "{{push_to_hub}}" ; \
+    fi
+
+
+check-hf-ppl: check-vars
+    if [ -z "{{hf_ckpt}}" ]; then \
+        echo "⚠️ Please provide hf_ckpt"; \
+    else \
+        python run.py check-hf-ppl {{hf_ckpt}}; \
+    fi
+
+generate-hf:
+    if [ -z "{{hf_ckpt}}" ]; then \
+        echo "⚠️ Please provide hf_ckpt"; \
+    else \
+        python run.py generate-hf {{hf_ckpt}} "{{prompt}}" ; \
+    fi

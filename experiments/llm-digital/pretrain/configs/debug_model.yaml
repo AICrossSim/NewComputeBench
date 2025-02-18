@@ -17,7 +17,7 @@ float8_args:
   enable_float8_linear: false
 job_args:
   description: Llama 3 debug training
-  dump_folder: ./outputs
+  dump_folder: ./outputs/checkpoints/debug-model
   print_args: false
   use_for_integration_test: true
 metrics_args:
