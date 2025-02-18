@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Union
 import logging
 
 import torch
@@ -15,6 +15,7 @@ from torch.distributed.tensor.parallel import (
     RowwiseParallel,
 )
 from tqdm import tqdm
+import transformers
 
 from torchtitan.datasets import build_hf_data_loader
 from torchtitan.models import model_name_to_cls, model_name_to_tokenizer, models_config
@@ -149,7 +150,7 @@ def evaluate_ppl(
 
 
 def check_hf_ppl(
-    model_name_or_path: str,
+    model_name_or_path: Union[str, transformers.PreTrainedModel],
     dtype: Literal["float32", "float16", "bfloat16"] = "float32",
     dataset_name: str = "fineweb",
     dataset_subset: str = "HuggingFaceFW/fineweb",
@@ -172,14 +173,18 @@ def check_hf_ppl(
     Returns:
         None: Prints the calculated perplexity to the logger.
     """
-    import transformers
     from aixsim_models.llm.tokenizer import HFTokenizer
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     tokenizer = HFTokenizer(model_name_or_path)
-    model = transformers.AutoModelForCausalLM.from_pretrained(
-        model_name_or_path, torch_dtype=getattr(torch, dtype)
-    )
+    if isinstance(model_name_or_path, str):
+        model = transformers.AutoModelForCausalLM.from_pretrained(
+            model_name_or_path, torch_dtype=getattr(torch, dtype)
+        )
+    elif isinstance(model_name_or_path, transformers.PreTrainedModel):
+        model = model_name_or_path
+    else:
+        raise ValueError("Invalid model_name_or_path")
     model.eval().to(device)
 
     dp_degree, dp_rank = 1, 0
