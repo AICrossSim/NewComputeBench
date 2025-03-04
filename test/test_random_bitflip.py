@@ -4,8 +4,8 @@ from difflib import SequenceMatcher
 import torch
 
 from aixsim_kernels.random_bitflip import (
-    find_nearest_prob_halves,
-    _random_bitflip_forward,
+    find_nearest_prob_n_halves,
+    random_bitflip_fn,
     RandomBitFlip,
 )
 from aixsim_kernels.utils.bit_repr import get_binary_repr
@@ -21,15 +21,16 @@ def _count_matched_bits(a: str, b: str):
     return sum([1 for i in range(len(a)) if a[i] == b[i]])
 
 
+@torch.no_grad()
 def test_random_bitflip_forward_simple():
     x = torch.zeros(4, device=DEVICE, dtype=torch.bfloat16)
     exp_halves = 4
     frac_halves = 1
     seed_exp, seed_frac = 0, 0
-    out, seed_exp, seed_frac = _random_bitflip_forward(
+    out, seed_exp, seed_frac = random_bitflip_fn(
         x,
-        exp_n_halves=exp_halves,
-        frac_n_halves=frac_halves,
+        exp_halves=exp_halves,
+        frac_halves=frac_halves,
         seed_exp=seed_exp,
         seed_frac=seed_frac,
         zero_out_threshold=None,
@@ -40,7 +41,8 @@ def test_random_bitflip_forward_simple():
     logger.info(f"seed_exp: {seed_exp}, seed_frac: {seed_frac}")
 
 
-def test_random_bitflip_forward_bitstring():
+@torch.no_grad()
+def test_random_bitflip_forward_fully_activated():
     input_dtypes = [torch.float32, torch.float16, torch.bfloat16]
     dtype_to_bit_split = {
         torch.float32: (8, 23),
@@ -54,22 +56,24 @@ def test_random_bitflip_forward_bitstring():
         x = torch.randn(1024, 1024, device=DEVICE, dtype=input_dtype)
         cur_try = 0
         for exp_p, frac_p in s_exp_halves_frac_halves:
-            exp_n_halves = find_nearest_prob_halves(exp_p)
-            frac_n_halves = find_nearest_prob_halves(frac_p)
+            exp_halves = find_nearest_prob_n_halves(exp_p)
+            frac_halves = find_nearest_prob_n_halves(frac_p)
             seed_exp, seed_frac = 0, 0
             logger.info(
-                f"====== input_dtype = {input_dtype}, exp_p = {exp_p}, frac_p = {frac_p}, exp_n_halves = {exp_n_halves}, frac_n_halves = {frac_n_halves}, train = True ====="
+                f"====== input_dtype = {input_dtype}, exp_p = {exp_p}, frac_p = {frac_p}, exp_halves = {exp_halves}, frac_halves = {frac_halves}, train = True ====="
             )
             while True:
-                out, seed_exp, seed_frac = _random_bitflip_forward(
+                out, seed_exp, seed_frac = random_bitflip_fn(
                     x,
-                    exp_n_halves=exp_n_halves,
-                    frac_n_halves=frac_n_halves,
+                    exp_halves=exp_halves,
+                    frac_halves=frac_halves,
                     seed_exp=seed_exp,
                     seed_frac=seed_frac,
                     zero_out_threshold=None,
                     train=True,
                 )
+                assert out.dtype == input_dtype
+                assert out.shape == x.shape
                 find_bitflip = not torch.equal(x, out)
                 if find_bitflip:
                     x_bin = get_binary_repr(x, splitter="").tolist()
@@ -106,25 +110,91 @@ def test_random_bitflip_forward_bitstring():
                     break
 
 
-# def test_random_bitflip_layer():
-#     n_repeats = 100
-#     layer = RandomBitFlip(p=0.5, seed=0, zero_out_invalid=True)
-#     layer.to(DEVICE)
+@torch.no_grad()
+def test_random_bitflip_forward_zero_outed():
+    for exp_halves in [1, 2, 3, 4, 5, 6]:
+        x = torch.randn(2048, 2048, device=DEVICE, dtype=torch.float32)
+        frac_halves = 2
+        seed_exp, seed_frac = 0, 0
+        zero_out_threshold = 200.0
+        out, seed_exp, seed_frac = random_bitflip_fn(
+            x,
+            exp_halves=exp_halves,
+            frac_halves=frac_halves,
+            seed_exp=seed_exp,
+            seed_frac=seed_frac,
+            zero_out_threshold=zero_out_threshold,
+            train=True,
+        )
+        assert torch.all(torch.isfinite(x))
+        zero_out_ratio = (out == 0.0).sum() / out.numel()
+        logger.info(
+            f"===== exp_halves = {exp_halves}, frac_halves = {frac_halves}, exp_p = {0.5**exp_halves}, frac_p = {0.5**frac_halves} ====="
+        )
+        logger.info(f"zero_out_ratio: {zero_out_ratio}")
 
-#     x = torch.randn(1024, 1024, device=DEVICE, dtype=torch.float32)
-#     for i in range(n_repeats):
-#         out = layer(x)
-#         assert torch.all(torch.isfinite(x))
-#         assert torch.all(torch.isfinite(out))
-#         logger.info(f"x.abs().mean(): {torch.mean(torch.abs(x))}")
-#         logger.info(f"out.abs().mean(): {torch.mean(torch.abs(out))}")
-#         logger.info(f"Error: {torch.mean(torch.abs(x - out))}")
-#     logger.info(f"Layer: {layer}")
+
+def test_random_bitflip_fn_backward():
+    n_repeats = 10
+    for exp_halves in [1, 2, 3]:
+        for _ in range(n_repeats):
+            x = torch.rand(8, device=DEVICE, dtype=torch.float32)
+            x = x + 0.1
+            x.requires_grad_()
+            frac_halves = 2
+            seed_exp, seed_frac = 0, 0
+            zero_out_threshold = 200.0
+            out, seed_exp, seed_frac = random_bitflip_fn(
+                x,
+                exp_halves=exp_halves,
+                frac_halves=frac_halves,
+                seed_exp=seed_exp,
+                seed_frac=seed_frac,
+                zero_out_threshold=zero_out_threshold,
+                train=True,
+            )
+
+            loss = torch.sum(out)
+            loss.backward()
+            assert torch.all(torch.isfinite(x))
+            assert torch.all((out != 0) == (x.grad == 1.0))
+        logger.info(f"exp_halves = {exp_halves} passed")
+
+
+def test_random_bitflip_layer():
+    n_passes = 4
+    p_exp = 0.5**4
+    p_frac = 0.5**5
+    zero_out_threshold = 2
+    seed_exp, seed_frac = 1, 1
+    bitflip = RandomBitFlip(
+        p_exp=p_exp,
+        p_frac=p_frac,
+        zero_out_threshold=zero_out_threshold,
+        seed_exp=seed_exp,
+        seed_frac=seed_frac,
+    )
+    logger.info(bitflip)
+
+    for i in range(n_passes):
+        x = torch.randn(8, device=DEVICE, dtype=torch.float32)
+        x = x + 0.1
+        x.requires_grad_()
+
+        out = bitflip(x)
+        loss = torch.sum(out)
+        loss.backward()
+
+        assert torch.all(torch.isfinite(x))
+        assert torch.all((out != 0) == (x.grad == 1.0))
+        logger.info(f"{i}-th pass, {bitflip}")
 
 
 if __name__ == "__main__":
     set_logging_verbosity("info")
     torch.set_printoptions(linewidth=120)
     # test_random_bitflip_forward_simple()
-    test_random_bitflip_forward_bitstring()
-    # test_random_bitflip_layer()
+    # test_random_bitflip_forward_fully_activated()
+    # test_random_bitflip_forward_zero_outed()
+    # test_random_bitflip_fn_backward()
+    test_random_bitflip_layer()
