@@ -2,5 +2,13 @@ datasets
 huggingface_hub[hf_transfer]
 jsonargparse[all]
 wandb
-transformers
+transformers==4.48.3
 accelerate
+torch
+numpy
+tiktoken
+blobfile
+colorlog
+torchdata
+tensorboard
+lm-eval==0.4.7
