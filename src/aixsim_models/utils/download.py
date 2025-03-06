@@ -27,9 +27,7 @@ def download_tiktoken_tokenizer(
     repo_id: str, tokenizer_path: str, local_dir: str, hf_token: Optional[str] = None
 ) -> None:
 
-    tokenizer_path = (
-        f"{tokenizer_path}/tokenizer.model" if tokenizer_path else "tokenizer.model"
-    )
+    tokenizer_path = f"{tokenizer_path}/tokenizer.model" if tokenizer_path else "tokenizer.model"
 
     try:
         hf_hub_download(
@@ -40,9 +38,7 @@ def download_tiktoken_tokenizer(
         )
     except HTTPError as e:
         if e.response.status_code == 401:
-            print(
-                "You need to pass a valid `--hf_token=...` to download private checkpoints."
-            )
+            print("You need to pass a valid `--hf_token=...` to download private checkpoints.")
         else:
             raise e
     logger.info(f"TikTokenizer {repo_id} downloaded and stored in {local_dir}")
@@ -76,9 +72,7 @@ def download_dataset(
     if cache_dir is None:
         cache_dir = os.environ.get("HF_HUB_CACHE", None)
         if cache_dir is None:
-            logger.warning(
-                "HF_HUB_CACHE is not set. Dataset will be stored in the default directory."
-            )
+            logger.warning("HF_HUB_CACHE is not set. Dataset will be stored in the default directory.")
 
     local_dir = snapshot_download(
         repo_id=dataset_name,

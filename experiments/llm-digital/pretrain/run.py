@@ -88,9 +88,7 @@ def generate_pretrain_cfg(
         silent=True,
     )
     num_tokens = token_num_scale * num_params
-    effective_batch_size = (
-        batch_size * data_parallel_replicate_degree * data_parallel_shard_degree
-    )
+    effective_batch_size = batch_size * data_parallel_replicate_degree * data_parallel_shard_degree
     num_steps = math.ceil(num_tokens / (effective_batch_size * seq_len))
 
     print(
@@ -106,13 +104,11 @@ def generate_pretrain_cfg(
         ),
         profiling=ArgProfiling(),
         metrics=ArgMetrics(enable_tensorboard=False, enable_wandb=True),
-        model=ArgModel(
-            name=model_arch, flavor=model_flavor, tokenizer_path=tokenizer_path
-        ),
+        model=ArgModel(name=model_arch, flavor=model_flavor, tokenizer_path=tokenizer_path),
         optimizer=ArgOptimizer(lr=learning_rate),
         training=ArgTraining(
-            dataset="fineweb",
-            dataset_path="HuggingFaceFW/fineweb",
+            dataset="fineweb-edu",
+            dataset_path="HuggingFaceFW/fineweb-edu",
             batch_size=batch_size,
             warmup_steps=int(0.2 * num_steps),
             steps=num_steps,
