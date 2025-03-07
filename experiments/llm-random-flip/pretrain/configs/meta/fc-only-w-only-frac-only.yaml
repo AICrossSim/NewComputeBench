@@ -1,0 +1,14 @@
+use_regex: true
+transform_flavor: "fc"
+layer_name_to_config:
+  default:
+    x_p_exp: null
+    x_p_frac: null
+    x_zero_out_t: null
+    w_p_exp: null
+    w_p_frac: 0.000244140625 # 0.5**12
+    w_zero_out_t: null
+    x_seed_exp: 0
+    x_seed_frac: 0
+    w_seed_exp: 0
+    w_seed_frac: 0
