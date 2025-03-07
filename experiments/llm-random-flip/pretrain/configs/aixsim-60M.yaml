@@ -7,7 +7,7 @@ checkpoint_args:
   enable_checkpoint: true
   exclude_from_loading: []
   export_dtype: float32
-  folder: 20250306-152543
+  folder: 20250307-093614
   interval: 500
   interval_type: steps
   keep_latest_k: 3
@@ -64,7 +64,7 @@ profiling_args:
   save_traces_folder: profile_traces
 training_args:
   batch_size: 48
-  compile: true
+  compile: false
   data_parallel_replicate_degree: 1
   data_parallel_shard_degree: 2
   dataset: fineweb-edu
@@ -82,3 +82,18 @@ training_args:
   steps: 7075
   tensor_parallel_degree: 1
   warmup_steps: 1415
+transform_args:
+  layer_name_to_config:
+    default:
+      w_p_exp: null
+      w_p_frac: 0.000244140625
+      w_seed_exp: 0
+      w_seed_frac: 0
+      w_zero_out_t: null
+      x_p_exp: null
+      x_p_frac: null
+      x_seed_exp: 0
+      x_seed_frac: 0
+      x_zero_out_t: null
+  transform_flavor: fc
+  use_regex: true

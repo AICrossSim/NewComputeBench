@@ -14,7 +14,7 @@ data_parallel_replicate_degree := "1"
 data_parallel_shard_degree := "2"
 tensor_parallel_degree := "1"
 token_num_scale := "22.0"
-torch_compiled := "true"
+torch_compiled := "false"
 # eval
 pt_ckpt := ""
 hf_ckpt := ""
@@ -24,7 +24,8 @@ do_sample := "true"
 temperature := "1.0"
 top_p := "1.0"
 top_k := "10"
-
+# transform
+meta_t_cfg := "./configs/meta/fc-only-w-only-frac-only.yaml"
 
 @check-vars:
     echo "========================================="
@@ -50,16 +51,12 @@ top_k := "10"
     echo "temperature: {{temperature}}"
     echo "top p: {{top_p}}"
     echo "top k: {{top_k}}"
+    echo "meta transform config: {{meta_t_cfg}}"
     echo "========================================="
 
-# download-tokenizer: check-vars
-#     python run.py download-hf-tokenizer {{tokenizer_name}} ./tokenizers/{{tokenizer_name}}
-
-count-params: check-vars
-    python run.py count-params {{model_arch}} {{model_flavor}} ./tokenizers/{{tokenizer_name}}
 
 generate-cfg: check-vars
-    python run.py generate-cfg --model_arch {{model_arch}} --model_flavor {{model_flavor}} --tokenizer_path {{tokenizer_name}} \
+    python run.py generate-cfg {{meta_t_cfg}} --model_arch {{model_arch}} --model_flavor {{model_flavor}} --tokenizer_path {{tokenizer_name}} \
         --batch_size {{batch_size}} \
         --data_parallel_replicate_degree {{data_parallel_replicate_degree}} \
         --data_parallel_shard_degree {{data_parallel_shard_degree}} \
@@ -68,10 +65,6 @@ generate-cfg: check-vars
         --compile {{torch_compiled}} \
         --seed {{seed}}
 
-estimate-mem: generate-cfg
-    WORLD_SIZE=$(({{ngpus}}*{{nnodes}})) LOCAL_RANK={{local_rank}} python run.py estimate-mem \
-        --config configs/{{model_arch}}-{{model_flavor}}.yaml \
-        --memory_estimation_args.enabled true
 
 pretrain: check-vars
     if [ "{{dev_run}}" = "true" ]; then \
@@ -86,40 +79,4 @@ pretrain: check-vars
         --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
         --role rank --tee 3 \
         run.py pretrain --config configs/{{model_arch}}-{{model_flavor}}.yaml; \
-    fi
-
-
-eval-ppl: check-vars
-    if [ -z "{{pt_ckpt}}" ]; then \
-        echo "⚠️ Please provide pt_ckpt"; \
-    else \
-        python run.py eval-ppl {{model_arch}} {{model_flavor}} \
-            {{tokenizer_name}} {{pt_ckpt}} ; \
-    fi
-
-
-convert-ckpt: check-vars
-    if [ -z "{{pt_ckpt}}" ]; then \
-        echo "⚠️ Please provide pt_ckpt"; \
-    elif [ -z "{{hf_ckpt}}" ]; then \
-        echo "⚠️ Please provide hf_ckpt"; \
-    else \
-        python run.py convert-ckpt pt2hf {{model_arch}} {{model_flavor}} \
-            {{tokenizer_name}} {{pt_ckpt}} {{hf_ckpt}} \
-            --push_to_hub "{{push_to_hub}}" ; \
-    fi
-
-
-check-hf-ppl: check-vars
-    if [ -z "{{hf_ckpt}}" ]; then \
-        echo "⚠️ Please provide hf_ckpt"; \
-    else \
-        python run.py check-hf-ppl {{hf_ckpt}}; \
-    fi
-
-generate-hf:
-    if [ -z "{{hf_ckpt}}" ]; then \
-        echo "⚠️ Please provide hf_ckpt"; \
-    else \
-        python run.py generate-hf {{hf_ckpt}} "{{prompt}}" --do_sample {{do_sample}} --temperature {{temperature}} --top_p {{top_p}} --top_k {{top_k}} ; \
     fi
