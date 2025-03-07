@@ -1,7 +1,7 @@
 import os
 import time
-from datetime import timedelta
-from typing import Optional, Literal
+from typing import Optional
+from pprint import pformat
 
 import torch
 
@@ -9,23 +9,26 @@ from torch.distributed.elastic.multiprocessing.errors import record
 
 from torchtitan import utils
 from torchtitan.checkpoint import CheckpointManager, TrainState
-
 from torchtitan.datasets import build_hf_data_loader, build_tokenizer
 from torchtitan.float8 import Float8Handler
 from torchtitan.logging import init_logger, logger
 from torchtitan.metrics import build_device_memory_monitor, build_metric_logger
-from torchtitan.models import model_name_to_cls, model_name_to_tokenizer, models_config
+from torchtitan.models import model_name_to_tokenizer, models_config
 from torchtitan.optimizer import build_lr_schedulers, build_optimizers
 from torchtitan.parallelisms import (
     models_parallelize_fns,
     models_pipelining_fns,
     ParallelDims,
 )
-from torchtitan.profiling import maybe_enable_memory_snapshot, maybe_enable_profiling
 from torchtitan.utils import device_module, device_type
 
-from aixsim_models.utils.wandb_utils import wandb_extract_and_update_tags, wandb_update_config
-from .tokenizer import build_tokenizer
+from aixsim_models.llm.tokenizer import build_tokenizer
+
+from aixsim_models.llm.pretrainer import train_loop, build_meta_model, count_params
+from aixsim_models.utils.torch_module import TransformConfigManager
+from aixsim_models.utils.wandb_utils import wandb_update_config, wandb_extract_and_update_tags
+from .transform import transform_model, make_transform_histogram
+from .arg_manager import ArgRandomBitFlipTransform
 from .arg_manager import (
     ArgJob,
     ArgProfiling,
@@ -57,6 +60,7 @@ def pretrain(
     float8_args: Optional[ArgFloat8] = ArgFloat8(),
     comm_args: Optional[ArgComm] = ArgComm(),
     memory_estimation_args: Optional[ArgMemoryEstimation] = ArgMemoryEstimation(),
+    transform_args: Optional[ArgRandomBitFlipTransform] = ArgRandomBitFlipTransform(),
 ):
     """
     Pretrain a model using the provided arguments.
@@ -74,6 +78,7 @@ def pretrain(
         float8=float8_args,
         comm=comm_args,
         memory_estimation=memory_estimation_args,
+        transform=transform_args,
     )
 
     init_logger()
@@ -149,6 +154,16 @@ def pretrain(
         n_words=tokenizer.n_words,
         seq_len=args.training.seq_len,
     )
+    # transform model into random bitflip form
+    transform_config_manager = TransformConfigManager(
+        args.transform.layer_name_to_config, use_regex=args.transform.use_regex
+    )
+    replaced_layers = transform_model(
+        model,
+        config_manager=transform_config_manager,
+        transform_flavor=args.transform.transform_flavor,
+    )
+    logger.info(f"Transformed model with random bitflip:\n{pformat(make_transform_histogram(replaced_layers))}")
 
     # a no-op hander if float8 is not enabled
     float8_handler = Float8Handler(args, parallel_dims)
@@ -313,242 +328,3 @@ def pretrain(
         metric_logger.close()
         torch.distributed.destroy_process_group()
         raise e
-
-
-def build_meta_model(
-    model_name: str,
-    model_flavor: str,
-    model_config,
-    norm_type: Literal["layernorm", "np_layernorm", "rmsnorm"],
-    n_words: int,
-    seq_len: int,
-):
-    # build model (using meta init)
-    model_cls = model_name_to_cls[model_name]
-    # set the model configs from training inputs:
-    # 1. norm type to decide which norm layer to use
-    # 2. vocab size from tokenizer
-    # 3. max_seq_len base on inputs
-    model_config.norm_type = norm_type
-    model_config.vocab_size = n_words
-    model_config.max_seq_len = seq_len
-
-    logger.info(f"Building {model_name} {model_flavor} with {model_config}")
-    with torch.device("meta"):
-        model = model_cls.from_model_args(model_config)
-
-    return model
-
-
-def count_params(model_name, model_flavor, model_config, model, seq_len, color: utils.Color) -> int:
-    # log model size
-    model_param_count = utils.get_num_params(model)
-    num_flop_per_token = utils.get_num_flop_per_token(
-        utils.get_num_params(model, exclude_embedding=True),
-        model_config,
-        seq_len,
-    )
-    logger.info(
-        f"{color.blue}Model {model_name} {model_flavor} "
-        f"{color.red}size: {model_param_count:,} total parameters{color.reset}"
-    )
-    return num_flop_per_token
-
-
-def train_loop(
-    args,
-    train_state,
-    dp_degree,
-    gc_handler,
-    device_memory_monitor,
-    checkpoint,
-    data_iterator,
-    optimizers,
-    world_mesh,
-    model_parts,
-    parallel_dims,
-    train_context,
-    has_last_stage,
-    has_first_stage,
-    pp_schedule,
-    model,
-    loss_fn,
-    pp_mesh,
-    lr_schedulers,
-    float8_handler,
-    num_flop_per_token,
-    gpu_peak_flops,
-    metric_logger,
-    color,
-):
-    # variables used to keep info for metrics logging
-    ntokens_since_last_log = 0
-    data_loading_times = []
-    time_last_log = time.perf_counter()
-    device_memory_monitor.reset_peak_stats()
-
-    checkpoint.reset()
-    # train loop
-    logger.info(
-        f"Training starts at step {train_state.step + 1}, "
-        f"with local batch size {args.training.batch_size}, "
-        f"global batch size {args.training.batch_size * dp_degree}, "
-        f"sequence length {args.training.seq_len}, "
-        f"total steps {args.training.steps} "
-        f"(warmup {args.training.warmup_steps})"
-    )
-    with maybe_enable_profiling(args, global_step=train_state.step) as torch_profiler, maybe_enable_memory_snapshot(
-        args, global_step=train_state.step
-    ) as memory_profiler:
-        while train_state.step < args.training.steps:
-            train_state.step += 1
-            gc_handler.run(train_state.step)
-
-            # get batch
-            data_load_start = time.perf_counter()
-            batch = next(data_iterator)
-            input_ids, labels = batch
-            ntokens_since_last_log += labels.numel()
-            data_loading_times.append(time.perf_counter() - data_load_start)
-
-            input_ids = input_ids.to(device_type)
-            labels = labels.to(device_type)
-            optimizers.zero_grad()
-
-            # apply context parallelism if cp is enabled
-            # ensure CP handles the separate freqs_cis buffer for each pp stage
-            optional_context_parallel_ctx = (
-                utils.create_context_parallel_ctx(
-                    cp_mesh=world_mesh["cp"],
-                    cp_buffers=[input_ids, labels] + [m.freqs_cis for m in model_parts],
-                    cp_seq_dims=[1, 1] + [0 for _ in model_parts],
-                    cp_no_restore_buffers={input_ids, labels},
-                    cp_rotate_method=args.experimental.context_parallel_rotate_method,
-                )
-                if parallel_dims.cp_enabled
-                else None
-            )
-
-            if parallel_dims.pp_enabled:
-                # Pipeline Parallel forward / backward inside step() call
-                with train_context(optional_context_parallel_ctx):
-                    targets, losses = (labels, []) if has_last_stage else (None, None)
-                    if has_first_stage:
-                        pp_schedule.step(input_ids, target=targets, losses=losses)
-                    else:
-                        pp_schedule.step(target=targets, losses=losses)
-
-                # accumulate losses across pipeline microbatches
-                # TODO: PP+FSDP unexpectedly puts the loss back to the CPU
-                loss = (
-                    torch.mean(torch.stack(losses)).to(device)
-                    if has_last_stage
-                    else torch.tensor([-1.0], device=device)
-                )
-            else:
-                # Non-PP forward / backward
-                with train_context(optional_context_parallel_ctx):
-                    pred = model(input_ids)
-                    loss = loss_fn(pred, labels)
-                    # pred.shape=(bs, seq_len, vocab_size)
-                    # need to free to before bwd to avoid peaking memory
-                    del pred
-                    loss.backward()
-
-            # clip gradients
-            utils.clip_grad_norm_(
-                [p for m in model_parts for p in m.parameters()],
-                args.training.max_norm,
-                foreach=True,
-                pp_mesh=pp_mesh if parallel_dims.pp_enabled else None,
-            )
-
-            # optimizer step
-            checkpoint.maybe_wait_for_staging()
-            optimizers.step()
-            lr_schedulers.step()
-
-            # calculate float8 dynamic amax/scale for all-parameter for FSDP2
-            # it issues a single all-reduce for all parameters at once for better performance
-            float8_handler.precompute_float8_dynamic_scale_for_fsdp(model_parts)
-
-            # log metrics
-            if train_state.step == 1 or train_state.step % args.metrics.log_freq == 0:
-                if parallel_dims.dp_replicate_enabled or parallel_dims.dp_shard_enabled or parallel_dims.cp_enabled:
-                    loss = loss.detach()
-                    global_avg_loss, global_max_loss = (
-                        utils.dist_mean(loss, world_mesh["dp_cp"]),
-                        utils.dist_max(loss, world_mesh["dp_cp"]),
-                    )
-                else:
-                    global_avg_loss = global_max_loss = loss.item()
-
-                # update train state
-                train_state.log_steps.append(train_state.step)
-                train_state.global_avg_losses.append(global_avg_loss)
-                train_state.global_max_losses.append(global_max_loss)
-
-                time_delta = time.perf_counter() - time_last_log
-
-                # tokens per second per device, abbreviated as tps
-                tps = ntokens_since_last_log / (time_delta * parallel_dims.non_data_parallel_size)
-                # model FLOPS utilization
-                # For its definition and calculation, please refer to the PaLM paper:
-                # https://arxiv.org/abs/2204.02311
-                mfu = 100 * num_flop_per_token * tps / gpu_peak_flops
-
-                time_end_to_end = time_delta / args.metrics.log_freq
-                time_data_loading = sum(data_loading_times) / len(data_loading_times)
-                time_data_loading_pct = 100 * sum(data_loading_times) / time_delta
-
-                device_mem_stats = device_memory_monitor.get_peak_stats()
-
-                metrics = {
-                    "loss_metrics/global_avg_loss": global_avg_loss,
-                    "loss_metrics/global_max_loss": global_max_loss,
-                    "throughput(tps)": tps,
-                    "mfu(%)": mfu,
-                    "time_metrics/end_to_end(s)": time_end_to_end,
-                    "time_metrics/data_loading(s)": time_data_loading,
-                    "time_metrics/data_loading(%)": time_data_loading_pct,
-                    "memory/max_active(GiB)": device_mem_stats.max_active_gib,
-                    "memory/max_active(%)": device_mem_stats.max_active_pct,
-                    "memory/max_reserved(GiB)": device_mem_stats.max_reserved_gib,
-                    "memory/max_reserved(%)": device_mem_stats.max_reserved_pct,
-                    "memory/num_alloc_retries": device_mem_stats.num_alloc_retries,
-                    "memory/num_ooms": device_mem_stats.num_ooms,
-                }
-                metric_logger.log(metrics, step=train_state.step)
-
-                logger.info(
-                    f"{color.cyan}step: {train_state.step:2}/{args.training.steps} = {train_state.step / args.training.steps:.4%}  "
-                    f"{color.green}loss: {global_avg_loss:7.4f}  "
-                    f"{color.yellow}memory: {device_mem_stats.max_reserved_gib:5.2f}GiB"
-                    f"({device_mem_stats.max_reserved_pct:.2f}%)  "
-                    f"{color.blue}tps: {round(tps):,}  "
-                    f"{color.magenta}mfu: {mfu:.2f}%{color.reset}"
-                )
-
-                ntokens_since_last_log = 0
-                data_loading_times.clear()
-                time_last_log = time.perf_counter()
-                device_memory_monitor.reset_peak_stats()
-
-            checkpoint.save(
-                train_state.step,
-                force=(train_state.step == args.training.steps),
-            )
-
-            # signal the profiler that the next profiling step has started
-            if torch_profiler:
-                torch_profiler.step()
-            if memory_profiler:
-                memory_profiler.step()
-
-            # reduce timeout after first train step for faster signal
-            # (assuming lazy init and compilation are finished)
-            if train_state.step == 1:
-                utils.set_pg_timeouts(
-                    timeout=timedelta(seconds=args.comm.train_timeout_seconds),
-                    world_mesh=world_mesh,
-                )
