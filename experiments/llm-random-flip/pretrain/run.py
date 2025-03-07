@@ -94,7 +94,7 @@ def generate_pretrain_cfg(
         silent=True,
     )
     num_tokens = token_num_scale * num_params
-    effective_batch_size = batch_size * data_parallel_replicate_degree * data_parallel_shard_degree
+    effective_batch_size = batch_size * data_parallel_replicate_degree * abs(data_parallel_shard_degree)
     num_steps = math.ceil(num_tokens / (effective_batch_size * seq_len))
 
     print(
