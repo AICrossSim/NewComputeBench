@@ -1,13 +1,13 @@
 activation_checkpoint_args:
   mode: selective
-  selective_ac_option: '2'
+  selective_ac_option: "2"
 checkpoint_args:
   async_mode: disabled
   create_seed_checkpoint: false
   enable_checkpoint: true
   exclude_from_loading: []
   export_dtype: float32
-  folder: 20250217-002812
+  folder: 20250307-134100
   interval: 500
   interval_type: steps
   keep_latest_k: 3
@@ -25,7 +25,7 @@ experimental_args:
   pipeline_parallel_degree: 1
   pipeline_parallel_microbatches: null
   pipeline_parallel_schedule: 1F1B
-  pipeline_parallel_schedule_csv: ''
+  pipeline_parallel_schedule_csv: ""
   pipeline_parallel_split_points: []
 float8_args:
   enable_float8_linear: false

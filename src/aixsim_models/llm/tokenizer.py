@@ -18,7 +18,7 @@ from torchtitan.datasets.tokenizer import Tokenizer, TikTokenizer
 logger = logging.getLogger(__name__)
 
 
-class HFTokenizer:
+class HFTokenizer(Tokenizer):
     special_tokens: dict[str, int]
     num_reserved_special_tokens = ...
     pat_str = ...
@@ -54,9 +54,7 @@ class HFTokenizer:
         return self.model.decode(cast(list[int], t))
 
     @staticmethod
-    def _split_whitespaces_or_nonwhitespaces(
-        s: str, max_consecutive_slice_len: int
-    ) -> Iterator[str]:
+    def _split_whitespaces_or_nonwhitespaces(s: str, max_consecutive_slice_len: int) -> Iterator[str]:
         """
         Splits the string `s` so that each substring contains no more than `max_consecutive_slice_len`
         consecutive whitespaces or consecutive non-whitespaces.

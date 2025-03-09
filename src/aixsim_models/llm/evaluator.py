@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Literal, Union
+from typing import Literal, Union, Optional
 import logging
 
 import torch
@@ -18,6 +18,7 @@ from tqdm import tqdm
 import transformers
 
 from torchtitan.datasets import build_hf_data_loader
+from torchtitan.datasets.tokenizer import Tokenizer
 from torchtitan.models import model_name_to_cls, model_name_to_tokenizer, models_config
 
 from aixsim_models.llm import build_tokenizer
@@ -58,12 +59,14 @@ def evaluate_ppl(
     model_flavor: str,
     tokenizer_path: Path,
     checkpoint_path: Path,
+    model: Optional[nn.Module] = None,
+    tokenizer: Optional[Tokenizer] = None,
     dataset_name: str = "fineweb",
     dataset_subset: str = "HuggingFaceFW/fineweb",
     batch_size: int = 32,
     num_batches: int = 32,
     seq_len: int = 2048,
-):
+) -> float:
     """
     Evaluate the perplexity of a language model.
 
@@ -72,6 +75,7 @@ def evaluate_ppl(
         model_flavor (str): The specific flavor or variant of the model.
         tokenizer_path (Path): Path to the tokenizer.
         checkpoint_path (Path): Path to the model checkpoint.
+        model (Optional[nn.Module], optional): Use model instead of building from `model_config`. Defaults to None.
         dataset_name (str, optional): Name of the dataset. Defaults to "fineweb".
         dataset_subset (str, optional): Subset of the dataset. Defaults to "HuggingFaceFW/fineweb".
         batch_size (int, optional): Batch size for evaluation. Defaults to 32.
@@ -84,18 +88,22 @@ def evaluate_ppl(
     Returns:
         None
     """
-    assert (
-        checkpoint_path.exists()
-    ), f"Checkpoint path {checkpoint_path} does not exist."
+    assert checkpoint_path.exists(), f"Checkpoint path {checkpoint_path} does not exist."
 
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
-    tokenizer = build_tokenizer(model_name_to_tokenizer[model_arch], tokenizer_path)
+    if tokenizer is None:
+        tokenizer = build_tokenizer(model_name_to_tokenizer[model_arch], tokenizer_path)
+    else:
+        assert isinstance(tokenizer, Tokenizer), f"Invalid tokenizer type: {type(tokenizer)}"
 
-    model_config = models_config[model_arch][model_flavor]
-    model_config.vocab_size = tokenizer.n_words
-    model_config.max_seq_len = seq_len
-    model_cls = model_name_to_cls[model_arch]
-    model = model_cls.from_model_args(model_config)
+    if model is None:
+        model_config = models_config[model_arch][model_flavor]
+        model_config.vocab_size = tokenizer.n_words
+        model_config.max_seq_len = seq_len
+        model_cls = model_name_to_cls[model_arch]
+        model = model_cls.from_model_args(model_config)
+    else:
+        assert isinstance(model, nn.Module)
     if checkpoint_path.is_file():
         state_dict = torch.load(checkpoint_path, weights_only=False)
         model.load_state_dict(state_dict["model"])
@@ -122,9 +130,7 @@ def evaluate_ppl(
     n_tokens = 0
 
     def loss_fn(pred, labels):
-        return torch.nn.functional.cross_entropy(
-            pred.flatten(0, 1).float(), labels.flatten(0, 1)
-        )
+        return torch.nn.functional.cross_entropy(pred.flatten(0, 1).float(), labels.flatten(0, 1))
 
     for i, batch in tqdm(enumerate(data_loader), total=num_batches):
         input_ids, labels = batch
@@ -147,6 +153,7 @@ def evaluate_ppl(
     avg_nll = nll_sum / n_tokens
     ppl = torch.exp(avg_nll).item()
     logger.info(f"Perplexity: {ppl:.2f}")
+    return ppl
 
 
 def check_hf_ppl(
@@ -178,9 +185,7 @@ def check_hf_ppl(
     device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     tokenizer = HFTokenizer(model_name_or_path)
     if isinstance(model_name_or_path, str):
-        model = transformers.AutoModelForCausalLM.from_pretrained(
-            model_name_or_path, torch_dtype=getattr(torch, dtype)
-        )
+        model = transformers.AutoModelForCausalLM.from_pretrained(model_name_or_path, torch_dtype=getattr(torch, dtype))
     elif isinstance(model_name_or_path, transformers.PreTrainedModel):
         model = model_name_or_path
     else:
@@ -203,9 +208,7 @@ def check_hf_ppl(
     n_tokens = 0
 
     def loss_fn(pred, labels):
-        return torch.nn.functional.cross_entropy(
-            pred.flatten(0, 1).float(), labels.flatten(0, 1)
-        )
+        return torch.nn.functional.cross_entropy(pred.flatten(0, 1).float(), labels.flatten(0, 1))
 
     for i, batch in tqdm(enumerate(data_loader), total=num_batches):
         input_ids, labels = batch
@@ -262,9 +265,7 @@ def hf_generate(
     from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name, device_map="auto", torch_dtype=getattr(torch, dtype)
-    )
+    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=getattr(torch, dtype))
     device = next(model.parameters()).device
     set_seed(seed)
     model_inputs = tokenizer([prompt], return_tensors="pt").to(device)
@@ -278,8 +279,6 @@ def hf_generate(
         top_k=top_k,
     )
     print(f"🔣\tPrompt:\n{prompt}")
-    response = tokenizer.batch_decode(
-        generated_ids[:, input_length:], skip_special_tokens=True
-    )[0]
+    response = tokenizer.batch_decode(generated_ids[:, input_length:], skip_special_tokens=True)[0]
 
     print(f"🔮\tPrompt + Response:\n{prompt}{response}")

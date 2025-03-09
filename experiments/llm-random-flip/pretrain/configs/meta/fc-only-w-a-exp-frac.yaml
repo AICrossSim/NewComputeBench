@@ -1,0 +1,14 @@
+layer_name_to_config:
+  default:
+    w_p_exp: 7.62939453125e-06
+    w_p_frac: 7.62939453125e-06
+    w_seed_exp: 0
+    w_seed_frac: 0
+    w_zero_out_t: 1.25
+    x_p_exp: 7.62939453125e-06
+    x_p_frac: 7.62939453125e-06
+    x_seed_exp: 0
+    x_seed_frac: 0
+    x_zero_out_t: 30.0
+transform_flavor: fc
+use_regex: true

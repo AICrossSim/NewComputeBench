@@ -1,13 +1,13 @@
 activation_checkpoint_args:
   mode: selective
-  selective_ac_option: '2'
+  selective_ac_option: "2"
 checkpoint_args:
   async_mode: disabled
   create_seed_checkpoint: false
   enable_checkpoint: true
   exclude_from_loading: []
   export_dtype: float32
-  folder: 20250307-093614
+  folder: 20250309-110200
   interval: 500
   interval_type: steps
   keep_latest_k: 3
@@ -25,7 +25,7 @@ experimental_args:
   pipeline_parallel_degree: 1
   pipeline_parallel_microbatches: null
   pipeline_parallel_schedule: 1F1B
-  pipeline_parallel_schedule_csv: ''
+  pipeline_parallel_schedule_csv: ""
   pipeline_parallel_split_points: []
 float8_args:
   enable_float8_linear: false
@@ -85,15 +85,15 @@ training_args:
 transform_args:
   layer_name_to_config:
     default:
-      w_p_exp: null
-      w_p_frac: 0.000244140625
+      w_p_exp: 7.62939453125e-06
+      w_p_frac: 7.62939453125e-06
       w_seed_exp: 0
       w_seed_frac: 0
-      w_zero_out_t: null
-      x_p_exp: null
-      x_p_frac: null
+      w_zero_out_t: 1.25
+      x_p_exp: 7.62939453125e-06
+      x_p_frac: 7.62939453125e-06
       x_seed_exp: 0
       x_seed_frac: 0
-      x_zero_out_t: null
+      x_zero_out_t: 30.0
   transform_flavor: fc
   use_regex: true
