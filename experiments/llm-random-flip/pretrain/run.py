@@ -4,6 +4,7 @@ import yaml
 import math
 from pathlib import Path
 
+import torch
 from aixsim_models.llm.profiler import profile_num_params, estimate_memory
 from aixsim_models.llm import register_model_configs, register_pretrain_dataset
 from aixsim_models.utils.download import download_dataset
@@ -30,6 +31,7 @@ from aixsim_models.bitflip.arg_manager import (
     ArgMemoryEstimation,
     PreTrainArgs,
 )
+from aixsim_models.bitflip.profiler import profile_stats_hf
 
 register_model_configs()
 register_pretrain_dataset()
@@ -152,6 +154,55 @@ def generate_pretrain_cfg(
     print(f"Config saved to {save_path}")
 
 
+def eval_ppl(
+    model_arch: Literal["aixsim", "llama"],
+    model_flavor: str,
+    tokenizer_path: Path,
+    checkpoint_path: Path,
+    transform_config: ArgRandomBitFlipTransform,
+    dataset_name: str = "fineweb",
+    dataset_subset: str = "HuggingFaceFW/fineweb",
+    batch_size: int = 32,
+    num_batches: int = 32,
+    seq_len: int = 2048,
+):
+    from pprint import pformat
+    from torchtitan.models import model_name_to_cls, model_name_to_tokenizer, models_config
+    from aixsim_models.llm.tokenizer import build_tokenizer
+    from aixsim_models.bitflip.transform import transform_model, TransformConfigManager, make_transform_histogram
+
+    transform_config_manager = TransformConfigManager(
+        layer_name_to_config=transform_config.layer_name_to_config,
+        use_regex=transform_config.use_regex,
+    )
+    tokenizer = build_tokenizer(model_name_to_tokenizer[model_arch], tokenizer_path)
+
+    model_config = models_config[model_arch][model_flavor]
+    model_config.vocab_size = tokenizer.n_words
+    model_config.max_seq_len = seq_len
+    model_cls = model_name_to_cls[model_arch]
+    model = model_cls.from_model_args(model_config)
+    replaced_layers = transform_model(
+        model, config_manager=transform_config_manager, transform_flavor=transform_config.transform_flavor
+    )
+    transform_histogram = make_transform_histogram(replaced_layers)
+    print(f"Transformed model with the following layers:\n{pformat(transform_histogram)}")
+
+    ppl = evaluate_ppl(
+        model_arch=model_arch,
+        model_flavor=model_flavor,
+        tokenizer_path=tokenizer_path,
+        checkpoint_path=checkpoint_path,
+        model=model,
+        tokenizer=tokenizer,
+        dataset_name=dataset_name,
+        dataset_subset=dataset_subset,
+        batch_size=batch_size,
+        num_batches=num_batches,
+        seq_len=seq_len,
+    )
+
+
 if __name__ == "__main__":
     from jsonargparse import CLI
 
@@ -160,6 +211,8 @@ if __name__ == "__main__":
     cli_map = {
         "generate-cfg": generate_pretrain_cfg,
         "pretrain": pretrain,
+        "eval-ppl": eval_ppl,
+        "profile-hf": profile_stats_hf,
     }
 
     CLI(cli_map)
