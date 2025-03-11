@@ -1,0 +1,99 @@
+activation_checkpoint_args:
+  mode: selective
+  selective_ac_option: '2'
+checkpoint_args:
+  async_mode: disabled
+  create_seed_checkpoint: false
+  enable_checkpoint: true
+  exclude_from_loading: []
+  export_dtype: float32
+  folder: 20250311-005827
+  interval: 500
+  interval_type: steps
+  keep_latest_k: 3
+  load_step: -1
+  model_weights_only: false
+comm_args:
+  init_timeout_seconds: 300
+  trace_buf_size: 20000
+  train_timeout_seconds: 100
+experimental_args:
+  context_parallel_degree: 1
+  context_parallel_rotate_method: allgather
+  enable_async_tensor_parallel: false
+  enable_compiled_autograd: false
+  pipeline_parallel_degree: 1
+  pipeline_parallel_microbatches: null
+  pipeline_parallel_schedule: 1F1B
+  pipeline_parallel_schedule_csv: ''
+  pipeline_parallel_split_points: []
+float8_args:
+  enable_float8_linear: false
+  enable_fsdp_float8_all_gather: false
+  precompute_float8_dynamic_scale_for_fsdp: false
+job_args:
+  description: Pretrain aixsim 400M
+  dump_folder: outputs/checkpoints/aixsim-400M
+  print_args: false
+  use_for_integration_test: false
+memory_estimation_args:
+  disable_fake_mode: false
+  enabled: false
+metrics_args:
+  disable_color_printing: false
+  enable_tensorboard: false
+  enable_wandb: true
+  log_freq: 10
+  rank_0_only: true
+  save_tb_folder: tb
+model_args:
+  flavor: 400M
+  name: aixsim
+  norm_type: rmsnorm
+  tokenizer_path: HuggingFaceTB/cosmo2-tokenizer
+optimizer_args:
+  early_step_in_backward: false
+  fused: false
+  lr: 0.0001
+  name: AdamW
+profiling_args:
+  enable_memory_snapshot: false
+  enable_profiling: false
+  profile_freq: 10
+  save_memory_snapshot_folder: memory_snapshot
+  save_traces_folder: profile_traces
+training_args:
+  batch_size: 12
+  compile: false
+  data_parallel_replicate_degree: 1
+  data_parallel_shard_degree: 8
+  dataset: fineweb-edu
+  dataset_path: HuggingFaceFW/fineweb-edu
+  deterministic: false
+  disable_loss_parallel: false
+  enable_cpu_offload: false
+  fsdp_reshard_after_forward: default
+  gc_freq: 50
+  max_norm: 1.0
+  mixed_precision_param: bfloat16
+  mixed_precision_reduce: float32
+  seed: 42
+  seq_len: 2048
+  steps: 45712
+  tensor_parallel_degree: 1
+  warmup_steps: 9142
+transform_args:
+  layer_name_to_config:
+    default:
+      w_p_exp: 7.62939453125e-06
+      w_p_frac: 7.62939453125e-06
+      w_seed_exp: 0
+      w_seed_frac: 0
+      w_zero_out_t: 1.25
+      x_p_exp: 7.62939453125e-06
+      x_p_frac: 7.62939453125e-06
+      x_seed_exp: 0
+      x_seed_frac: 0
+      x_zero_out_t: 30.0
+    transform_flavor: fc
+    use_regex: true
