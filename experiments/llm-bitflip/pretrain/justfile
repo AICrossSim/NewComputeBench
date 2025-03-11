@@ -68,7 +68,7 @@ generate-cfg: check-vars
 
 pretrain: check-vars
     if [ "{{dev_run}}" = "true" ]; then \
-        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
+        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
         torchrun --nproc_per_node={{ngpus}} --rdzv_backend c10d \
         --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
         --role rank --tee 3 \

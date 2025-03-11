@@ -55,6 +55,11 @@ top_k := "10"
 # download-tokenizer: check-vars
 #     python run.py download-hf-tokenizer {{tokenizer_name}} ./tokenizers/{{tokenizer_name}}
 
+download-dataset: check-vars
+    if [ "{{dev_run}}" = "false" ]; then \
+        python run.py download-dataset fineweb-edu --allow_pattern "sample/100BT/**"; \
+    fi
+
 count-params: check-vars
     python run.py count-params {{model_arch}} {{model_flavor}} ./tokenizers/{{tokenizer_name}}
 
@@ -75,7 +80,7 @@ estimate-mem: generate-cfg
 
 pretrain: check-vars
     if [ "{{dev_run}}" = "true" ]; then \
-        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
+        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
         torchrun --nproc_per_node={{ngpus}} --rdzv_backend c10d \
         --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
         --role rank --tee 3 \
