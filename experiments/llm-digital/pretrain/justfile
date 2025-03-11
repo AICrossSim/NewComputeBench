@@ -24,6 +24,7 @@ do_sample := "true"
 temperature := "1.0"
 top_p := "1.0"
 top_k := "10"
+stream_hf_data := "1"
 
 
 @check-vars:
@@ -86,7 +87,7 @@ pretrain: check-vars
         --role rank --tee 3 \
         run.py pretrain --config configs/debug_model.yaml; \
     else \
-        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" \
+        PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="{{stream_hf_data}}" \
         torchrun --nproc_per_node={{ngpus}} --rdzv_backend c10d \
         --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
         --role rank --tee 3 \

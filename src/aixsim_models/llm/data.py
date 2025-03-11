@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 def _load_wikitext(dataset_path: str = "Salesforce/wikitext"):
     cache_dir = os.environ.get("HF_HUB_CACHE", None)
-    streaming = bool(os.environ.get("STEAM_HF_DATA", False))
+    streaming = bool(int(os.environ.get("STEAM_HF_DATA", "1")))
     if cache_dir is None:
         logger.warning("HF_HUB_CACHE is not set. Dataset will be stored in the default directory.")
     dataset = hf_datasets.load_dataset(
@@ -33,7 +33,7 @@ def _load_fineweb(
     subset_name: Optional[str] = "sample-100BT",
 ):
     cache_dir = os.environ.get("HF_HUB_CACHE", None)
-    streaming = bool(os.environ.get("STEAM_HF_DATA", False))
+    streaming = bool(int(os.environ.get("STEAM_HF_DATA", "1")))
     if cache_dir is None:
         logger.warning("HF_HUB_CACHE is not set. Dataset will be stored in the default directory.")
     dataset = hf_datasets.load_dataset(
@@ -56,7 +56,7 @@ def _load_fineweb_edu(
     subset_name: Optional[str] = "sample-100BT",
 ):
     cache_dir = os.environ.get("HF_HUB_CACHE", None)
-    streaming = bool(os.environ.get("STEAM_HF_DATA", False))
+    streaming = bool(int(os.environ.get("STEAM_HF_DATA", "1")))
     if cache_dir is None:
         logger.warning("HF_HUB_CACHE is not set. Dataset will be stored in the default directory.")
     dataset = hf_datasets.load_dataset(
