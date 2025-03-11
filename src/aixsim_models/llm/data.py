@@ -38,7 +38,7 @@ def _load_fineweb(
         dataset_path,
         name=subset_name,
         split="train",
-        streaming=True,
+        streaming=False,
         trust_remote_code=True,
         cache_dir=cache_dir,
     )
@@ -60,7 +60,7 @@ def _load_fineweb_edu(
         dataset_path,
         name=subset_name,
         split="train",
-        streaming=True,
+        streaming=False,
         trust_remote_code=True,
         cache_dir=cache_dir,
     )
