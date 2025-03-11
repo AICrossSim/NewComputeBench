@@ -9,9 +9,9 @@ logger = logging.getLogger(__name__)
 def convert_torch_to_hf(
     model_arch: Literal["aixsim"],
     model_flavor: Literal["60M", "200M", "400M", "600M", "1.1B"],
-    tokenizer_name: str,
     torch_ckpt: Path,
     save_dir: Path,
+    tokenizer_name: str = "HuggingFaceTB/cosmo2-tokenizer",
     ori_max_position_embeddings: int = 8192,
     max_position_embeddings: int = 131072,
     push_to_hub: Optional[str] = None,
@@ -25,9 +25,9 @@ def convert_torch_to_hf(
     Args:
         model_arch (Literal["aixsim"]): The model architecture type.
         model_flavor (Literal["60M", "200M", "400M", "600M", "1.1B"]): Model size variant.
-        tokenizer_name (str): Name or path of the tokenizer to use.
         torch_ckpt (Path): Path to the source PyTorch checkpoint file.
         save_dir (Path): Directory where the converted model will be saved.
+        tokenizer_name (str): Name or path of the tokenizer to use.
         ori_max_position_embeddings (int, optional): Original maximum position embeddings.
             Defaults to 8192.
         max_position_embeddings (int, optional): New maximum position embeddings.
@@ -75,20 +75,14 @@ def convert_torch_to_hf(
     dim = model_cfg.dim
     dims_per_head = dim // n_heads
     base = model_cfg.rope_theta
-    inv_freq = 1.0 / (
-        base ** (torch.arange(0, dims_per_head, 2).float() / dims_per_head)
-    )
+    inv_freq = 1.0 / (base ** (torch.arange(0, dims_per_head, 2).float() / dims_per_head))
 
     num_key_value_heads = model_cfg.n_kv_heads
     key_value_dim = dims_per_head * num_key_value_heads
 
     # permute for sliced rotary
     def permute(w, n_heads, dim1=dim, dim2=dim):
-        return (
-            w.view(n_heads, dim1 // n_heads // 2, 2, dim2)
-            .transpose(1, 2)
-            .reshape(dim1, dim2)
-        )
+        return w.view(n_heads, dim1 // n_heads // 2, 2, dim2).transpose(1, 2).reshape(dim1, dim2)
 
     for layer_i in range(n_layers):
         new_state_dict |= {
@@ -100,27 +94,13 @@ def convert_torch_to_hf(
                 n_heads=num_key_value_heads,
                 dim1=key_value_dim,
             ),
-            f"model.layers.{layer_i}.self_attn.v_proj.weight": loaded[
-                f"layers.{layer_i}.attention.wv.weight"
-            ],
-            f"model.layers.{layer_i}.self_attn.o_proj.weight": loaded[
-                f"layers.{layer_i}.attention.wo.weight"
-            ],
-            f"model.layers.{layer_i}.mlp.gate_proj.weight": loaded[
-                f"layers.{layer_i}.feed_forward.w1.weight"
-            ],
-            f"model.layers.{layer_i}.mlp.down_proj.weight": loaded[
-                f"layers.{layer_i}.feed_forward.w2.weight"
-            ],
-            f"model.layers.{layer_i}.mlp.up_proj.weight": loaded[
-                f"layers.{layer_i}.feed_forward.w3.weight"
-            ],
-            f"model.layers.{layer_i}.input_layernorm.weight": loaded[
-                f"layers.{layer_i}.attention_norm.weight"
-            ],
-            f"model.layers.{layer_i}.post_attention_layernorm.weight": loaded[
-                f"layers.{layer_i}.ffn_norm.weight"
-            ],
+            f"model.layers.{layer_i}.self_attn.v_proj.weight": loaded[f"layers.{layer_i}.attention.wv.weight"],
+            f"model.layers.{layer_i}.self_attn.o_proj.weight": loaded[f"layers.{layer_i}.attention.wo.weight"],
+            f"model.layers.{layer_i}.mlp.gate_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w1.weight"],
+            f"model.layers.{layer_i}.mlp.down_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w2.weight"],
+            f"model.layers.{layer_i}.mlp.up_proj.weight": loaded[f"layers.{layer_i}.feed_forward.w3.weight"],
+            f"model.layers.{layer_i}.input_layernorm.weight": loaded[f"layers.{layer_i}.attention_norm.weight"],
+            f"model.layers.{layer_i}.post_attention_layernorm.weight": loaded[f"layers.{layer_i}.ffn_norm.weight"],
         }
 
     new_state_dict[f"rotary_emb.inv_freq"] = inv_freq
@@ -149,15 +129,11 @@ def convert_torch_to_hf(
     # rope_scaling = None
 
     def compute_intermediate_size(n, ffn_dim_multiplier=1, multiple_of=256):
-        return multiple_of * (
-            (int(ffn_dim_multiplier * int(8 * n / 3)) + multiple_of - 1) // multiple_of
-        )
+        return multiple_of * ((int(ffn_dim_multiplier * int(8 * n / 3)) + multiple_of - 1) // multiple_of)
 
     config = LlamaConfig(
         hidden_size=dim,
-        intermediate_size=compute_intermediate_size(
-            dim, ffn_dim_multiplier, multiple_of
-        ),
+        intermediate_size=compute_intermediate_size(dim, ffn_dim_multiplier, multiple_of),
         num_attention_heads=n_heads,
         num_hidden_layers=n_layers,
         rms_norm_eps=model_cfg.norm_eps,
