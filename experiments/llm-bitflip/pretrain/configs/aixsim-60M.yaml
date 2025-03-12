@@ -7,7 +7,7 @@ checkpoint_args:
   enable_checkpoint: true
   exclude_from_loading: []
   export_dtype: float32
-  folder: 20250309-110200
+  folder: 20250311-121900
   interval: 500
   interval_type: steps
   keep_latest_k: 3
@@ -85,13 +85,13 @@ training_args:
 transform_args:
   layer_name_to_config:
     default:
-      w_p_exp: 7.62939453125e-06
-      w_p_frac: 7.62939453125e-06
+      w_p_exp: 1.52587890625e-05
+      w_p_frac: 1.52587890625e-05
       w_seed_exp: 0
       w_seed_frac: 0
       w_zero_out_t: 1.25
-      x_p_exp: 7.62939453125e-06
-      x_p_frac: 7.62939453125e-06
+      x_p_exp: 1.52587890625e-05
+      x_p_frac: 1.52587890625e-05
       x_seed_exp: 0
       x_seed_frac: 0
       x_zero_out_t: 30.0
