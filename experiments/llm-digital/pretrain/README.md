@@ -1,6 +1,7 @@
 # LLM PreTraining
 
 - This folder includes the scripts for preTraining AICrossSim CLM models on HuggingFaceFW/fineweb-edu dataset.
+- The model checkpoint is also available on HuggingFace:
 - We leave `dev_run=true` in the justfile for quick testing.
 
 ## Model Arch and Datasets
