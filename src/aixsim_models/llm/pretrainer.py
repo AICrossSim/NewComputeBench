@@ -24,7 +24,7 @@ from torchtitan.parallelisms import (
 from torchtitan.profiling import maybe_enable_memory_snapshot, maybe_enable_profiling
 from torchtitan.utils import device_module, device_type
 
-from aixsim_models.utils.wandb_utils import wandb_extract_and_update_tags, wandb_update_config
+from ..utils.wandb_utils import wandb_extract_and_update_tags, wandb_update_config
 from .tokenizer import build_tokenizer
 from .arg_manager import (
     ArgJob,

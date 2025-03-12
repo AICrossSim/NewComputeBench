@@ -3,7 +3,7 @@ import datetime
 import yaml
 import math
 
-from aixsim_models.llm.profiler import profile_num_params, estimate_memory
+from aixsim_models.llm.profiler import profile_num_params
 from aixsim_models.llm import register_model_configs, register_pretrain_dataset
 from aixsim_models.utils.download import download_dataset
 from aixsim_models.utils.logging import set_logging_verbosity
@@ -23,7 +23,7 @@ from aixsim_models.llm.arg_manager import (
     ArgMemoryEstimation,
     PreTrainArgs,
 )
-from aixsim_models.llm.evaluator import evaluate_ppl, check_hf_ppl, hf_generate
+from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_generate, hf_lm_eval
 from aixsim_models.llm.utils import convert_torch_to_hf
 
 register_model_configs()
@@ -148,11 +148,13 @@ if __name__ == "__main__":
 
     cli_map = {
         "count-params": profile_num_params,
-        "estimate-mem": estimate_memory,
         "pretrain": pretrain,
-        "eval-ppl": evaluate_ppl,
+        "eval": {
+            "pt-ppl": pt_evaluate_ppl,
+            "hf-ppl": hf_check_ppl,
+            "hf-lm-eval": hf_lm_eval,
+        },
         "generate-hf": hf_generate,
-        "check-hf-ppl": check_hf_ppl,
         "convert-ckpt": {
             "pt2hf": convert_torch_to_hf,
         },

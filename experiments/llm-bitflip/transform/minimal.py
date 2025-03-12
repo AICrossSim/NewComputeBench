@@ -6,13 +6,12 @@ import yaml
 from tabulate import tabulate
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-from lm_eval.evaluator import simple_evaluate
-from lm_eval.models.huggingface import HFLM
-from lm_eval.utils import make_table
 from jsonargparse import CLI
 
 from mase_triton.random_bitflip.layers import RandomBitFlipDropout, RandomBitFlipLinear
 from mase_triton.utils.torch_module import set_layer_by_name
+from aixsim_models.llm.evaluator import hf_lm_eval
+from aixsim_models.utils.logging import set_logging_verbosity
 
 DEFAULT_DTYPE = "float16"
 DEFAULT_TASKS = ["wikitext"]
@@ -26,6 +25,7 @@ def eval_ori(
     batch_size: Optional[Union[int, str]] = 32,
     limit: Optional[Union[int, float]] = None,
     max_seq_len: Optional[int] = 2048,
+    save_dir: Optional[Path] = None,
 ):
     """Evaluate a pretrained model as baseline."""
     device = torch.device("cuda")
@@ -33,21 +33,16 @@ def eval_ori(
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size, max_length=max_seq_len)
-
-    results = simple_evaluate(
+    results = hf_lm_eval(
         model=model,
+        tokenizer=tokenizer,
         tasks=tasks,
         num_fewshot=num_fewshot,
         batch_size=batch_size,
         limit=limit,
+        max_seq_len=max_seq_len,
+        save_dir=save_dir,
     )
-
-    if results is not None:
-        results.pop("samples")
-        print(make_table(results))
-        if "groups" in results:
-            print(make_table(results, "groups"))
 
 
 class RandomBitFlipConfigManager:
@@ -121,6 +116,7 @@ def eval_random_bitflip(
     batch_size: Optional[Union[int, str]] = 32,
     limit: Optional[Union[int, float]] = None,
     max_seq_len: Optional[int] = 2048,
+    save_dir: Optional[Path] = None,
 ):
     """Randomly flip bit in linear layers of a model and evaluate it."""
     # fmt: off
@@ -155,21 +151,16 @@ def eval_random_bitflip(
 
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size, max_length=max_seq_len)
-
-    results = simple_evaluate(
+    results = hf_lm_eval(
         model=model,
+        tokenizer=tokenizer,
         tasks=tasks,
         num_fewshot=num_fewshot,
         batch_size=batch_size,
         limit=limit,
+        max_seq_len=max_seq_len,
+        save_dir=save_dir,
     )
-
-    if results is not None:
-        results.pop("samples")
-        print(make_table(results))
-        if "groups" in results:
-            print(make_table(results, "groups"))
 
 
 if __name__ == "__main__":

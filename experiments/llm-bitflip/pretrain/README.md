@@ -1,13 +1,8 @@
 # Random BitFlip Aware Pretraining
 
-## Model Arch and Datasets
+## Overview
 
-- Model architecture is based on Llama-3.1 with smaller vocab, hidden sizes and number of layers RMSNorm
-    - Grouped Query Attention
-    - RoPE positional encoding
-    - MLP: `up_proj, gate_proj, down_proj`
-    - tokenizer/vocab: [`HuggingFaceTB/cosmo2-tokenizer`](https://huggingface.co/HuggingFaceTB/cosmo2-tokenizer)
-- Pretraining is performed on [`HuggingFaceFW/fneweb-edu`](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu)
+This is bitflip-aware training adapted from [llm-digital](/experiments/llm-digital/pretrain/).
 
 ## Emulated Random BitFlip
 

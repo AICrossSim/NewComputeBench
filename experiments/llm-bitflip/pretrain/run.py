@@ -10,9 +10,7 @@ from aixsim_models.llm import register_model_configs, register_pretrain_dataset
 from aixsim_models.utils.download import download_dataset
 from aixsim_models.utils.logging import set_logging_verbosity
 
-# from aixsim_models.llm.pretrainer import pretrain
-
-from aixsim_models.llm.evaluator import evaluate_ppl, check_hf_ppl, hf_generate
+from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_generate, hf_lm_eval
 from aixsim_models.llm.utils import convert_torch_to_hf
 from aixsim_models.bitflip.pretrainer import pretrain
 from aixsim_models.bitflip.arg_manager import ArgRandomBitFlipTransform
@@ -154,12 +152,12 @@ def generate_pretrain_cfg(
     print(f"Config saved to {save_path}")
 
 
-def eval_ppl(
+def pt_eval_ppl(
     model_arch: Literal["aixsim", "llama"],
     model_flavor: str,
-    tokenizer_path: Path,
     checkpoint_path: Path,
     transform_config: ArgRandomBitFlipTransform,
+    tokenizer_path: str = "HuggingFaceTB/cosmo2-tokenizer",
     dataset_name: str = "fineweb",
     dataset_subset: str = "HuggingFaceFW/fineweb",
     batch_size: int = 32,
@@ -188,7 +186,7 @@ def eval_ppl(
     transform_histogram = make_transform_histogram(replaced_layers)
     print(f"Transformed model with the following layers:\n{pformat(transform_histogram)}")
 
-    ppl = evaluate_ppl(
+    ppl = pt_evaluate_ppl(
         model_arch=model_arch,
         model_flavor=model_flavor,
         tokenizer_path=tokenizer_path,
@@ -211,8 +209,15 @@ if __name__ == "__main__":
     cli_map = {
         "generate-cfg": generate_pretrain_cfg,
         "pretrain": pretrain,
-        "eval-ppl": eval_ppl,
+        "eval": {
+            "pt-ppl": pt_eval_ppl,
+            "hf-ppl": hf_check_ppl,
+            "hf-lm-eval": hf_lm_eval,
+        },
         "profile-hf": profile_stats_hf,
+        "convert-ckpt": {
+            "pt2hf": convert_torch_to_hf,
+        },
     }
 
     CLI(cli_map)

@@ -22,11 +22,10 @@ from torchtitan.parallelisms import (
 )
 from torchtitan.utils import device_module, device_type
 
-from aixsim_models.llm.tokenizer import build_tokenizer
-
-from aixsim_models.llm.pretrainer import train_loop, build_meta_model, count_params
-from aixsim_models.utils.torch_module import TransformConfigManager
-from aixsim_models.utils.wandb_utils import wandb_update_config, wandb_extract_and_update_tags
+from ..llm.tokenizer import build_tokenizer
+from ..llm.pretrainer import train_loop, build_meta_model, count_params
+from ..utils.torch_module import TransformConfigManager
+from ..utils.wandb_utils import wandb_update_config, wandb_extract_and_update_tags
 from .transform import transform_model, make_transform_histogram
 from .arg_manager import ArgRandomBitFlipTransform
 from .arg_manager import (

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field, asdict
-from typing import Union, Literal
+from typing import Literal
 
 
-from aixsim_models.llm.arg_manager import (
+from ..llm.arg_manager import (
     ArgJob,
     ArgProfiling,
     ArgMetrics,
