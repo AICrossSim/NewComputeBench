@@ -252,7 +252,7 @@ def hf_generate(
 
 def hf_lm_eval(
     model: Union[str, transformers.PreTrainedModel],
-    tokenizer: Union[str, transformers.PreTrainedTokenizer],
+    tokenizer: Optional[Union[str, transformers.PreTrainedTokenizer, None]] = None,
     dtype: Literal["float32", "float16", "bfloat16"] = "bfloat16",
     device: str = "cuda",
     tasks: Optional[list[str]] = ["wikitext"],
@@ -266,7 +266,7 @@ def hf_lm_eval(
 
     Args:
         model (Union[str, transformers.PreTrainedModel]): The model to evaluate. Can be a model name or a pre-trained model instance.
-        tokenizer (Union[str, transformers.PreTrainedTokenizer]): The tokenizer to use. Can be a tokenizer name or a pre-trained tokenizer instance.
+        tokenizer (Optional[Union[str, transformers.PreTrainedTokenizer]]): The tokenizer to use. Can be a tokenizer name or a pre-trained tokenizer instance. Defaults to None will use the tokenizer from the model.
         dtype (Literal["float32", "float16", "bfloat16"], optional): The data type for the model. Defaults to "bfloat16".
         device (str, optional): The device to run the model on. Defaults to "cuda".
         tasks (Optional[list[str]], optional): The evaluation tasks to perform. Defaults to ["wikitext"].
@@ -292,7 +292,9 @@ def hf_lm_eval(
         model = transformers.AutoModelForCausalLM.from_pretrained(model, torch_dtype=getattr(torch, dtype))
         model.to(device)
         model.eval()
-    if isinstance(tokenizer, str):
+    if tokenizer is None:
+        tokenizer = transformers.AutoTokenizer.from_pretrained(model.config.name_or_path)
+    elif isinstance(tokenizer, str):
         tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer)
     model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size, max_length=max_seq_len)
     results = simple_evaluate(
@@ -304,9 +306,9 @@ def hf_lm_eval(
     )
     if results is not None:
         results.pop("samples")
-        logger.info(f"\n{make_table(results)}")
+        print(f"{make_table(results)}")
         if "groups" in results:
-            logger.info(f"\n{make_table(results, 'groups')}")
+            print(f"{make_table(results, 'groups')}")
 
         if save_dir is not None:
             save_dir.mkdir(parents=True, exist_ok=True)
@@ -314,6 +316,6 @@ def hf_lm_eval(
             safe_results = json.loads(dumped)
             with open(save_dir / "results.yaml", "w") as f:
                 yaml.dump(safe_results, f)
-            logger.info(f"Results saved to {save_dir / 'results.yaml'}")
+            print(f"Results saved to {save_dir / 'results.yaml'}")
 
     return results

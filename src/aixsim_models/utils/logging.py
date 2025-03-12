@@ -5,11 +5,10 @@ import colorlog
 
 root_logger = logging.getLogger("aixsim_models")
 
-_handler = colorlog.StreamHandler()
-_handler.setFormatter(
-    colorlog.ColoredFormatter("%(log_color)s%(levelname)s:%(name)s:%(message)s")
-)
-root_logger.addHandler(_handler)
+if not root_logger.handlers:
+    _handler = colorlog.StreamHandler()
+    _handler.setFormatter(colorlog.ColoredFormatter("%(log_color)s%(levelname)s:%(name)s:%(message)s"))
+    root_logger.addHandler(_handler)
 
 
 def set_logging_verbosity(level: Union[int, str]):

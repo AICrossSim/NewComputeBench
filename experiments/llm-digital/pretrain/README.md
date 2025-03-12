@@ -92,8 +92,8 @@ subcommands:
 
 - Count-Params
 
-Note that embedding layer is not counted
+  Note that embedding layer is not counted
 
-```bash
-just model_favor=60M count-params
-```
+  ```bash
+  just model_favor=60M count-params
+  ```
