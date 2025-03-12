@@ -19,12 +19,13 @@ DEFAULT_TASKS = ["wikitext"]
 
 
 def eval_ori(
-    model_name: str,
+    model_name: str = "meta-llama/Llama-3.1-8B",
     dtype: Literal["float32", "float16", "bfloat16"] = DEFAULT_DTYPE,
     tasks: Optional[list[str]] = DEFAULT_TASKS,
     num_fewshot: Optional[int] = None,
-    batch_size: Optional[Union[int, str]] = "auto",
+    batch_size: Optional[Union[int, str]] = 32,
     limit: Optional[Union[int, float]] = None,
+    max_seq_len: Optional[int] = 2048,
 ):
     """Evaluate a pretrained model as baseline."""
     device = torch.device("cuda")
@@ -32,7 +33,7 @@ def eval_ori(
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size)
+    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size, max_length=max_seq_len)
 
     results = simple_evaluate(
         model=model,
@@ -110,27 +111,31 @@ def flip_bits_in_linear(model: torch.nn.Module, config_manager: RandomBitFlipCon
 
 
 def eval_random_bitflip(
-    model_name: str,
-    bitflip_config: Union[Literal["a-only-frac", "a-only-both", "w-only", "w-only-frac", "w-only-both"], str, dict],
+    model_name: str = "meta-llama/Llama-3.1-8B",
+    bitflip_config: Union[
+        Literal["a-only-frac", "a-only-both", "w-only", "w-only-frac", "w-only-both", "a-w-both"], str, dict
+    ] = "a-w-both",
     dtype: Literal["float32", "float16", "bfloat16"] = DEFAULT_DTYPE,
     tasks: Optional[list[str]] = DEFAULT_TASKS,
     num_fewshot: Optional[int] = None,
-    batch_size: Optional[Union[int, str]] = "auto",
+    batch_size: Optional[Union[int, str]] = 32,
     limit: Optional[Union[int, float]] = None,
+    max_seq_len: Optional[int] = 2048,
 ):
     """Randomly flip bit in linear layers of a model and evaluate it."""
     # fmt: off
     # 2^-6 = 0.015625, 2^-13 = 0.0001220703125
     # flipping in fraction-only does not lead to new NaN values
-    P_FRAC = 0.5**6
-    P_EXP = 0.5**13
-    A_T = 10
-    W_T = 1.5
+    P_FRAC = 0.5**16
+    P_EXP = 0.5**16
+    A_T = 30
+    W_T = 1.25
     ACT_ONLY_FRAC_ONLY = dict(default=dict(x_p_exp=None, x_p_frac=P_FRAC, x_zero_out_t=None, w_p_exp=None, w_p_frac=None, w_zero_out_t=None))
-    ACT_ONLY_BOTH = dict(default=dict(x_p_exp=0.5**10, x_p_frac=P_FRAC, x_zero_out_t=A_T, w_p_exp=None, w_p_frac=None, w_zero_out_t=None))
+    ACT_ONLY_BOTH = dict(default=dict(x_p_exp=P_EXP, x_p_frac=P_FRAC, x_zero_out_t=A_T, w_p_exp=None, w_p_frac=None, w_zero_out_t=None))
     WEIGHT_ONLY_FRAC_ONLY = dict(default=dict(x_p_exp=None, x_p_frac=None, x_zero_out_t=None, w_p_exp=None, w_p_frac=P_FRAC, w_zero_out_t=None))
     WEIGHT_ONLY_BOTH = dict(default=dict(x_p_exp=None, x_p_frac=None, x_zero_out_t=None, w_p_exp=P_EXP, w_p_frac=P_FRAC, w_zero_out_t=W_T))
-    DEFAULT_CONFIG_MAP = {"a-only-frac": ACT_ONLY_FRAC_ONLY, "a-only-both": ACT_ONLY_BOTH, "w-only-frac": WEIGHT_ONLY_FRAC_ONLY, "w-only-both": WEIGHT_ONLY_BOTH}
+    ACT_WEIGHT_BOTH = dict(default=dict(x_p_exp=P_EXP, x_p_frac=P_FRAC, x_zero_out_t=A_T, w_p_exp=P_EXP, w_p_frac=P_FRAC, w_zero_out_t=W_T))
+    DEFAULT_CONFIG_MAP = {"a-only-frac": ACT_ONLY_FRAC_ONLY, "a-only-both": ACT_ONLY_BOTH, "w-only-frac": WEIGHT_ONLY_FRAC_ONLY, "w-only-both": WEIGHT_ONLY_BOTH, "a-w-both": ACT_WEIGHT_BOTH}
     # fmt: on
 
     if isinstance(bitflip_config, str):
@@ -150,7 +155,7 @@ def eval_random_bitflip(
 
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size)
+    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size, max_length=max_seq_len)
 
     results = simple_evaluate(
         model=model,
@@ -180,28 +185,18 @@ if __name__ == "__main__":
 
     """Sanity check experiments:
 
-    $ python minimal.py eval-ori meta-llama/Llama-3.1-8B
-    llama-3.1-8B, fp16, original checkpoint
+    $ python minimal.py eval-ori --model_name meta-llama/Llama-3.1-8B
     | Tasks  |Version|Filter|n-shot|    Metric     |   |Value |   |Stderr|
     |--------|------:|------|-----:|---------------|---|-----:|---|------|
-    |wikitext|      2|none  |     0|bits_per_byte  |↓  |0.5375|±  |   N/A|
-    |        |       |none  |     0|byte_perplexity|↓  |1.4515|±  |   N/A|
-    |        |       |none  |     0|word_perplexity|↓  |7.3330|±  |   N/A|
+    |wikitext|      2|none  |     0|bits_per_byte  |↓  |0.5588|±  |   N/A|
+    |        |       |none  |     0|byte_perplexity|↓  |1.4730|±  |   N/A|
+    |        |       |none  |     0|word_perplexity|↓  |7.9336|±  |   N/A|
 
-    $ python minimal.py eval-bitflip meta-llama/Llama-3.1-8B a-only-frac
-    llama-3.1-8B, BF16, random bitflip [act-only::frac-only, prob=2^-6=0.015625]
-    | Tasks  |Version|Filter|n-shot|    Metric     |   |Value|   |Stderr|
-    |--------|------:|------|-----:|---------------|---|----:|---|------|
-    |wikitext|      2|none  |     0|bits_per_byte  |↓  |0.544|±  |   N/A|
-    |        |       |none  |     0|byte_perplexity|↓  |1.458|±  |   N/A|
-    |        |       |none  |     0|word_perplexity|↓  |7.510|±  |   N/A|
-
-
-    $ python minimal.py eval-bitflip meta-llama/Llama-3.1-8B a-only-both
-    llama-3.1-8B, BF16, random bitflip [act-only::both, prob=2^-10=0.0009765625, 2^-6=0.015625, t=10]
-    | Tasks  |Version|Filter|n-shot|    Metric     |   | Value  |   |Stderr|
-    |--------|------:|------|-----:|---------------|---|--------|---|------|
-    |wikitext|      2|none  |     0|bits_per_byte  |↓  |Infinity|±  |   N/A|
-    |        |       |none  |     0|byte_perplexity|↓  |Infinity|±  |   N/A|
-    |        |       |none  |     0|word_perplexity|↓  |Infinity|±  |   N/A|
+    $ python minimal.py eval-bitflip --model_name meta-llama/Llama-3.1-8B
+    # a-w-both, p_frac=2^-16, p_exp=2^-16, a_t=30, w_t=1.25
+    | Tasks  |Version|Filter|n-shot|    Metric     |   |  Value   |   |Stderr|
+    |--------|------:|------|-----:|---------------|---|---------:|---|------|
+    |wikitext|      2|none  |     0|bits_per_byte  |↓  |    2.5481|±  |   N/A|
+    |        |       |none  |     0|byte_perplexity|↓  |    5.8484|±  |   N/A|
+    |        |       |none  |     0|word_perplexity|↓  |12638.9580|±  |   N/A|
     """
