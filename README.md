@@ -22,7 +22,7 @@ We adopt Llama-3 architecture and aim to support the following features:
 The LLM pretraining is built on top of [torchtitan](https://github.com/pytorch/torchtitan).
 
 - Model architecture: [`Llama3`](/src/torchtitan/models/llama/model.py)
-- Model configs: [`60M`, `200M`, `400M`, `600M`, `1.1B`](src/aixsim_models/llm/model_config.py)
+- Model configs: [`60M`, `200M`, `400M`, `600M`, `1.1B`](src/aixsim_models/llm/model_flavors.py)
 - Datasets: [`HuggingFaceFW/fineweb`](/src/aixsim_models/llm/pretrain_data.py)
 
 #### Generation
