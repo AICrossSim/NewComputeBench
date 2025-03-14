@@ -1,10 +1,9 @@
-from typing import Literal, Union
-from dataclasses import dataclass
+from typing import Literal
 
 import torch
 
-from aixsim_models.utils.torch_module import set_layer_by_name, TransformConfigManager
-from aixsim_models.utils.deps import all_packages_are_available
+from ..utils.torch_module import set_layer_by_name, TransformConfigManager
+from ..utils.deps import all_packages_are_available
 
 
 if not all_packages_are_available(("mase_triton",)):

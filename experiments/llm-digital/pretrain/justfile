@@ -74,11 +74,6 @@ generate-cfg: check-vars
         --compile {{torch_compiled}} \
         --seed {{seed}}
 
-estimate-mem: generate-cfg
-    WORLD_SIZE=$(({{ngpus}}*{{nnodes}})) LOCAL_RANK={{local_rank}} python run.py estimate-mem \
-        --config configs/{{model_arch}}-{{model_flavor}}.yaml \
-        --memory_estimation_args.enabled true
-
 pretrain: check-vars
     if [ "{{dev_run}}" = "true" ]; then \
         PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
@@ -95,11 +90,11 @@ pretrain: check-vars
     fi
 
 
-eval-ppl: check-vars
+pt-eval-ppl: check-vars
     if [ -z "{{pt_ckpt}}" ]; then \
         echo "⚠️ Please provide pt_ckpt"; \
     else \
-        python run.py eval-ppl {{model_arch}} {{model_flavor}} \
+        python run.py eval pt-ppl {{model_arch}} {{model_flavor}} \
             {{tokenizer_name}} {{pt_ckpt}} ; \
     fi
 
@@ -116,11 +111,11 @@ convert-ckpt: check-vars
     fi
 
 
-check-hf-ppl: check-vars
+hf-eval-ppl: check-vars
     if [ -z "{{hf_ckpt}}" ]; then \
         echo "⚠️ Please provide hf_ckpt"; \
     else \
-        python run.py check-hf-ppl {{hf_ckpt}}; \
+        python run.py eval hf-ppl {{hf_ckpt}}; \
     fi
 
 generate-hf:

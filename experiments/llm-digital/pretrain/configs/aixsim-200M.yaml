@@ -7,7 +7,7 @@ checkpoint_args:
   enable_checkpoint: true
   exclude_from_loading: []
   export_dtype: float32
-  folder: 20250307-134100
+  folder: 20250311-183100
   interval: 500
   interval_type: steps
   keep_latest_k: 3
@@ -63,12 +63,12 @@ profiling_args:
   save_memory_snapshot_folder: memory_snapshot
   save_traces_folder: profile_traces
 training_args:
-  batch_size: 38
-  compile: true
+  batch_size: 32
+  compile: false
   data_parallel_replicate_degree: 1
   data_parallel_shard_degree: 2
-  dataset: fineweb
-  dataset_path: HuggingFaceFW/fineweb
+  dataset: fineweb-edu
+  dataset_path: HuggingFaceFW/fineweb-edu
   deterministic: false
   disable_loss_parallel: false
   enable_cpu_offload: false

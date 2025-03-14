@@ -1,19 +1,12 @@
 from pathlib import Path
 from typing import Literal, Union, Optional
 import logging
-
-import torch
+import yaml
+import json
 
 import torch
 import torch.distributed.checkpoint as dcp
 import torch.nn as nn
-from torch.distributed import DeviceMesh
-from torch.distributed._tensor import Replicate
-from torch.distributed.tensor.parallel import (
-    ColwiseParallel,
-    parallelize_module,
-    RowwiseParallel,
-)
 from tqdm import tqdm
 import transformers
 
@@ -21,44 +14,17 @@ from torchtitan.datasets import build_hf_data_loader
 from torchtitan.datasets.tokenizer import Tokenizer
 from torchtitan.models import model_name_to_cls, model_name_to_tokenizer, models_config
 
-from aixsim_models.llm import build_tokenizer
+from ..llm import build_tokenizer
+from ..utils.deps import all_packages_are_available
 
 logger = logging.getLogger(__name__)
 
 
-def apply_tp_minus_sp(model: nn.Module, tp_mesh: DeviceMesh):
-    parallelize_module(
-        model,
-        tp_mesh,
-        {
-            "tok_embeddings": RowwiseParallel(input_layouts=Replicate()),
-            "output": ColwiseParallel(output_layouts=Replicate()),
-        },
-    )
-
-    for _, transformer_block in model.layers.items():
-        layer_plan = {
-            "attention.wq": ColwiseParallel(),
-            "attention.wk": ColwiseParallel(),
-            "attention.wv": ColwiseParallel(),
-            "attention.wo": RowwiseParallel(),
-            "feed_forward.w1": ColwiseParallel(),
-            "feed_forward.w2": RowwiseParallel(),
-            "feed_forward.w3": ColwiseParallel(),
-        }
-
-        parallelize_module(
-            module=transformer_block,
-            device_mesh=tp_mesh,
-            parallelize_plan=layer_plan,
-        )
-
-
-def evaluate_ppl(
+def pt_evaluate_ppl(
     model_arch: Literal["aixsim", "llama"],
     model_flavor: str,
-    tokenizer_path: Path,
     checkpoint_path: Path,
+    tokenizer_path: Optional[str] = "HuggingFaceTB/cosmo2-tokenizer",
     model: Optional[nn.Module] = None,
     tokenizer: Optional[Tokenizer] = None,
     dataset_name: str = "fineweb",
@@ -68,7 +34,7 @@ def evaluate_ppl(
     seq_len: int = 2048,
 ) -> float:
     """
-    Evaluate the perplexity of a language model.
+    Evaluate the perplexity of a language model trained with  trained with torchtitan.
 
     Args:
         model_arch (Literal["aixsim", "llama"]): The architecture of the model.
@@ -156,18 +122,18 @@ def evaluate_ppl(
     return ppl
 
 
-def check_hf_ppl(
+def hf_check_ppl(
     model_name_or_path: Union[str, transformers.PreTrainedModel],
     dtype: Literal["float32", "float16", "bfloat16"] = "bfloat16",
-    dataset_name: str = "fineweb",
-    dataset_subset: str = "HuggingFaceFW/fineweb",
+    dataset_name: str = "fineweb-edu",
+    dataset_subset: str = "HuggingFaceFW/fineweb-edu",
     batch_size: int = 32,
     num_batches: int = 32,
     seq_len: int = 2048,
 ):
-    """Calculate perplexity of a Hugging Face model on a given dataset.
-    This function loads a pre-trained Hugging Face model and evaluates its perplexity
-    on a specified dataset. The perplexity is calculated as exp(average negative log likelihood).
+    """Similar to `pt_evaluate_ppl`, calculate perplexity of a Hugging Face model.
+    This can be used as a sanity check for converted checkpoint in HuggingFace format.
+
     Args:
         model_name_or_path (str): Name or path of the Hugging Face model to evaluate
         dtype (Literal["float32", "float16", "bfloat16"]): Data type for model computation.
@@ -282,3 +248,74 @@ def hf_generate(
     response = tokenizer.batch_decode(generated_ids[:, input_length:], skip_special_tokens=True)[0]
 
     print(f"🔮\tPrompt + Response:\n{prompt}{response}")
+
+
+def hf_lm_eval(
+    model: Union[str, transformers.PreTrainedModel],
+    tokenizer: Optional[Union[str, transformers.PreTrainedTokenizer, None]] = None,
+    dtype: Literal["float32", "float16", "bfloat16"] = "bfloat16",
+    device: str = "cuda",
+    tasks: Optional[list[str]] = ["wikitext"],
+    num_fewshot: Optional[int] = None,
+    batch_size: Optional[Union[int, str]] = 32,
+    limit: Optional[Union[int, float]] = None,
+    max_seq_len: Optional[int] = 2048,
+    save_dir: Optional[Path] = None,
+):
+    """Evaluate a Hugging Face language model using the `lm_eval` package.
+
+    Args:
+        model (Union[str, transformers.PreTrainedModel]): The model to evaluate. Can be a model name or a pre-trained model instance.
+        tokenizer (Optional[Union[str, transformers.PreTrainedTokenizer]]): The tokenizer to use. Can be a tokenizer name or a pre-trained tokenizer instance. Defaults to None will use the tokenizer from the model.
+        dtype (Literal["float32", "float16", "bfloat16"], optional): The data type for the model. Defaults to "bfloat16".
+        device (str, optional): The device to run the model on. Defaults to "cuda".
+        tasks (Optional[list[str]], optional): The evaluation tasks to perform. Defaults to ["wikitext"].
+        num_fewshot (Optional[int], optional): The number of few-shot examples to use. Defaults to None.
+        batch_size (Optional[Union[int, str]], optional): The batch size for evaluation. Defaults to 32.
+        limit (Optional[Union[int, float]], optional): The limit on the number of evaluation samples. Defaults to None.
+        max_seq_len (Optional[int], optional): The maximum sequence length for the model. Defaults to 2048.
+        save_dir (Optional[Path], optional): The directory to save the evaluation results. Defaults to None.
+
+    Raises:
+        ImportError: If the `lm_eval` package is not installed.
+
+    Returns:
+        dict: The evaluation results.
+    """
+    if not all_packages_are_available(("lm_eval",)):
+        raise ImportError("Please install the `lm_eval` package to use this function.")
+    from lm_eval.evaluator import simple_evaluate
+    from lm_eval.models.huggingface import HFLM
+    from lm_eval.utils import make_table, handle_non_serializable
+
+    if isinstance(model, str):
+        model = transformers.AutoModelForCausalLM.from_pretrained(model, torch_dtype=getattr(torch, dtype))
+        model.to(device)
+        model.eval()
+    if tokenizer is None:
+        tokenizer = transformers.AutoTokenizer.from_pretrained(model.config.name_or_path)
+    elif isinstance(tokenizer, str):
+        tokenizer = transformers.AutoTokenizer.from_pretrained(tokenizer)
+    model = HFLM(pretrained=model, tokenizer=tokenizer, batch_size=batch_size, max_length=max_seq_len)
+    results = simple_evaluate(
+        model=model,
+        tasks=tasks,
+        num_fewshot=num_fewshot,
+        batch_size=batch_size,
+        limit=limit,
+    )
+    if results is not None:
+        results.pop("samples")
+        print(f"{make_table(results)}")
+        if "groups" in results:
+            print(f"{make_table(results, 'groups')}")
+
+        if save_dir is not None:
+            save_dir.mkdir(parents=True, exist_ok=True)
+            dumped = json.dumps(results, indent=2, default=handle_non_serializable, ensure_ascii=False)
+            safe_results = json.loads(dumped)
+            with open(save_dir / "results.yaml", "w") as f:
+                yaml.dump(safe_results, f)
+            print(f"Results saved to {save_dir / 'results.yaml'}")
+
+    return results
