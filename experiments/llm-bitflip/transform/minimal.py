@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional, Union, Literal
 import re
 import yaml
+from dataclasses import dataclass, asdict, field
 
 from tabulate import tabulate
 import torch
@@ -105,11 +106,27 @@ def flip_bits_in_linear(model: torch.nn.Module, config_manager: RandomBitFlipCon
     return replaced_layers
 
 
+@dataclass
+class DefaultBitFlipConfig:
+    x_p_exp: float = field(default=None)
+    x_p_frac: float = field(default=None)
+    x_zero_out_t: float = field(default=None)
+    w_p_exp: float = field(default=None)
+    w_p_frac: float = field(default=None)
+    w_zero_out_t: float = field(default=None)
+
+
 def eval_random_bitflip(
     model_name: str = "meta-llama/Llama-3.1-8B",
-    bitflip_config: Union[
-        Literal["a-only-frac", "a-only-both", "w-only", "w-only-frac", "w-only-both", "a-w-both"], str, dict
-    ] = "a-w-both",
+    bitflip_config: Union[Literal["default"], Path, dict] = "default",
+    default_bitflip_config: DefaultBitFlipConfig = DefaultBitFlipConfig(
+        x_p_exp=None,
+        x_p_frac=None,
+        x_zero_out_t=None,
+        w_p_exp=None,
+        w_p_frac=None,
+        w_zero_out_t=None,
+    ),
     dtype: Literal["float32", "float16", "bfloat16"] = DEFAULT_DTYPE,
     tasks: Optional[list[str]] = DEFAULT_TASKS,
     num_fewshot: Optional[int] = None,
@@ -121,29 +138,19 @@ def eval_random_bitflip(
     """Randomly flip bit in linear layers of a model and evaluate it."""
     # fmt: off
     # 2^-6 = 0.015625, 2^-13 = 0.0001220703125
-    # flipping in fraction-only does not lead to new NaN values
-    P_FRAC = 0.5**16
-    P_EXP = 0.5**16
-    A_T = 30
-    W_T = 1.25
-    ACT_ONLY_FRAC_ONLY = dict(default=dict(x_p_exp=None, x_p_frac=P_FRAC, x_zero_out_t=None, w_p_exp=None, w_p_frac=None, w_zero_out_t=None))
-    ACT_ONLY_BOTH = dict(default=dict(x_p_exp=P_EXP, x_p_frac=P_FRAC, x_zero_out_t=A_T, w_p_exp=None, w_p_frac=None, w_zero_out_t=None))
-    WEIGHT_ONLY_FRAC_ONLY = dict(default=dict(x_p_exp=None, x_p_frac=None, x_zero_out_t=None, w_p_exp=None, w_p_frac=P_FRAC, w_zero_out_t=None))
-    WEIGHT_ONLY_BOTH = dict(default=dict(x_p_exp=None, x_p_frac=None, x_zero_out_t=None, w_p_exp=P_EXP, w_p_frac=P_FRAC, w_zero_out_t=W_T))
-    ACT_WEIGHT_BOTH = dict(default=dict(x_p_exp=P_EXP, x_p_frac=P_FRAC, x_zero_out_t=A_T, w_p_exp=P_EXP, w_p_frac=P_FRAC, w_zero_out_t=W_T))
-    DEFAULT_CONFIG_MAP = {"a-only-frac": ACT_ONLY_FRAC_ONLY, "a-only-both": ACT_ONLY_BOTH, "w-only-frac": WEIGHT_ONLY_FRAC_ONLY, "w-only-both": WEIGHT_ONLY_BOTH, "a-w-both": ACT_WEIGHT_BOTH}
-    # fmt: on
 
-    if isinstance(bitflip_config, str):
-        if bitflip_config in DEFAULT_CONFIG_MAP:
-            bitflip_config = DEFAULT_CONFIG_MAP[bitflip_config]
-        else:
-            bitflip_config = Path(bitflip_config)
-            assert bitflip_config.exists(), f"Bitflip config file {bitflip_config} does not exist"
-            with bitflip_config.open("r") as f:
-                bitflip_config = yaml.safe_load(f)
+    if isinstance(bitflip_config, str) and bitflip_config == "default":
+        print("Using default bitflip config:")
+        print(asdict(default_bitflip_config))
+        bitflip_config_default = asdict(default_bitflip_config)
+        bitflip_config = {"default": bitflip_config_default, "lm_head": None}
+    elif isinstance(bitflip_config, Path) or isinstance(bitflip_config, str):
+        with bitflip_config.open("r") as f:
+            bitflip_config = yaml.safe_load(f)
+    else:
+        assert isinstance(bitflip_config, dict), f"Invalid bitflip_config: {bitflip_config}"
+
     bitflip_config = RandomBitFlipConfigManager(bitflip_config)
-
     device = torch.device("cuda")
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
     replaced_layers = flip_bits_in_linear(model, bitflip_config)

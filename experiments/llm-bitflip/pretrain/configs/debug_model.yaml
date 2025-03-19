@@ -64,7 +64,7 @@ profiling_args:
   save_traces_folder: profile_traces
 training_args:
   batch_size: 2
-  compile: true
+  compile: false
   data_parallel_replicate_degree: 1
   data_parallel_shard_degree: 2
   dataset: fineweb-edu

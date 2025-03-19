@@ -7,7 +7,7 @@ checkpoint_args:
   enable_checkpoint: true
   exclude_from_loading: []
   export_dtype: float32
-  folder: 20250314-194800
+  folder: 20250313-135042
   interval: 500
   interval_type: steps
   keep_latest_k: 3
@@ -32,8 +32,8 @@ float8_args:
   enable_fsdp_float8_all_gather: false
   precompute_float8_dynamic_scale_for_fsdp: false
 job_args:
-  description: Pretrain aixsim 60M
-  dump_folder: outputs/checkpoints/aixsim-60M
+  description: Pretrain aixsim 1.1B
+  dump_folder: outputs/checkpoints/aixsim-1.1B
   print_args: false
   use_for_integration_test: false
 memory_estimation_args:
@@ -47,7 +47,7 @@ metrics_args:
   rank_0_only: true
   save_tb_folder: tb
 model_args:
-  flavor: 60M
+  flavor: 1.1B
   name: aixsim
   norm_type: rmsnorm
   tokenizer_path: HuggingFaceTB/cosmo2-tokenizer
@@ -63,10 +63,10 @@ profiling_args:
   save_memory_snapshot_folder: memory_snapshot
   save_traces_folder: profile_traces
 training_args:
-  batch_size: 48
-  compile: false
+  batch_size: 24
+  compile: true
   data_parallel_replicate_degree: 1
-  data_parallel_shard_degree: 2
+  data_parallel_shard_degree: 8
   dataset: fineweb-edu
   dataset_path: HuggingFaceFW/fineweb-edu
   deterministic: false
@@ -79,21 +79,6 @@ training_args:
   mixed_precision_reduce: float32
   seed: 42
   seq_len: 2048
-  steps: 7075
+  steps: 59846
   tensor_parallel_degree: 1
-  warmup_steps: 1415
-transform_args:
-  layer_name_to_config:
-    default:
-      w_p_exp: 1.52587890625e-05
-      w_p_frac: 1.52587890625e-05
-      w_seed_exp: 0
-      w_seed_frac: 0
-      w_zero_out_t: 1.25
-      x_p_exp: 1.52587890625e-05
-      x_p_frac: 1.52587890625e-05
-      x_seed_exp: 0
-      x_seed_frac: 0
-      x_zero_out_t: 30.0
-  transform_flavor: fc
-  use_regex: true
+  warmup_steps: 11969
