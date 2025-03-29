@@ -201,8 +201,10 @@ def hf_check_ppl(
 
 
 def hf_generate(
-    model_name: str,
     prompt: str,
+    model: Optional[transformers.PreTrainedModel] = None,
+    tokenizer: Optional[transformers.PreTrainedTokenizer] = None,
+    model_name: Optional[str] = None,
     max_new_tokens: int = 128,
     dtype: Literal["float32", "float16", "bfloat16"] = "float32",
     seed: int = 0,
@@ -210,7 +212,7 @@ def hf_generate(
     temperature: float = 1.0,
     top_p: float = 0.9,
     top_k: int = 50,
-):
+) -> str:
     """
     Generate text using a Hugging Face model.
 
@@ -226,12 +228,16 @@ def hf_generate(
         top_k (int, optional): The number of top tokens to sample from. Defaults to 50.
 
     Returns:
-        None
+        str: The generated text.
     """
     from transformers import AutoModelForCausalLM, AutoTokenizer, set_seed
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=getattr(torch, dtype))
+    assert model is not None or model_name is not None, "Either model or model_name must be provided."
+    assert model is None or model_name is None, "Only one of model or model_name can be provided."
+
+    if model is None:
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=getattr(torch, dtype))
     device = next(model.parameters()).device
     set_seed(seed)
     model_inputs = tokenizer([prompt], return_tensors="pt").to(device)
@@ -248,6 +254,7 @@ def hf_generate(
     response = tokenizer.batch_decode(generated_ids[:, input_length:], skip_special_tokens=True)[0]
 
     print(f"🔮\tPrompt + Response:\n{prompt}{response}")
+    return response
 
 
 def hf_lm_eval(

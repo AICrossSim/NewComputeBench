@@ -9,10 +9,9 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonargparse import CLI
 
-from mase_triton.random_bitflip.layers import RandomBitFlipDropout, RandomBitFlipLinear
+from mase_triton.random_bitflip.layers import RandomBitFlipLinear
 from mase_triton.utils.torch_module import set_layer_by_name
-from aixsim_models.llm.evaluator import hf_lm_eval
-from aixsim_models.utils.logging import set_logging_verbosity
+from aixsim_models.llm.evaluator import hf_lm_eval, hf_generate
 
 DEFAULT_DTYPE = "float16"
 DEFAULT_TASKS = ["wikitext"]
@@ -170,6 +169,60 @@ def eval_random_bitflip(
     )
 
 
+def bitflip_hf_generate(
+    model_name: str = "meta-llama/Llama-3.1-8B",
+    bitflip_config: Union[Literal["default"], Path, dict] = "default",
+    default_bitflip_config: DefaultBitFlipConfig = DefaultBitFlipConfig(
+        x_p_exp=None,
+        x_p_frac=None,
+        x_zero_out_t=None,
+        w_p_exp=None,
+        w_p_frac=None,
+        w_zero_out_t=None,
+    ),
+    dtype: Literal["float32", "float16", "bfloat16"] = DEFAULT_DTYPE,
+    prompt: str = "London is ",
+    max_new_tokens: int = 100,
+    seed: int = 42,
+    do_sample: bool = True,
+    temperature: float = 0.6,
+    top_k: int = 50,
+    top_p: float = 0.9,
+    save_dir: Optional[Path] = None,
+):
+    """Randomly flip bit in linear layers of a model and evaluate it."""
+    # fmt: off
+    # 2^-6 = 0.015625, 2^-13 = 0.0001220703125
+
+    if isinstance(bitflip_config, str) and bitflip_config == "default":
+        print("Using default bitflip config:")
+        print(asdict(default_bitflip_config))
+        bitflip_config_default = asdict(default_bitflip_config)
+        bitflip_config = {"default": bitflip_config_default, "lm_head": None}
+    elif isinstance(bitflip_config, Path) or isinstance(bitflip_config, str):
+        with bitflip_config.open("r") as f:
+            bitflip_config = yaml.safe_load(f)
+    else:
+        assert isinstance(bitflip_config, dict), f"Invalid bitflip_config: {bitflip_config}"
+
+    bitflip_config = RandomBitFlipConfigManager(bitflip_config)
+    device = torch.device("cuda")
+    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
+    replaced_layers = flip_bits_in_linear(model, bitflip_config)
+    print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
+
+    model.to(device)
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+    response = hf_generate(prompt=prompt, model=model, tokenizer=tokenizer, max_new_tokens=max_new_tokens, dtype=dtype, seed=seed,
+                do_sample=do_sample, temperature=temperature, top_k=top_k, top_p=top_p)
+
+    if save_dir is not None:
+        save_dir.mkdir(parents=True, exist_ok=True)
+        with open(save_dir / "prompt-response.txt", "w") as f:
+            f.write(f"Prompt: {prompt}\n\nResponse:\n{response}")
+
+
 if __name__ == "__main__":
     import os
 
@@ -178,6 +231,7 @@ if __name__ == "__main__":
     cli_map = {
         "eval-ori": eval_ori,
         "eval-bitflip": eval_random_bitflip,
+        "hf-gen": bitflip_hf_generate,
     }
     CLI(cli_map)
 
