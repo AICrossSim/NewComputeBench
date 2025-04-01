@@ -7,9 +7,11 @@ transformers==4.48.3
 accelerate
 torch
 numpy
+# torchtitan dependencies
 tiktoken
 blobfile
 colorlog
 torchdata
 tensorboard
 lm-eval==0.4.7
+mase-triton

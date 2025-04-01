@@ -1,17 +1,19 @@
-from typing import Literal, Optional, Union
+import sys
+from pathlib import Path
+
+sys.path.append(Path(__file__).resolve().parents[3].joinpath("src").as_posix())
+from typing import Literal, Optional
 import datetime
-import torch._dynamo.config
 import yaml
 import math
 from pathlib import Path
 
 import torch
-from aixsim_models.llm.profiler import profile_num_params, estimate_memory
+from aixsim_models.llm.profiler import profile_num_params
 from aixsim_models.llm import register_model_configs, register_pretrain_dataset
-from aixsim_models.utils.download import download_dataset
 from aixsim_models.utils.logging import set_logging_verbosity
 
-from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_generate, hf_lm_eval
+from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_lm_eval
 from aixsim_models.llm.utils import convert_torch_to_hf
 from aixsim_models.bitflip.pretrainer import pretrain
 from aixsim_models.bitflip.arg_manager import ArgRandomBitFlipTransform
