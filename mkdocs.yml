@@ -52,6 +52,9 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.blocks.caption
 nav:
   - Home: index.md
   - Getting Started:
@@ -64,4 +67,4 @@ nav:
               - LLM: "02-model-behaviour-level-simulation/llm-bitflip.md"
       - Hardware Performance Simulation: "03-hardware-performance-simulation/underconstruction.md"
   - Developer Guide:
-      - Static site: "dev-guide.md"
+      - Documentation: "dev-guide.md"

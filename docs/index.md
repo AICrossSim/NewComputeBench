@@ -1,4 +1,9 @@
-# NewComputeBench
+# AICrossSim/NewComputeBench
+
+<figure markdown="span">
+  ![NewComputeBench](./assets/aicrosssim-logo-trans-bg.png){ width="200" }
+  <figcaption>NewComputeBench</figcaption>
+</figure>
 
 **[AICrossSim/NewComputeBench](https://github.com/AICrossSim/NewComputeBench)** is a benchmark suite for new compute paradigms (Spiking neural networks, Optical computation, In-Memory computation, etc) via software emulation. The project consists of three main components:
 
@@ -6,12 +11,17 @@
 - Model Behavior-Level Simulation
 - Hardware-Performance Simulation (`🚧 TODO`)
 
+
 ## What's New
 
-- 🚩 **15th April Milestone**: System and model-level training simulation (SLM):
-    1. Environment setup: [Tutorial](env-setup.md)
-    2. Pretraining AICrossSim LLMs (60M, 200M, 400M, 600M, 1.1B) & evaluation: [Tutorial](01-model-training/llm-pretrain-and-eval.md)
-    3. Software-emulated bitflip-aware pretraining & evaluation: [Tutorial](02-model-behaviour-level-simulation/llm-bitflip.md)
+- 🚩 **15th April Milestone**: System and model-level training simulation (Small Language Models).
+
+    | Item | Description |
+    | ---- | ----------- |
+    | Environment setup | [Tutorial](env-setup.md) |
+    | Pretraining AICrossSim LLMs (60M, 200M, 400M, 600M, 1.1B) & evaluation | [Tutorial](01-model-training/llm-pretrain-and-eval.md) |
+    | Software-emulated bitflip-aware pretraining & evaluation | [Tutorial](02-model-behaviour-level-simulation/llm-bitflip.md) |
+
 
 ## About the Project
 

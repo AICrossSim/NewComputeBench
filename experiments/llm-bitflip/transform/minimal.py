@@ -137,9 +137,22 @@ def eval_random_bitflip(
     max_seq_len: Optional[int] = 2048,
     save_dir: Optional[Path] = None,
 ):
-    """Randomly flip bit in linear layers of a model and evaluate it."""
+    """
+    Randomly flip bit in linear layers of a model and evaluate it.
+
+    Args:
+        model_name (str): The name of the model to use. Default is "meta-llama/Llama-3.1-8B".
+        bitflip_config (Union[Literal["default"], Path, dict]): The config for the bitflip. Default is "default".
+        default_bitflip_config (DefaultBitFlipConfig): The default config for the bitflip. Default is DefaultBitFlipConfig.
+        dtype (Literal["float32", "float16", "bfloat16"]): The dtype to use. Default is "float16".
+        tasks (Optional[list[str]]): The tasks to evaluate. Default is ["wikitext"].
+        num_fewshot (Optional[int]): The number of fewshot examples to use. Default is None.
+        batch_size (Optional[Union[int, str]]): The batch size to use. Default is 32.
+        limit (Optional[Union[int, float]]): The limit to use. Default is None.
+        max_seq_len (Optional[int]): The maximum sequence length to use. Default is 2048.
+        save_dir (Optional[Path]): The directory to save the results. Default is None.
+    """
     # fmt: off
-    # 2^-6 = 0.015625, 2^-13 = 0.0001220703125
 
     if isinstance(bitflip_config, str) and bitflip_config == "default":
         print("Using default bitflip config:")
@@ -193,9 +206,23 @@ def bitflip_hf_generate(
     top_p: float = 0.9,
     save_dir: Optional[Path] = None,
 ):
-    """Randomly flip bit in linear layers of a model and evaluate it."""
+    """Randomly flip bit in linear layers of a model and evaluate it.
+
+    Args:
+        model_name (str): The name of the model to use. Default is "meta-llama/Llama-3.1-8B".
+        bitflip_config (Union[Literal["default"], Path, dict]): The config for the bitflip. Default is "default".
+        default_bitflip_config (DefaultBitFlipConfig): The default config for the bitflip. Default is DefaultBitFlipConfig.
+        dtype (Literal["float32", "float16", "bfloat16"]): The dtype to use. Default is "float16".
+        prompt (str): The prompt to use. Default is "London is ".
+        max_new_tokens (int): The maximum number of new tokens to generate. Default is 100.
+        seed (int): The seed to use. Default is 42.
+        do_sample (bool): Whether to sample or not. Default is True.
+        temperature (float): The temperature to use. Default is 0.6.
+        top_k (int): The top_k to use. Default is 50.
+        top_p (float): The top_p to use. Default is 0.9.
+        save_dir (Optional[Path]): The directory to save the results. Default is None.
+    """
     # fmt: off
-    # 2^-6 = 0.015625, 2^-13 = 0.0001220703125
 
     if isinstance(bitflip_config, str) and bitflip_config == "default":
         print("Using default bitflip config:")
