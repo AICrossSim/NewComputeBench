@@ -158,7 +158,7 @@ if __name__ == "__main__":
             "hf-ppl": hf_check_ppl,
             "hf-lm-eval": hf_lm_eval,
         },
-        "generate-hf": hf_generate,
+        "hf-gen": hf_generate,
         "convert-ckpt": {
             "pt2hf": convert_torch_to_hf,
         },

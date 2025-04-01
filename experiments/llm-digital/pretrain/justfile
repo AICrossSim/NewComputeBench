@@ -122,5 +122,5 @@ generate-hf:
     if [ -z "{{hf_ckpt}}" ]; then \
         echo "⚠️ Please provide hf_ckpt"; \
     else \
-        python run.py generate-hf {{hf_ckpt}} "{{prompt}}" --do_sample {{do_sample}} --temperature {{temperature}} --top_p {{top_p}} --top_k {{top_k}} ; \
+        python run.py hf-gen {{hf_ckpt}} "{{prompt}}" --do_sample {{do_sample}} --temperature {{temperature}} --top_p {{top_p}} --top_k {{top_k}} ; \
     fi

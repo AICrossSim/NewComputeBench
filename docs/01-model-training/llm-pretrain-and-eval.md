@@ -1,6 +1,6 @@
 # LLM Pretraining
 
-This document provides a tutorial on how to pretrain [AICrossSim-CLM](../model-list.md) using NewComputeBench.
+This is a tutorial on how to pretrain [AICrossSim-CLM](../model-list.md) using NewComputeBench.
 
 ## Overview
 
@@ -280,4 +280,39 @@ python run.py hf-lm-eval \
     ${model_name} \
     --tasks ['wikitext'] \
     --dtype float16
+```
+
+Try `--help` to see all the available arguments.
+
+```bash
+python run.py hf-lm-eval -h
+```
+
+!!! info "`lm-eval-harness`"
+    Under the hood, the subcommand `hf-lm-eval` uses `lm-eval-harness`'s `simple_evaluate` function, thus it accepts several arguments of `simple_evaluate`:
+
+    - `--tasks`: a list of tasks to evaluate on. The task names are the same as those in `lm-eval-harness`.
+    - `--num_fewshot`: some downstream tasks support few-shot evaluation. Default `None` means default few-shot setting.
+    - `--limit`: If `--limit` > 1, it's the maximum number of examples to evaluate on, else it denotes the fraction of the dataset to evaluate on. Default `None` means evaluate on the entire dataset.
+
+### Simple Generation
+
+We also provide a simple generation subcommand `hf-gen` to generate text using the pretrained models.
+
+```bash
+prompt="London is"
+max_new_tokens="100"
+do_sample="true"
+temperature="0.6"
+top_k="50"
+top_p="0.9"
+
+python run.py hf-gen \
+    AICrossSim/clm-60m \
+    ${prompt} \
+    --max_new_tokens ${max_new_tokens} \
+    --do_sample ${do_sample} \
+    --temperature ${temperature} \
+    --top_k ${top_k} \
+    --top_p ${top_p} \
 ```

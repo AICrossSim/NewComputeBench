@@ -5,6 +5,8 @@
 - Model Behavior-Level Simulation
 - Hardware-Performance Simulation
 
+**🔖 For tutorials and examples, please refer to [this site](https://aicrosssim.github.io/NewComputeBench/)**.
+
 ## Model Training
 
 ### LLMs
@@ -39,7 +41,13 @@ We provide a script to convert the torchtitan checkpoint to a HuggingFace checkp
 
 ## Model Behavior Simulation
 
-`🚧 TODO`
+- [Random bitflip](/experiments/llm-bitflip/)
+  - Post-training bitflip transform
+  - Bitflip-aware pretraining
+- Optical compute `🚧 TODO`
+- Spiking neural networks `🚧 TODO`
+- In-memory compute `🚧 TODO
+`
 
 ## Hardware-Performance Simulation
 
