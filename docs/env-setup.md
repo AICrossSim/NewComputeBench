@@ -17,13 +17,21 @@
 
 ## Environment Setup
 
-1. Create a new conda environment
+1. Clone the project repository
+
+    ```bash
+    git clone https://github.com/AICrossSim/NewComputeBench.git
+    cd NewComputeBench
+    git submodule update --init
+    ```
+
+2. Create a new conda environment
 
     ```bash
     conda env create -f environment.yaml
     ```
 
-2. Activate the new environment and install required packages
+3. Activate the new environment and install required packages
 
     ```bash
     conda activate new-compute
@@ -40,7 +48,7 @@
     pip install -r requirements.txt
     ```
 
-3. (Optional) You may want to log in [Wandb](https://wandb.ai/site/) to track the training logs.
+4. (Optional) You may want to log in [Wandb](https://wandb.ai/site/) to track the training logs.
 
     ```bash
     wandb login

@@ -10,7 +10,7 @@
 
 - 🚩 **15th April Milestone**: System and model-level training simulation (SLM):
     1. Environment setup: [Tutorial](env-setup.md)
-    2. Pretraining AICrossSim LLMs (60M, 200M, 400M, 600M, 1.1B) & evaluation: [Tutorial](01-model-training/llm-pretrain.md)
+    2. Pretraining AICrossSim LLMs (60M, 200M, 400M, 600M, 1.1B) & evaluation: [Tutorial](01-model-training/llm-pretrain-and-eval.md)
     3. Software-emulated bitflip-aware pretraining & evaluation: [Tutorial](02-model-behaviour-level-simulation/llm-bitflip.md)
 
 ## About the Project

@@ -58,10 +58,10 @@ nav:
       - Environment Setup: env-setup.md
       - Supported Models: model-list.md
       - Pretraining:
-          - LLMs: "01-model-training/llm-pretrain.md"
+          - LLM Pretraining and Evaluation: "01-model-training/llm-pretrain-and-eval.md"
       - Model Behaviour Level Simulation:
           - Random BitFlip:
-              - LLMs: "02-model-behaviour-level-simulation/llm-bitflip.md"
+              - LLM: "02-model-behaviour-level-simulation/llm-bitflip.md"
       - Hardware Performance Simulation: "03-hardware-performance-simulation/underconstruction.md"
   - Developer Guide:
       - Static site: "dev-guide.md"
