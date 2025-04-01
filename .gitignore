@@ -2,6 +2,6 @@
 /experiments/**/outputs/
 /experiments/**/tokenizers/
 /experiments/llm-digital/pretrain/aixsim-60M/
-
+/.cache/
 
 __pycache__/
