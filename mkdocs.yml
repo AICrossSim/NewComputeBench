@@ -1,6 +1,8 @@
 site_name: NewComputeBench
 theme:
   name: material
+  logo: images/logo.png
+  favicon: images/logo.png
   language: en
   font:
     text: Roboto
@@ -10,7 +12,6 @@ theme:
     primary: indigo
     accent: deep orange
   icon:
-    logo: fontawesome/solid/robot
     repo: fontawesome/brands/github
   features:
     - navigation.instant

@@ -5,7 +5,7 @@
 Besides the environment setup in [Environment Setup](env-setup.md), you need to install `mkdocs-material` for maintaining the documentation.
 
 ```bash
-pip install mkdocs-material
+pip install mkdocs-material mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin-2
 ```
 
 ## Documentation

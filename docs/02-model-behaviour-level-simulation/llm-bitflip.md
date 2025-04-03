@@ -72,7 +72,7 @@ temperature="0.6"
 top_k="50"
 top_p="0.9"
 
-python run.py hf-gen \
+python minimal.py hf-gen \
     AICrossSim/clm-60m \
     ${prompt} \
     --max_new_tokens ${max_new_tokens} \
@@ -108,7 +108,7 @@ Similar to the [pretraining of script of AICrossSim-CLM](../01-model-training/ll
         cd experiments/llm-bitflip/pretrain
 
         bitflip_transform_config="./configs/meta/fc-only-w-a-exp-frac.yaml"
-        python run.py generate-cfg \
+        python minimal.py generate-cfg \
             ${bitflip_transform_config} \
             --model_arch "aixsim" \
             --model_flavor "60M" \
@@ -159,5 +159,4 @@ Similar to the [pretraining of script of AICrossSim-CLM](../01-model-training/ll
         | 60M | 2x H100 96GB | 2.5 hours | [`configs/aixsim-60M.yaml`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/pretrain/configs/aixsim-60M.yaml) | [link](https://wandb.ai/cz98/torchtitan/runs/bbyruxxh/overview) | [AICrossSim/bitflip-fc-clm-60m](https://huggingface.co/AICrossSim/bitflip-fc-clm-60m) |
         | 200M | 2x H100 96GB | 14.3 hours | [`configs/aixsim-200M.yaml`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/pretrain/configs/aixsim-200M.yaml) | [link](https://wandb.ai/cz98/torchtitan/runs/iivbk9nr/overview) | [AICrossSim/bitflip-fc-clm-200m](https://huggingface.co/AICrossSim/bitflip-fc-clm-200m) |
         | 400M | 6x A6000 48GB | 33 hours | [`configs/aixsim-400M.yaml`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/pretrain/configs/aixsim-400M.yaml) | [link](https://wandb.ai/cz98/torchtitan/runs/6mnsbo7e/overview) | [AICrossSim/bitflip-fc-clm-400m](https://huggingface.co/AICrossSim/bitflip-fc-clm-400m) |
-        | 600M (`🚧 WIP`) | | | | | |
         | 1.1B (`🚧 WIP`) | | | | | |

@@ -157,12 +157,12 @@ def pretrain(
     transform_config_manager = TransformConfigManager(
         args.transform.layer_name_to_config, use_regex=args.transform.use_regex
     )
-    replaced_layers = transform_model(
+    transform_model(
         model,
         config_manager=transform_config_manager,
         transform_flavor=args.transform.transform_flavor,
     )
-    logger.info(f"Transformed model with random bitflip:\n{pformat(make_transform_histogram(replaced_layers))}")
+    # logger.info(f"Transformed model with random bitflip:\n{pformat(make_transform_histogram(replaced_layers))}")
 
     # a no-op hander if float8 is not enabled
     float8_handler = Float8Handler(args, parallel_dims)
