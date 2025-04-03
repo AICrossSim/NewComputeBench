@@ -1,63 +1,54 @@
-from typing import Literal
+from typing import Literal, Optional
+import logging
 
 import torch
-
-from ..utils.torch_module import set_layer_by_name, TransformConfigManager
+from chop.passes.module.transforms.bitflip import bitflip_module_transform_pass
+from ..utils.torch_module import TransformConfigManager
 from ..utils.deps import all_packages_are_available
 
+logger = logging.getLogger(__name__)
 
-if not all_packages_are_available(("mase_triton",)):
 
-    def RandomBitFlipDropout(*args, **kwargs):
-        raise ImportError("mase-triton not installed. Please install mase-triton to use this feature.")
+if not all_packages_are_available(("mase_triton", "chop")):
 
-    def RandomBitFlipLinear(*args, **kwargs):
-        raise ImportError("mase-triton not installed. Please install mase-triton to use this feature.")
+    def transform_model(*args, **kwargs):
+        raise ImportError("mase-triton or chop not installed. Please install mase-triton to use this feature.")
+
+    def make_transform_histogram(*args, **kwargs):
+        raise ImportError("mase-triton or chop not installed. Please install mase-triton to use this feature.")
 
 else:
-    from mase_triton.random_bitflip.layers import RandomBitFlipDropout, RandomBitFlipLinear
 
+    def transform_model(
+        model: torch.nn.Module, config_manager: TransformConfigManager, transform_flavor: Optional[Literal["fc"]] = None
+    ) -> torch.nn.Module:
+        """
+        Transform a model into the random bitflip form using the given configuration manager and transform flavor.
 
-def flip_bits_in_linear(model: torch.nn.Module, config_manager: TransformConfigManager) -> list[tuple[str, str]]:
-    replaced_layers = []
+        Args:
+            model (torch.nn.Module): The model to transform.
+            config_manager (TransformConfigManager): The configuration manager for the transformation.
+            transform_flavor (Optional[Literal["fc"]]): The flavor of the transformation. Defaults to None.
 
-    for name, layer in model.named_modules():
-        if isinstance(layer, torch.nn.Linear):
-            layer_cfg = config_manager.get_layer_config(name)
-            if layer_cfg is None:
-                continue
-            new_layer = RandomBitFlipLinear.from_linear(layer, **layer_cfg)
-            set_layer_by_name(model, name, new_layer)
-            replaced_layers.append((name, config_manager.get_layer_config_entry(name)))
-    return replaced_layers
+        Returns:
+            torch.nn.Module: The transformed model.
+        """
 
+        if transform_flavor is None or transform_flavor == "fc":
+            # *: use the bitflip transform pass in mase-tools
+            pass_args = config_manager.layer_name_to_config
+            pass_args = pass_args | {"by": "regex_name" if config_manager.use_regex else "name"}
+            bitflip_module_transform_pass(model, pass_args=pass_args)
+            return model
+        else:
+            raise ValueError(f"Unknown transform flavor {transform_flavor}")
 
-def transform_model(
-    model: torch.nn.Module, config_manager: TransformConfigManager, transform_flavor: Literal["fc"]
-) -> list[tuple[str, str]]:
-    """
-    Transform a model into the random bitflip form using the given configuration manager and transform flavor.
-
-    Args:
-        model (torch.nn.Module): The model to transform.
-        config_manager (TransformConfigManager): The configuration manager for the transformation.
-        transform_flavor (Literal["fc"]): The flavor of the transformation to apply.
-
-    Returns:
-        list[tuple[str, str]]: A list of tuples containing the names of the layers that were replaced and the configuration
-            entry that was used for the replacement
-    """
-    if transform_flavor == "fc":
-        return flip_bits_in_linear(model, config_manager)
-    else:
-        raise ValueError(f"Unknown transform flavor {transform_flavor}")
-
-
-def make_transform_histogram(replaced_layers: list[tuple[str, str]]) -> dict[str, dict[str, int | list[str]]]:
-    patterns = set(layer[1] for layer in replaced_layers)
-    histogram = {pattern: {"count": 0, "layers": []} for pattern in patterns}
-    for layer, pattern in replaced_layers:
-        histogram[pattern]["count"] += 1
-        histogram[pattern]["layers"].append(layer)
-    histogram["total"] = {"layer count": len(replaced_layers), "pattern count": len(patterns)}
-    return histogram
+    def make_transform_histogram(replaced_layers: list[tuple[str, str]]) -> dict[str, dict[str, int | list[str]]]:
+        raise NotImplementedError("make_transform_histogram is not implemented.")
+        # patterns = set(layer[1] for layer in replaced_layers)
+        # histogram = {pattern: {"count": 0, "layers": []} for pattern in patterns}
+        # for layer, pattern in replaced_layers:
+        #     histogram[pattern]["count"] += 1
+        #     histogram[pattern]["layers"].append(layer)
+        # histogram["total"] = {"layer count": len(replaced_layers), "pattern count": len(patterns)}
+        # return histogram

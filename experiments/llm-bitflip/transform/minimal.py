@@ -12,9 +12,8 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonargparse import CLI
 
-from mase_triton.random_bitflip.layers import RandomBitFlipLinear
-from mase_triton.utils.torch_module import set_layer_by_name
 from aixsim_models.llm.evaluator import hf_lm_eval, hf_generate
+from aixsim_models.bitflip.transform import transform_model, TransformConfigManager
 
 DEFAULT_DTYPE = "float16"
 DEFAULT_TASKS = ["wikitext"]
@@ -46,66 +45,6 @@ def eval_ori(
         max_seq_len=max_seq_len,
         save_dir=save_dir,
     )
-
-
-class RandomBitFlipConfigManager:
-    """
-    Random bit flip configuration manager.
-    The configuration is a dict mapping layer names to configs.
-    Note that the keys in the dict are regex patterns.
-
-    Example of layer_name_to_config:
-
-    ```python
-    {
-        "default": {
-            "x_p_exp": 0.5**10,
-            "x_p_frac": 0.5**6,
-            "x_zero_out_t": 10,
-            "w_p_exp": None,
-            "w_p_frac": 0.5**8,
-            "w_zero_out_t": None,
-        },
-        "lm_head": None,
-    }
-    ```
-    """
-
-    def __init__(self, layer_name_to_config: dict[str, dict]):
-        self.layer_name_to_config = layer_name_to_config
-
-    @staticmethod
-    def find_matched_pattern(layer_name: str, patterns: list[str]) -> str | None:
-        for pattern in patterns:
-            if re.fullmatch(pattern, layer_name):
-                return pattern
-        if "default" in patterns:
-            return "default"
-        return None
-
-    def get_layer_config_entry(self, layer_name: str) -> str:
-        matched_pattern = self.find_matched_pattern(layer_name, self.layer_name_to_config.keys())
-        if matched_pattern is None:
-            raise ValueError(f"No matched pattern for layer {layer_name} and no default")
-        return matched_pattern
-
-    def get_layer_config(self, layer_name: str) -> dict | None:
-        """Return the config for the layer with the given name. The config is a dict, or None if skip."""
-        matched_entry = self.get_layer_config_entry(layer_name)
-        return self.layer_name_to_config[matched_entry]
-
-
-def flip_bits_in_linear(model: torch.nn.Module, config_manager: RandomBitFlipConfigManager) -> list[tuple[str, str]]:
-    replaced_layers = []
-    for name, layer in model.named_modules():
-        if isinstance(layer, torch.nn.Linear):
-            layer_cfg = config_manager.get_layer_config(name)
-            if layer_cfg is None:
-                continue
-            new_layer = RandomBitFlipLinear.from_linear(layer, **layer_cfg)
-            set_layer_by_name(model, name, new_layer)
-            replaced_layers.append((name, config_manager.get_layer_config_entry(name)))
-    return replaced_layers
 
 
 @dataclass
@@ -165,11 +104,12 @@ def eval_random_bitflip(
     else:
         assert isinstance(bitflip_config, dict), f"Invalid bitflip_config: {bitflip_config}"
 
-    bitflip_config = RandomBitFlipConfigManager(bitflip_config)
+    bitflip_config = TransformConfigManager(layer_name_to_config=bitflip_config, use_regex=True)
     device = torch.device("cuda")
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
-    replaced_layers = flip_bits_in_linear(model, bitflip_config)
-    print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
+    transform_model(model, config_manager=bitflip_config)
+    # replaced_layers = flip_bits_in_linear(model, bitflip_config)
+    # print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
 
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
@@ -235,11 +175,12 @@ def bitflip_hf_generate(
     else:
         assert isinstance(bitflip_config, dict), f"Invalid bitflip_config: {bitflip_config}"
 
-    bitflip_config = RandomBitFlipConfigManager(bitflip_config)
+    bitflip_config = TransformConfigManager(layer_name_to_config=bitflip_config, use_regex=True)
+
     device = torch.device("cuda")
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
-    replaced_layers = flip_bits_in_linear(model, bitflip_config)
-    print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
+    transform_model(model, config_manager=bitflip_config)
+    # print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
 
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)

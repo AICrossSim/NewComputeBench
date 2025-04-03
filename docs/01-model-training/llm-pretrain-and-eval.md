@@ -216,9 +216,6 @@ torchrun --nproc_per_node=${num_gpus} --rdzv_backend c10d \
     - Wandb logs: [link](https://wandb.ai/cz98/torchtitan/runs/cic7m3cx/overview)
     - HuggingFace checkpoint: [AICrossSim/clm-400m](https://huggingface.co/AICrossSim/clm-400m)
 
-### AICrossSim-CLM-600M
-
-`🚧 Work in Progress`
 
 ### AICrossSim-CLM-1.1B
 

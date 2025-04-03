@@ -4,7 +4,7 @@ A list of models we aim to port to NewComputeBench.
 
 | Task Type | Model Name | Model Sizes | Description |
 | --- | :----------| ------------| :---------- |
-| Causal language modeling | `AICrossSim-CLM` | 60M, 200M, 400M, 600M, 1.1B | A family of small language models adopting [Llama-3.1 architecture](https://arxiv.org/abs/2407.21783). <br> We use [`cosmo2-tokenizer`](https://huggingface.co/HuggingFaceTB/cosmo2-tokenizer) and pretrain them on [Fineweb-Edu](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu). |
+| Causal language modeling | `AICrossSim-CLM` | 60M, 200M, 400M, 1.1B | A family of small language models using [Llama-3.1 architecture](https://arxiv.org/abs/2407.21783). <br> We use [`cosmo2-tokenizer`](https://huggingface.co/HuggingFaceTB/cosmo2-tokenizer) and pretrain them on [Fineweb-Edu](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu). |
 | Causal language modeling | `Llama-3`| 1B, 3B, 8B, 70B | Meta's [Llama-3](https://arxiv.org/abs/2407.21783) model family |
 | Causal language modeling | TBD | TBD | TBD |
 | Image generation | TBD | TBD | TBD |
