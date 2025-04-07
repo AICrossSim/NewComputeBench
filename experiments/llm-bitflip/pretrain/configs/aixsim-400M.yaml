@@ -94,7 +94,7 @@ training:
     steps: 45712
     tensor_parallel_degree: 1
     warmup_steps: 9142
-transform:
+transform_args:
   value:
     layer_name_to_config:
       default:
