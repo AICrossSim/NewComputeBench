@@ -17,7 +17,9 @@
 
 ## Environment Setup
 
-1. Clone the project repository
+1. Config SSH key for GitHub. One of the dependencies, [MASE](https://github.com/DeepWok/mase), requires SSH to clone and install. Please set up `~/.ssh/config` accordingly (refer to [Connecting to GitHub with SSH](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)).
+
+2. Clone the project repository
 
     ```bash
     git clone https://github.com/AICrossSim/NewComputeBench.git
@@ -25,13 +27,13 @@
     git submodule update --init
     ```
 
-2. Create a new conda environment
+3. Create a new conda environment
 
     ```bash
     conda env create -f environment.yaml
     ```
 
-3. Activate the new environment and install required packages
+4. Activate the new environment and install required packages
 
     ```bash
     conda activate new-compute
@@ -48,7 +50,7 @@
     pip install -r requirements.txt
     ```
 
-4. (Optional) You may want to log in [Wandb](https://wandb.ai/site/) to track the training logs.
+5. (Optional) You may want to log in [Wandb](https://wandb.ai/site/) to track the training logs.
 
     ```bash
     wandb login
