@@ -64,9 +64,9 @@ profiling_args:
   save_traces_folder: profile_traces
 training_args:
   batch_size: 24
-  compile: true
+  compile: false
   data_parallel_replicate_degree: 1
-  data_parallel_shard_degree: 2
+  data_parallel_shard_degree: 8
   dataset: fineweb-edu
   dataset_path: HuggingFaceFW/fineweb-edu
   deterministic: false
@@ -79,6 +79,6 @@ training_args:
   mixed_precision_reduce: float32
   seed: 42
   seq_len: 2048
-  steps: 239383
+  steps: 59846
   tensor_parallel_degree: 1
-  warmup_steps: 47876
+  warmup_steps: 11969
