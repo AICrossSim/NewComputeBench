@@ -14,6 +14,7 @@
     - NVIDIA A6000 48GBx8, Ubuntu 24.04, CUDA 12.4
     - NVIDIA H100 96GBx2, Red Hat Enterprise Linux 9.5, CUDA 12.6.
     - NVIDIA H100 80GBx8, Ubuntu 24.04, CUDA 12.4
+    - NVIDIA H200 141GBx8, Ubuntu 24.04, CUDA 12.4
 
 ## Environment Setup
 
