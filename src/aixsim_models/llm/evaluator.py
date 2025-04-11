@@ -201,7 +201,7 @@ def hf_check_ppl(
 
 
 def hf_generate(
-    prompt: str,
+    prompt: str = "London is",
     model: Optional[transformers.PreTrainedModel] = None,
     tokenizer: Optional[transformers.PreTrainedTokenizer] = None,
     model_name: Optional[str] = None,
