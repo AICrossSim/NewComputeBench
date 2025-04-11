@@ -273,7 +273,7 @@ We leverage [`lm-eval-harness`](https://github.com/EleutherAI/lm-evaluation-harn
 For example,
 ```bash
 model_name="AICrossSim/clm-60m" # Path to local HuggingFace checkpoint or HuggingFace repo name
-python run.py hf-lm-eval \
+python run.py eval hf-lm-eval \
     ${model_name} \
     --tasks ['wikitext'] \
     --dtype float16
@@ -305,11 +305,11 @@ top_k="50"
 top_p="0.9"
 
 python run.py hf-gen \
-    AICrossSim/clm-60m \
-    ${prompt} \
+    --model_name AICrossSim/clm-60m \
+    --prompt "${prompt}" \
     --max_new_tokens ${max_new_tokens} \
     --do_sample ${do_sample} \
     --temperature ${temperature} \
     --top_k ${top_k} \
-    --top_p ${top_p} \
+    --top_p ${top_p}
 ```
