@@ -26,5 +26,3 @@ mkdocs serve
 ```
 
 Then you can preview the static sites in your browser.
-
-## How to add a new transform-aware pretraining?
