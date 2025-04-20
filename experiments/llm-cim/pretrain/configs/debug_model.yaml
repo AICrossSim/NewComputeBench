@@ -1,0 +1,54 @@
+activation_checkpoint_args:
+  mode: selective
+  selective_ac_option: "2"
+checkpoint_args:
+  async_mode: disabled
+  enable_checkpoint: true
+  export_dtype: float32
+  folder: checkpoint/debug_model
+  interval: 10
+  interval_type: steps
+  model_weights_only: false
+experimental_args:
+  context_parallel_degree: 1
+  enable_async_tensor_parallel: false
+  pipeline_parallel_degree: 1
+float8_args:
+  enable_float8_linear: false
+job_args:
+  description: Llama 3 debug training
+  dump_folder: ./outputs/checkpoints/debug-model
+  print_args: false
+  use_for_integration_test: true
+metrics_args:
+  disable_color_printing: false
+  enable_tensorboard: false
+  enable_wandb: false
+  log_freq: 1
+  save_tb_folder: tb
+model_args:
+  flavor: 60M
+  name: aixsim
+  norm_type: rmsnorm
+  tokenizer_path: HuggingFaceTB/cosmo2-tokenizer
+optimizer_args:
+  lr: 0.0008
+  name: AdamW
+profiling_args:
+  enable_memory_snapshot: false
+  enable_profiling: false
+  profile_freq: 10
+  save_memory_snapshot_folder: memory_snapshot
+  save_traces_folder: profile_trace
+training_args:
+  batch_size: 8
+  compile: false
+  data_parallel_replicate_degree: 1
+  data_parallel_shard_degree: -1
+  dataset: wikitext
+  fsdp_reshard_after_forward: default
+  max_norm: 1.0
+  seq_len: 2048
+  steps: 10
+  tensor_parallel_degree: 1
+  warmup_steps: 2
