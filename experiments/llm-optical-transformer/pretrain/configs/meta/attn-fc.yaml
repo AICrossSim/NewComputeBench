@@ -1,0 +1,11 @@
+use_regex: true
+layer_name_to_config:
+  default: null
+  ? 'layers\.[0-9]+\.attention|layers\.[0-9]+\.attention\.(wq|wk|wv|wo)|layers\.[0-9]+\.feed_forward\.(w1|w2|w3)'
+  : q_levels: 256
+    q_lut_min: 0.020040
+    q_quantiles: null
+    q_smooth_factor: 0.9
+    q_init_seed: 0
+    q_bypass: false
+  "output": null

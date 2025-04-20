@@ -20,6 +20,17 @@ def register_model_configs():
     models_parallelize_fns[model_arch_name] = models_parallelize_fns["llama3"]
     models_pipelining_fns[model_arch_name] = models_pipelining_fns["llama3"]
 
+    aixsim_configs["debug"] = ModelArgs(
+        dim=128,
+        n_layers=2,
+        n_heads=4,
+        n_kv_heads=2,
+        vocab_size=-1,
+        multiple_of=128,
+        ffn_dim_multiplier=1.3,
+        rope_theta=10000,
+    )
+
     aixsim_configs["60M"] = ModelArgs(
         dim=384,
         n_layers=22,
@@ -85,8 +96,6 @@ def register_model_configs():
         ffn_dim_multiplier=1.3,
         rope_theta=10000,
     )
-    logger.info(
-        f"Registered the following AIxSIM model configurations: {list(aixsim_configs.keys())}"
-    )
+    logger.info(f"Registered the following AIxSIM model configurations: {list(aixsim_configs.keys())}")
     logger.info(f"Registered `model_arch` 'aixsim' with `tokenizer_type` 'hf'")
     logger.info(f"Registered `model_arch` 'aixsim' with `parallelize_fn` 'llama3'")

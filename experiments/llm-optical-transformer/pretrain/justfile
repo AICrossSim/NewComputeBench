@@ -1,0 +1,25 @@
+n_gpus := "2"
+pretrain_cfg := "path/to/config.yaml"
+
+pretrain:
+    if [ ! -f "{{pretrain_cfg}}" ]; then \
+        echo "Pretrain config file not found: {{pretrain_cfg}}"; \
+    fi
+    PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
+        torchrun --nproc_per_node={{n_gpus}} --rdzv_backend c10d \
+        --rdzv_endpoint="localhost:0" --local-ranks-filter 0 \
+        --role rank --tee 3 \
+        run.py pretrain --config {{pretrain_cfg}}
+
+seed-ckpt:
+    if [ ! -f "{{pretrain_cfg}}" ]; then \
+        echo "Pretrain config file not found: {{pretrain_cfg}}"; \
+    fi
+    PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
+        torchrun --nproc_per_node=1 --rdzv_backend c10d \
+        --rdzv_endpoint="localhost:0" --local-ranks-filter 0 \
+        --role rank --tee 3 \
+        run.py pretrain --config {{pretrain_cfg}} \
+        --checkpoint_args.create_seed_checkpoint=true \
+        --training_args.data_parallel_shard_degree=1 \
+        --training_args.data_parallel_replicate_degree=1

@@ -1,0 +1,7 @@
+use_regex: true
+layer_name_to_config:
+  default: null
+  'layers\.[0-9]+\.attention\.(wq|wk|wv|wo)': null
+  'layers\.[0-9]+\.feed_forward\.(w1|w2|w3)': null
+  'layers\.[0-9]+\.attention': null
+  "output": null

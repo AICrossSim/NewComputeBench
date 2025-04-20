@@ -20,12 +20,13 @@ def wandb_update_config(metric_logger: WandBLogger, config_d: dict):
 def wandb_extract_and_update_tags(metric_logger: WandBLogger, args):
     from aixsim_models.llm.arg_manager import PreTrainArgs as PlainArgs
     from aixsim_models.bitflip.arg_manager import PreTrainArgs as BitflipArgs
+    from aixsim_models.optical_compute.optical_transformer.arg_manager import PreTrainArgs as OpticalTransformerArgs
 
     if not isinstance(metric_logger, WandBLogger):
         logger.warning("Metric logger is not a WandBLogger, skipping tag update")
         return
 
-    if not isinstance(args, (PlainArgs, BitflipArgs)):
+    if not isinstance(args, (PlainArgs, BitflipArgs, OpticalTransformerArgs)):
         logger.error(
             f"The PreTrainArgs object is not of the expected type. Consider updating function `extract_and_update_tags` in file {__file__}"
         )
@@ -40,6 +41,8 @@ def wandb_extract_and_update_tags(metric_logger: WandBLogger, args):
     elif isinstance(args, BitflipArgs):
         tags += ("transform:bitflip",)
         tags += (f"transform-flavor:{args.transform.transform_flavor}",)
+    elif isinstance(args, OpticalTransformerArgs):
+        tags += ("transform:optical:optical-transformer",)
     else:
         raise NotImplementedError(f"args is of unsupported type {type(args)}")
     metric_logger.wandb.run.tags += tags
