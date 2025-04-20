@@ -52,7 +52,7 @@ python minimal.py eval-bitflip \
 You may want to compare the evaluation results of the bitflip model with the original model. You can do this by running the following command:
 
 ```bash
-python run.py eval-ori \
+python minimal.py eval-ori \
     --model_name ${model_name} \
     --tasks ['wikitext']
 ```
@@ -108,7 +108,7 @@ Similar to the [pretraining of script of AICrossSim-CLM](../01-model-training/ll
         cd experiments/llm-bitflip/pretrain
 
         bitflip_transform_config="./configs/meta/fc-only-w-a-exp-frac.yaml"
-        python minimal.py generate-cfg \
+        python run.py generate-cfg \
             ${bitflip_transform_config} \
             --model_arch "aixsim" \
             --model_flavor "60M" \
@@ -126,7 +126,7 @@ Similar to the [pretraining of script of AICrossSim-CLM](../01-model-training/ll
         num_gpus="2"
         PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
         torchrun --nproc_per_node=${num_gpus} --rdzv_backend c10d \
-            --rdzv_endpoint="localhost:0" --local-ranks-filter {{local_rank}} \
+            --rdzv_endpoint="localhost:0" --local-ranks-filter 0 \
             --role rank --tee 3 \
             run.py pretrain \
             --config configs/tutorial-60m.yaml \
