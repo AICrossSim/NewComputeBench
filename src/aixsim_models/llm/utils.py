@@ -1,6 +1,8 @@
 from typing import Literal, Optional
 from pathlib import Path
 import logging
+
+import torch
 from torch.distributed.checkpoint.format_utils import dcp_to_torch_save
 
 logger = logging.getLogger(__name__)
@@ -82,6 +84,7 @@ def convert_torch_to_hf(
 
     # permute for sliced rotary
     def permute(w, n_heads, dim1=dim, dim2=dim):
+        # exchange the first half of the heads with the second half
         return w.view(n_heads, dim1 // n_heads // 2, 2, dim2).transpose(1, 2).reshape(dim1, dim2)
 
     for layer_i in range(n_layers):
@@ -175,3 +178,80 @@ def convert_torch_to_hf(
         model.push_to_hub(push_to_hub)
         tokenizer.push_to_hub(push_to_hub)
         logger.info(f"Model pushed to Hugging Face Hub: {push_to_hub}")
+
+
+@torch.inference_mode()
+def convert_hf_to_torch(
+    hf_model_name_or_path: str,
+    model_arch: str,
+    model_flavor: str,
+    save_dir: Path,
+    max_seq_len: int = 2048,
+):
+    import torch
+    import torch.distributed.checkpoint as DCP
+    import transformers
+    from transformers.models.llama.modeling_llama import LlamaForCausalLM
+    from torchtitan.models.llama.model import precompute_freqs_cis
+
+    from torchtitan.models import models_config
+
+    model_cfg = models_config[model_arch][model_flavor]
+    model = LlamaForCausalLM.from_pretrained(
+        hf_model_name_or_path,
+        torch_dtype=torch.float32,
+    )
+    assert model_cfg.n_layers == model.config.num_hidden_layers
+    assert model_cfg.n_heads == model.config.num_attention_heads
+    assert model_cfg.dim == model.config.hidden_size
+    assert model_cfg.n_kv_heads == model.config.num_key_value_heads
+
+    n_layers = model_cfg.n_layers
+    n_heads = model_cfg.n_heads
+    dim = model_cfg.dim
+    dims_per_head = dim // n_heads
+
+    num_key_value_heads = model_cfg.n_kv_heads
+    key_value_dim = dims_per_head * num_key_value_heads
+
+    state_dict = model.state_dict()
+    new_state_dict = {}
+
+    # permute for sliced rotary
+    def permute(w: torch.Tensor, n_heads, dim1=dim, dim2=dim):
+        return w.view(n_heads, 2, dim1 // n_heads // 2, dim2).transpose(1, 2).reshape(dim1, dim2)
+
+    for layer_i in range(n_layers):
+        new_state_dict |= {
+            f"layers.{layer_i}.attention.wq.weight": permute(
+                state_dict[f"model.layers.{layer_i}.self_attn.q_proj.weight"], n_heads=n_heads
+            ),
+            f"layers.{layer_i}.attention.wk.weight": permute(
+                state_dict[f"model.layers.{layer_i}.self_attn.k_proj.weight"],
+                n_heads=num_key_value_heads,
+                dim1=key_value_dim,
+            ),
+            f"layers.{layer_i}.attention.wv.weight": state_dict[f"model.layers.{layer_i}.self_attn.v_proj.weight"],
+            f"layers.{layer_i}.attention.wo.weight": state_dict[f"model.layers.{layer_i}.self_attn.o_proj.weight"],
+            f"layers.{layer_i}.feed_forward.w1.weight": state_dict[f"model.layers.{layer_i}.mlp.gate_proj.weight"],
+            f"layers.{layer_i}.feed_forward.w2.weight": state_dict[f"model.layers.{layer_i}.mlp.down_proj.weight"],
+            f"layers.{layer_i}.feed_forward.w3.weight": state_dict[f"model.layers.{layer_i}.mlp.up_proj.weight"],
+            f"layers.{layer_i}.attention_norm.weight": state_dict[f"model.layers.{layer_i}.input_layernorm.weight"],
+            f"layers.{layer_i}.ffn_norm.weight": state_dict[f"model.layers.{layer_i}.post_attention_layernorm.weight"],
+        }
+
+    new_state_dict[f"norm.weight"] = state_dict["model.norm.weight"]
+    new_state_dict[f"tok_embeddings.weight"] = state_dict["model.embed_tokens.weight"]
+    new_state_dict[f"output.weight"] = state_dict["lm_head.weight"]
+
+    new_state_dict[f"freqs_cis"] = precompute_freqs_cis(
+        dims_per_head,
+        max_seq_len,
+        model_cfg.rope_theta,
+    )
+
+    logger.info(f"Writing torch checkpoint to {save_dir}")
+    Path(save_dir).mkdir(parents=True, exist_ok=True)
+
+    storage_writer = DCP.filesystem.FileSystemWriter(save_dir, thread_count=8)
+    DCP.save({"model": new_state_dict}, storage_writer=storage_writer)

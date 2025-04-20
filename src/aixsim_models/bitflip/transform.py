@@ -21,7 +21,7 @@ else:
 
     def transform_model(
         model: torch.nn.Module, config_manager: TransformConfigManager, transform_flavor: Optional[Literal["fc"]] = None
-    ) -> torch.nn.Module:
+    ) -> None:
         """
         Transform a model into the random bitflip form using the given configuration manager and transform flavor.
 
@@ -39,7 +39,6 @@ else:
             pass_args = config_manager.layer_name_to_config
             pass_args = pass_args | {"by": "regex_name" if config_manager.use_regex else "name"}
             bitflip_module_transform_pass(model, pass_args=pass_args)
-            return model
         else:
             raise ValueError(f"Unknown transform flavor {transform_flavor}")
 
