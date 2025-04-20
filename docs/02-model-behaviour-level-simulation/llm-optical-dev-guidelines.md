@@ -20,7 +20,9 @@ Here we use optical compute in the [*Optical Transformers* (`OT`) paper](https:/
 
     !!! info "Kernels in `mase_triton.optical_compute`"
 
-        We use Triton instead of PyTorch API to implement `OpticalTransformerLinear` (essentially functional [`ot_qlinear_fn`](https://github.com/DeepWok/mase-triton/blob/master/src/mase_triton/optical_compute/core/optical_transformer/linear.py)) and [`OpticalTransformerFunctions.quantized_matmul_fn`](https://github.com/DeepWok/mase-triton/blob/master/src/mase_triton/optical_compute/core/optical_transformer/matmul.py), because for the method described in *Optical Transformers*, if we implement it using PyTorch built-in functions, the training will consume a lot of GPU memory and the training speed will be very slow. We implement Triton kernel mainly for **saving GPU memory**. If your simulation can be memory-effciently implemented using PyTorch built-in functions, you don't need to use Triton.
+        - We use Triton instead of PyTorch API to implement `OpticalTransformerLinear` (essentially functional [`ot_qlinear_fn`](https://github.com/DeepWok/mase-triton/blob/master/src/mase_triton/optical_compute/core/optical_transformer/linear.py)) and [`OpticalTransformerFunctions.quantized_matmul_fn`](https://github.com/DeepWok/mase-triton/blob/master/src/mase_triton/optical_compute/core/optical_transformer/matmul.py), because for the method described in *Optical Transformers*, if we implement it using PyTorch built-in functions, the training will consume a lot of GPU memory and the training speed will be very slow. We implement Triton kernel mainly for **saving GPU memory**. If your simulation can be memory-effciently implemented using PyTorch built-in functions, you don't need to use Triton.
+
+        - HuggingFace `transformers`'s Trainer may not work with autotuned Triton kernels. This is why in [`mase-triton`](https://github.com/DeepWok/mase-triton), the autotuning is disabled.
 
 2. A pass to transform [`LlamaForCausalLM`](https://github.com/huggingface/transformers/blob/6daa3eeba582facb57cd71db8efb66998b12942f/src/transformers/models/llama/modeling_llama.py#L739).
 
