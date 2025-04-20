@@ -8,7 +8,7 @@ continual pretraining is recommended in this case.
 
 !!! info "Example: Continual Pretraining with Simulated Optical Compute"
 
-    The example scripts can be found at [`experiments/llm-optical-transformer/continual_pretraining`](/experiments/llm-optical-transformer/continual_pretraining/)
+    The example scripts can be found at [`experiments/llm-optical-transformer/continual_pretraining`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/continual_pretraining)
 
 HuggingFace `transformers`'s Trainer is used to perform continual pretraining on the converted/pretrained checkpoint on HuggingFace. Our pretrained AICrossSim/clm checkpoints can be found in [this collection](https://huggingface.co/collections/AICrossSim/newcomputebench-clm-digital-67d19e95ebacdbc3e5752be3)
 
