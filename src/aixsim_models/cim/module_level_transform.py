@@ -1,10 +1,9 @@
 import torch.nn as nn
-import chop as chop
-from chop.tools import get_logger
-from chop.tools.logger import set_logging_verbosity
+from .ano.tools import get_logger, set_logging_verbosity
 
 # from .layer_utils import LinearNoise, Conv2dNoise, ReLUNoise
-from .noise_layer import NoiseLinear, NoiseConv2d
+from .cim_layer import CIMLinear, CIMConv2d
+from .ano.utils import deepsetattr
 import torch
 
 
@@ -32,6 +31,7 @@ def get_module_type(module):
         return "batch_norm"
     else:
         return None
+
 def parse_q_config(module, q_config):
     if q_config.get("by") == "name":
         if module[0] in q_config:
@@ -48,15 +48,14 @@ def parse_q_config(module, q_config):
         raise ValueError(f"Invalid q_config: {q_config}")
 
 
-def vit_module_level_add_noise(model, q_config = {}):
-    from chop.passes.graph.utils import deepsetattr
+def module_level_transform(model, q_config = {}):
     for module in model.named_modules():
         config = parse_q_config(module, q_config)
         if config is None:
             continue
         if get_module_type(module) == "conv2d":
             ori_module = module[1]
-            new_module = NoiseConv2d(
+            new_module = CIMConv2d(
                 ori_module.in_channels,
                 ori_module.out_channels,
                 ori_module.kernel_size,
@@ -70,7 +69,7 @@ def vit_module_level_add_noise(model, q_config = {}):
             logger.debug(f"Replacing module: {module[0]}")
         elif get_module_type(module) == "linear":
             ori_module = module[1]
-            new_module = NoiseLinear(
+            new_module = CIMLinear(
                 ori_module.in_features,
                 ori_module.out_features,
                 q_config=config,
@@ -82,13 +81,5 @@ def vit_module_level_add_noise(model, q_config = {}):
             deepsetattr(model, module[0], new_module)
         else:
             continue
-        # elif get_module_type(module) == "relu":
-        #     # breakpoint()
-        #     ori_module = module[1]
-        #     new_module = ReLUNoise(
-        #         q_config=config,
-        #     )
-        #     deepsetattr(model, module[0], new_module)
-        #     logger.debug(f"Replacing module: {module[0]}")
 
     return model

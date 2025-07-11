@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .noise_mm import noise_mm
+from .core.matmul import cim_core
 
-class NoiseLinear(nn.Linear):
+class CIMLinear(nn.Linear):
     """
     Linear layer with PCM noise simulation.
     Similar to nn.Linear but with noise modeling for PCM-based computation.
@@ -15,13 +15,12 @@ class NoiseLinear(nn.Linear):
         config (dict, optional): Configuration for noise parameters
     """
     def __init__(self, in_features, out_features, bias=True, q_config=None):
-        super(NoiseLinear, self).__init__(in_features, out_features, bias)
+        super(CIMLinear, self).__init__(in_features, out_features, bias)
         self.q_config = {} if q_config is None else q_config
             
     def forward(self, input):
         # Apply noisy matrix multiplication using the custom autograd function
-        output = noise_mm(input, self.weight.t(), self.q_config)
-        # output = input @ self.weight.t()
+        output = cim_core(input, self.weight.t(), self.q_config)
         
         # Add bias if provided
         if self.bias is not None:
@@ -32,7 +31,7 @@ class NoiseLinear(nn.Linear):
     def extra_repr(self):
         return f'in_features={self.in_features}, out_features={self.out_features}, bias={self.bias is not None}'
 
-class NoiseConv2d(nn.Conv2d):
+class CIMConv2d(nn.Conv2d):
     def __init__(self, in_channels, out_channels, kernel_size,
                  stride=1, padding=0, bias=True, q_config=None):
         super().__init__(in_channels, out_channels, kernel_size, stride, padding, bias=bias)
@@ -53,7 +52,7 @@ class NoiseConv2d(nn.Conv2d):
         patches = x_unfold.transpose(1, 2).contiguous()        # [B, L, C*kH*kW]
         patches = patches.view(-1, weight_flat.size(1))        # [B*L, C*kH*kW]
 
-        out_flat = noise_mm(patches, weight_flat.t(), self.q_config)  
+        out_flat = cim_core(patches, weight_flat.t(), self.q_config)  
         # -> [B*L, out_channels]
 
         # reshape back to [B, out_channels, L]
