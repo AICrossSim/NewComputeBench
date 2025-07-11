@@ -150,6 +150,7 @@ def generate_pretrain_cfg(
 
     cfg_dict = pretrain_args.to_dict()
     cfg_dict_ = {f"{k}_args": v for k, v in cfg_dict.items()}
+    Path(save_path).parent.mkdir(parents=True, exist_ok=True)
     with open(save_path, "w") as f:
         yaml.safe_dump(cfg_dict_, f)
     print(f"Config saved to {save_path}")
