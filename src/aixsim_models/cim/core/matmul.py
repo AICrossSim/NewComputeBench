@@ -4,9 +4,8 @@ import torch.nn.functional as F
 
 from .simulation_tile import sram_tile, reram_tile, pcm_tile
 
-from ..ano.tools import get_logger, set_logging_verbosity
+from ..ano.tools import get_logger
 logger = get_logger(__name__)
-set_logging_verbosity("debug")
 
 # ToDo: ADD Drift Noise
 # ToDo: add scaling factor, from weight to gt
@@ -101,8 +100,8 @@ class CIMTile(torch.autograd.Function):
     @staticmethod
     def backward(ctx, grad_output):
         x, weight = ctx.saved_tensors
-        grad_input = grad_output @ weight.transpose(-2, -1)
-        grad_weight = x.transpose(-2, -1) @ grad_output
+        grad_input = grad_output @ weight.transpose(-2, -1).to(grad_output.dtype)
+        grad_weight = x.transpose(-2, -1).to(grad_output.dtype) @ grad_output
         return grad_input, grad_weight, None
 
 def cim_tile(x, weight, config):

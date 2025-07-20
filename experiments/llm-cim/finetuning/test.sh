@@ -1,12 +1,13 @@
 model="AICrossSim/clm-60m"
-batch_size="12"
+batch_size="4"
 max_steps="50"
-gradient_accumulation_steps="8"
+gradient_accumulation_steps="24"
 seed="42"
 
-OUTPUT_DIR=${CX_DATA_HOME}/clm_finetuning
+OUTPUT_DIR=${CX_DATA_HOME}/clm_peft
 
-python ${CX_PROJECT_HOME}/experiments/llm-cim/finetuning/run_clm.py \
+python -u -m torch.distributed.launch --master_port=14400 --nproc_per_node=6 --nnodes=1 --node_rank=0 --use_env \
+${CX_PROJECT_HOME}/experiments/llm-cim/finetuning/run_clm.py \
     --model_name_or_path ${model} \
     --dataset_name HuggingFaceFW/fineweb-edu \
     --dataset_config_name "sample-10BT" \

@@ -458,6 +458,27 @@ def main():
     if len(tokenizer) > embedding_size:
         model.resize_token_embeddings(len(tokenizer))
 
+    from peft import get_peft_model, LoraConfig, TaskType
+    peft_config = LoraConfig(
+        r=8,
+        lora_alpha=32,
+        target_modules=[
+            "q_proj", 
+            "k_proj", 
+            "v_proj", 
+            "o_proj",
+            "gate_proj",
+            "down_proj",
+            "up_proj",
+        ], 
+        lora_dropout=0.1,
+        bias="none",
+        task_type=TaskType.CAUSAL_LM 
+    )
+    model = get_peft_model(model, peft_config)
+
+    
+
     # Preprocessing the datasets.
     # First we tokenize all the texts.
     if training_args.do_train:
@@ -615,7 +636,9 @@ def main():
         elif last_checkpoint is not None:
             checkpoint = last_checkpoint
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        trainer.save_model()  # Saves the tokenizer too for easy upload
+        if training_args.output_dir is not None:
+            trainer.model.save_pretrained(training_args.output_dir)  # Saves the tokenizer too for easy upload
+
 
         metrics = train_result.metrics
 
