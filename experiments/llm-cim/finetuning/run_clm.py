@@ -56,8 +56,7 @@ from transformers.testing_utils import CaptureLogger
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
-from aixsim_models.cim.module_level_transform import module_level_transform
-
+from chop.passes.module.transforms.cim.cim_matmul_transform import cim_matmul_transform_pass
 require_version("datasets>=2.14.0", "To fix: pip install -r examples/pytorch/language-modeling/requirements.txt")
 
 logger = logging.getLogger(__name__)
@@ -448,7 +447,7 @@ def main():
         logger.info(f"Training new model from scratch - Total size={n_params / 2**20:.2f}M params")
     if model_args.transform_config is not None:
         q_config = yaml.load(open(model_args.transform_config, 'r'), Loader=yaml.FullLoader)
-        model = module_level_transform(model, q_config)
+        model = cim_matmul_transform_pass(model, q_config)
     else:
         logger.info("⚠️ No transform config file provided. Using the original model.")
 
