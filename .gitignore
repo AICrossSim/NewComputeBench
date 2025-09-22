@@ -8,4 +8,6 @@ wandb/
 
 /.cache/
 
+log*
+specific.sh
 __pycache__/
