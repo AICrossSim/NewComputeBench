@@ -1,5 +1,5 @@
 #!/bin/bash
-python experiments/vit-finetuning/run_vit.py \
+CUDA_VISIBLE_DEVICES=1,2 python experiments/vit-finetuning/run_vit.py \
     --model_name_or_path google/vit-base-patch16-224 \
     --dataset_name imagenet \
     --do_eval \

@@ -3,7 +3,7 @@
 # ViT Fine-tuning Script
 # This script demonstrates how to fine-tune a ViT model using the new HfArgumentParser approach
 
-python experiments/vit-finetuning/run_vit.py \
+python experiments/llm-cim/vit/run_vit.py \
     --do_train \
     --do_eval \
     --model_name_or_path google/vit-base-patch16-224 \
@@ -25,6 +25,8 @@ python experiments/vit-finetuning/run_vit.py \
     --metric_for_best_model eval_accuracy \
     --greater_is_better \
     --max_grad_norm 1.0 \
+    --enable_cim_transform \
+    --cim_config_path ./experiments/llm-cim/configs/sram.yaml \
     --seed 42
     # --max_train_samples 1000 \
     # --max_eval_samples 500

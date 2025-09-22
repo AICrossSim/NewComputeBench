@@ -175,7 +175,8 @@ def load_model_and_processor(task_args: TaskArguments, model_args: ArgModel, dat
             raise ValueError("--cim_config_path is required when --enable_cim_transform is set")
         
         logger.info(f"Applying CIM transform with config: {task_args.cim_config_path}")
-        with open(task_args.cim_config_path, 'r') as f:
+        config_path = Path(task_args.cim_config_path).resolve().as_posix()
+        with open(config_path, 'r') as f:
             cim_config = yaml.safe_load(f)
         
         # Import and apply CIM transform
