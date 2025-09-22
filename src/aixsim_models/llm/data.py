@@ -51,30 +51,23 @@ def _process_fineweb_text(sample: dict[str, Any]) -> str:
     return sample["text"]
 
 
-import requests, time
 def _load_fineweb_edu(
     dataset_path: str = "HuggingFaceFW/fineweb-edu",
     subset_name: Optional[str] = "sample-100BT",
 ):
-    
     cache_dir = os.environ.get("HF_HUB_CACHE", None)
     streaming = bool(int(os.environ.get("STEAM_HF_DATA", "1")))
     if cache_dir is None:
         logger.warning("HF_HUB_CACHE is not set. Dataset will be stored in the default directory.")
-    for i in range(10):
-        try:
-            dataset = hf_datasets.load_dataset(
-                dataset_path,
-                name=subset_name,
-                split="train",
-                streaming=streaming,
-                trust_remote_code=True,
-                cache_dir=cache_dir,
-            )
-            return dataset
-        except requests.exceptions.ConnectionError:
-            time.sleep(1)
-    raise Exception("Failed to load fineweb-edu dataset")
+    dataset = hf_datasets.load_dataset(
+        dataset_path,
+        name=subset_name,
+        split="train",
+        streaming=streaming,
+        trust_remote_code=True,
+        cache_dir=cache_dir,
+    )
+    return dataset
 
 
 def _process_fineweb_edu_text(sample: dict[str, Any]) -> str:
