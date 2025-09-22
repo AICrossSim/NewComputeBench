@@ -1,11 +1,8 @@
 conda activate new-compute
-export CX_DATA_HOME="/data/models/cx922"
-export CX_PROJECT_HOME="/home/cx922/NewComputeBench"
-
-export HF_HOME="${CX_DATA_HOME}/hf_home"
-export TRANFORMERS_CACHE="${CX_DATA_HOME}/hf_transformers"
-export DATA_HOME="${CX_DATA_HOME}/data"
-export HF_HUB_CACHE="${CX_DATA_HOME}/hf_home/hub"
-
-export CUDA_DEVICE="2,3"
+export CX_DATA_HOME="/data/cx922"
+export CX_PROJECT_HOME="/home/jianyicheng/cx922/NewComputeBench"
+export CUDA_DEVICE="0,1,2,3,6,7"
 export PROC_NUM="2"
+
+# HuggingFace environment variables
+export HF_HOME="${CX_DATA_HOME}/hf_home"

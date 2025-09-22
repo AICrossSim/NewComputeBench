@@ -4,6 +4,7 @@
 /experiments/llm-digital/pretrain/aixsim-60M/
 /experiments/**/output/
 /experiments/**/wandb/
+wandb/
 
 /.cache/
 
