@@ -5,6 +5,7 @@
 
 python experiments/vit-finetuning/run_vit.py \
     --do_train \
+    --do_eval \
     --model_name_or_path google/vit-base-patch16-224 \
     --dataset_name imagenet \
     --custom_path /data/datasets/imagenet_pytorch/ \
@@ -12,7 +13,7 @@ python experiments/vit-finetuning/run_vit.py \
     --num_train_epochs 3 \
     --per_device_train_batch_size 16 \
     --per_device_eval_batch_size 32 \
-    --learning_rate 5e-5 \
+    --learning_rate 1e-5 \
     --weight_decay 0.01 \
     --warmup_ratio 0.1 \
     --lr_scheduler_type cosine \
@@ -23,7 +24,7 @@ python experiments/vit-finetuning/run_vit.py \
     --load_best_model_at_end \
     --metric_for_best_model eval_accuracy \
     --greater_is_better \
-    --fp16 \
+    --max_grad_norm 1.0 \
     --seed 42
     # --max_train_samples 1000 \
     # --max_eval_samples 500

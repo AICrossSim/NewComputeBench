@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field, asdict
 from typing import Union, List, Optional, Literal
+from transformers import TrainingArguments
 
 
 @dataclass
@@ -357,3 +358,65 @@ class TaskArguments:
     # CIM Transform arguments
     enable_cim_transform: bool = field(default=False, metadata={"help": "Enable CIM transformation"})
     cim_config_path: str = field(default=None, metadata={"help": "Path to CIM configuration file"})
+
+
+def create_training_arguments(task_args: TaskArguments, training_args: ArgTraining, optimizer_args: ArgOptimizer, data_args: ArgData, metrics_args: ArgMetrics):
+    """Create TrainingArguments from structured arguments."""
+    # Determine report_to list
+    report_to = []
+    if metrics_args.enable_tensorboard:
+        report_to.append("tensorboard")
+    if metrics_args.enable_wandb:
+        report_to.append("wandb")
+    
+    hf_training_args = TrainingArguments(
+        output_dir=training_args.output_dir,
+        overwrite_output_dir=True,  # Enable overwriting by default
+        do_train=task_args.do_train,
+        do_eval=task_args.do_eval,
+        do_predict=task_args.do_predict,
+        
+        # Training hyperparameters
+        num_train_epochs=training_args.num_train_epochs,
+        per_device_train_batch_size=training_args.per_device_train_batch_size,
+        per_device_eval_batch_size=training_args.per_device_eval_batch_size,
+        learning_rate=optimizer_args.learning_rate,
+        weight_decay=optimizer_args.weight_decay,
+        adam_beta1=optimizer_args.adam_beta1,
+        adam_beta2=optimizer_args.adam_beta2,
+        adam_epsilon=optimizer_args.adam_epsilon,
+        max_grad_norm=optimizer_args.max_grad_norm,
+        
+        # Learning rate scheduler
+        lr_scheduler_type=training_args.lr_scheduler_type,
+        warmup_ratio=training_args.warmup_ratio,
+        
+        # Data loading
+        dataloader_num_workers=data_args.num_workers,
+        dataloader_pin_memory=data_args.pin_memory,
+        
+        # Evaluation
+        evaluation_strategy=training_args.evaluation_strategy,
+        eval_steps=training_args.eval_steps,
+        
+        # Saving
+        save_strategy=training_args.save_strategy,
+        save_total_limit=training_args.save_total_limit,
+        load_best_model_at_end=training_args.load_best_model_at_end,
+        metric_for_best_model=training_args.metric_for_best_model,
+        greater_is_better=training_args.greater_is_better,
+        
+        # Hardware
+        seed=training_args.seed,
+        bf16=training_args.bf16,
+        fp16=training_args.fp16,
+        
+        # Logging
+        logging_steps=training_args.logging_steps,
+        report_to=report_to,
+        
+        # Other settings
+        remove_unused_columns=False,  # Important for vision tasks
+    )
+    
+    return hf_training_args

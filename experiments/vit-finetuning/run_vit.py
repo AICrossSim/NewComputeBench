@@ -8,12 +8,11 @@ from aixsim_models.vit.evaluator import (
     parse_args,
     setup_logging,
     load_model_and_processor,
-    create_training_arguments,
     create_trainer,
     compute_metrics,
-    compute_additional_metrics,
     save_results
 )
+from aixsim_models.vit.arg_manager import create_training_arguments
 from aixsim_models.vit.data import load_dataset
 
 def main():
@@ -58,7 +57,8 @@ def main():
             train_dataset=train_dataset,
             eval_dataset=eval_dataset,
             training_args=hf_training_args,
-            compute_metrics_fn=compute_metrics if task_args.do_eval else None
+            compute_metrics_fn=compute_metrics if task_args.do_eval else None,
+            task_args=task_args
         )
         
         results = {}
@@ -88,25 +88,6 @@ def main():
             
             # Add evaluation metrics to results
             results.update(eval_result)
-            
-            # Compute additional metrics if requested
-            if eval_args.compute_class_accuracies or eval_args.benchmark_inference:
-                # Get predictions for additional metrics
-                predictions = trainer.predict(eval_dataset)
-                pred_labels = np.argmax(predictions.predictions, axis=1)
-                true_labels = predictions.label_ids
-                
-                additional_results = compute_additional_metrics(
-                    model=model,
-                    eval_dataloader=None,  # Not needed for additional metrics
-                    device=device,
-                    predictions=pred_labels,
-                    labels=true_labels,
-                    eval_args=eval_args,
-                    logger=logger
-                )
-                results.update(additional_results)
-            
             logger.info("Evaluation completed!")
         
         # Prediction
