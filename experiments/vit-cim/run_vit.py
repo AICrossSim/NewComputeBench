@@ -1,14 +1,12 @@
 import torch
 import numpy as np
 from pathlib import Path
-from chop.dataset import MaseDataModule, get_dataset_info
 import sys
-sys.path.append(Path(__file__).resolve().parents[3].joinpath("src").as_posix())
+sys.path.append(Path(__file__).resolve().parents[2].joinpath("src").as_posix())
 from aixsim_models.vit.evaluator import (
     parse_args,
     setup_logging,
     load_model_and_processor,
-    create_trainer,
     compute_metrics,
     save_results
 )
@@ -17,7 +15,9 @@ from aixsim_models.vit.data import load_dataset
 from chop.passes.module.transforms.cim import cim_matmul_transform_pass
 import yaml
 from transformers import Trainer
-import torch.optim as optim
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class LoRATrainer(Trainer):

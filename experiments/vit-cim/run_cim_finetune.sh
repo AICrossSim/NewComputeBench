@@ -3,7 +3,7 @@
 # ViT Fine-tuning Script
 # This script demonstrates how to fine-tune a ViT model using the new HfArgumentParser approach
 
-python experiments/llm-cim/vit/run_vit.py \
+python experiments/vit-cim/run_vit.py \
     --do_train \
     --do_eval \
     --model_name_or_path google/vit-base-patch16-224 \
