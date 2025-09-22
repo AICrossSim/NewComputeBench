@@ -445,12 +445,6 @@ def main():
         model = AutoModelForCausalLM.from_config(config, trust_remote_code=model_args.trust_remote_code)
         n_params = sum({p.data_ptr(): p.numel() for p in model.parameters()}.values())
         logger.info(f"Training new model from scratch - Total size={n_params / 2**20:.2f}M params")
-    if model_args.transform_config is not None:
-        q_config = yaml.load(open(model_args.transform_config, 'r'), Loader=yaml.FullLoader)
-        model = cim_matmul_transform_pass(model, q_config)
-    else:
-        logger.info("⚠️ No transform config file provided. Using the original model.")
-
     # We resize the embeddings only when necessary to avoid index errors. If you are creating a model from scratch
     # on a small vocab and want a smaller embedding size, remove this test.
     embedding_size = model.get_input_embeddings().weight.shape[0]
@@ -591,6 +585,19 @@ def main():
             preds = preds[:, :-1].reshape(-1)
             return metric.compute(predictions=preds, references=labels)
 
+    if model_args.transform_config is not None:
+        q_config = yaml.load(open(model_args.transform_config, 'r'), Loader=yaml.FullLoader)
+        lora_config = {
+            "r": 16,
+            "lora_alpha": 32,
+            "lora_dropout": 0,  # dense first
+            "adapter_name": "default",
+            "disable_adapter": False,
+        }
+        model, _ = cim_matmul_transform_pass(model, q_config, lora_config=lora_config)
+    else:
+        logger.info("⚠️ No transform config file provided. Using the original model.")
+
     # Initialize our Trainer
     trainer = Trainer(
         model=model,
@@ -613,6 +620,7 @@ def main():
             checkpoint = training_args.resume_from_checkpoint
         elif last_checkpoint is not None:
             checkpoint = last_checkpoint
+        # breakpoint()
         train_result = trainer.train(resume_from_checkpoint=checkpoint)
         trainer.save_model()  # Saves the tokenizer too for easy upload
 
