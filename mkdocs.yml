@@ -70,3 +70,4 @@ nav:
   - Developer Guide:
       - Maintaining Docs: "dev-guide.md"
       - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/llm-optical-dev-guidelines.md"
+      - Vision Transformer fine-tuning with CIM Simulation: "02-model-behaviour-level-simulation/vit-cim.md"
