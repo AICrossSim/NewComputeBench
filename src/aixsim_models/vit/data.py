@@ -45,7 +45,7 @@ class VisionDataset(Dataset):
             image = item['image'] if isinstance(item, dict) else item
             label = item['label'] if isinstance(item, dict) else 0
         
-        # Use processor to preprocess the image
+        # Use processor for all preprocessing
         inputs = self.processor(image, return_tensors="pt")
         pixel_values = inputs['pixel_values'].squeeze(0)
         
@@ -53,6 +53,7 @@ class VisionDataset(Dataset):
             'pixel_values': pixel_values,
             'labels': torch.tensor(label, dtype=torch.long)
         }
+
 def load_dataset(task_args: TaskArguments, model_args: ArgModel, data_args: ArgData, training_args: ArgTraining, logger, processor):
     """Load and prepare dataset using torchvision and HuggingFace processor.
     
@@ -86,10 +87,8 @@ def load_dataset(task_args: TaskArguments, model_args: ArgModel, data_args: ArgD
         if not train_dir.exists():
             raise ValueError(f"Training directory not found: {train_dir}")
         
-        raw_train_dataset = datasets.ImageFolder(
-            root=str(train_dir),
-            transform=transforms.Compose([transforms.Resize((256, 256)), transforms.CenterCrop(224)])
-        )
+        # Standard ImageNet preprocessing with bicubic interpolation
+        raw_train_dataset = datasets.ImageFolder(root=str(train_dir))
         
         if data_args.max_train_samples is not None:
             indices = torch.randperm(len(raw_train_dataset))[:data_args.max_train_samples]
@@ -103,16 +102,16 @@ def load_dataset(task_args: TaskArguments, model_args: ArgModel, data_args: ArgD
         if not val_dir.exists():
             raise ValueError(f"Validation directory not found: {val_dir}")
         
-        raw_eval_dataset = datasets.ImageFolder(
-            root=str(val_dir),
-            transform=transforms.Compose([transforms.Resize((256, 256)), transforms.CenterCrop(224)])
-        )
+        # Standard ImageNet preprocessing with bicubic interpolation
+        raw_eval_dataset = datasets.ImageFolder(root=str(val_dir))
         
         if data_args.max_eval_samples is not None:
             indices = torch.randperm(len(raw_eval_dataset))[:data_args.max_eval_samples]
             raw_eval_dataset = torch.utils.data.Subset(raw_eval_dataset, indices)
         
-        eval_dataset = VisionDataset(raw_eval_dataset, processor=processor)
+        eval_dataset = VisionDataset(
+            raw_eval_dataset, 
+            processor=processor)
         logger.info(f"Evaluation dataset: {len(eval_dataset)} samples")
     
     logger.info(f"Dataset loaded: {num_classes} classes")

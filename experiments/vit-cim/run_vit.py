@@ -57,7 +57,7 @@ def main():
         
         # Load datasets with processor for preprocessing
         train_dataset, eval_dataset, num_classes, dataset_info = load_dataset(
-            task_args, model_args, data_args, training_args, logger, processor=processor
+            task_args, model_args, data_args, training_args, logger, processor
         )
         
         # Create training arguments
