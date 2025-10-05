@@ -4,19 +4,25 @@ This tutorial demonstrates how to apply Compute-in-Memory (CIM) transformations 
 
 ## Overview
 
-- **CIM-aware fine-tuning** takes a pretrained ViT model, applies CIM transformation, and fine-tunes the model on downstream vision datasets.
+- This tutorial takes a pretrained ViT model, applies CIM transformation, and fine-tunes the model on ImageNet dataset.
     - The entry point is at [`experiments/vit-cim/run_vit.py`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/vit-cim/run_vit.py).
 
 The CIM transformation simulates the effect of compute-in-memory architectures, with both digital and analog support.
 
-## Evaluation of CIM-aware Fine-tuning
-
+## Environment Setup
 !!! info "Environment Setup"
     If you have not set up environments, please follow the guidelines in [Environment Setup](../env-setup.md).
 
-We provide scripts to apply CIM-aware fine-tuning on Vision Transformer models and evaluate their performance on standard vision benchmarks.
+If you want to run the compute in memory transformation, you need to install the mase with compute in memory support by running the following command:
+```bash
+pip install --force-reinstall mase-tools@git+https://github.com/DeepWok/mase@cx/comput_in_memory
+```
 
-### CIM-aware Fine-tuning & Evaluate on Vision Tasks
+## Evaluation of CIM-aware Fine-tuning
+
+We provide scripts to apply CIM-aware transformation on Vision Transformer models and evaluate their performance on ImageNet dataset.
+
+### CIM-aware Fine-tuning & Evaluate on ImageNet
 
 ```bash
 git clone https://github.com/AICrossSim/NewComputeBench.git

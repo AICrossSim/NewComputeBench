@@ -396,13 +396,13 @@ def create_training_arguments(task_args: TaskArguments, training_args: ArgTraini
         dataloader_pin_memory=data_args.pin_memory,
         
         # Evaluation
-        evaluation_strategy=training_args.evaluation_strategy,
+        # evaluation_strategy=training_args.evaluation_strategy,
         eval_steps=training_args.eval_steps,
         
         # Saving
         save_strategy=training_args.save_strategy,
         save_total_limit=training_args.save_total_limit,
-        load_best_model_at_end=training_args.load_best_model_at_end,
+        # load_best_model_at_end=training_args.load_best_model_at_end,
         metric_for_best_model=training_args.metric_for_best_model,
         greater_is_better=training_args.greater_is_better,
         
