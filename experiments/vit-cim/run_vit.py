@@ -55,8 +55,10 @@ def main():
 
             model, _ = cim_matmul_transform_pass(model, q_config)
         
-        # Load datasets
-        train_dataset, eval_dataset, num_classes, dataset_info = load_dataset(task_args, model_args, data_args, training_args, logger)
+        # Load datasets with processor for preprocessing
+        train_dataset, eval_dataset, num_classes, dataset_info = load_dataset(
+            task_args, model_args, data_args, training_args, logger, processor=processor
+        )
         
         # Create training arguments
         hf_training_args = create_training_arguments(task_args, training_args, optimizer_args, data_args, metrics_args)
