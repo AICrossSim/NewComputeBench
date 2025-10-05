@@ -5,6 +5,7 @@
 /experiments/**/output/
 /experiments/**/wandb/
 wandb/
+submodules/mase/
 
 /.cache/
 

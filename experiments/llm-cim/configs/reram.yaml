@@ -1,3 +1,5 @@
+# The basic idea of parameters setting is orginal from https://www.nature.com/articles/s41586-022-04992-8
+
 by: "type"
 conv2d:
   config:
