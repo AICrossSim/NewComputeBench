@@ -20,29 +20,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class LoRATrainer(Trainer):
-    """Custom Trainer that only optimizes LoRA parameters."""
-    
-    def __init__(self, lora_params, frozen_params, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.lora_params = lora_params
-        self.frozen_params = frozen_params
-    
-    def create_optimizer(self):
-        """Create optimizer with parameter groups for LoRA training."""
-        opt_model = self.model_wrapped if hasattr(self, 'model_wrapped') else self.model
-        
-        # Create parameter groups with different learning rates
-        param_groups = [
-            {'params': self.lora_params, 'lr': self.args.learning_rate},
-            {'params': self.frozen_params, 'lr': 0.0}  # Frozen parameters get lr=0
-        ]
-        
-        optimizer_cls, optimizer_kwargs = Trainer.get_optimizer_cls_and_kwargs(self.args)
-        self.optimizer = optimizer_cls(param_groups, **optimizer_kwargs)
-        
-        return self.optimizer
-
 def main():
     """Main training and evaluation function using HuggingFace Trainer."""
     task_args, model_args, data_args, training_args, optimizer_args, eval_args, metrics_args, job_args = parse_args()
@@ -72,51 +49,28 @@ def main():
     try:
         # Load model and processor
         model, processor, device = load_model_and_processor(task_args, model_args, data_args, training_args, logger)
-        with open(task_args.cim_config_path, 'r') as f:
-            q_config = yaml.safe_load(f)
+        if task_args.cim_config_path is not None:
+            with open(task_args.cim_config_path, 'r') as f:
+                q_config = yaml.safe_load(f)
 
-        lora_config = {
-            "r": 16,
-            "lora_alpha": 32,
-            "lora_dropout": 0,  # dense first
-            "adapter_name": "default",
-            "disable_adapter": False,
-        }
-        model, _ = cim_matmul_transform_pass(model, q_config, lora_config=lora_config)
+            model, _ = cim_matmul_transform_pass(model, q_config)
         
-        # Setup parameter freezing for LoRA training
-        lora_params = []
-        frozen_params = []
-        
-        for name, param in model.named_parameters():
-            if "lora" in name.lower():
-                lora_params.append(param)
-                param.requires_grad = True
-                logger.debug(f"{name}: {param.numel():,} parameters (trainable)")
-            else:
-                frozen_params.append(param)
-                param.requires_grad = True  # Keep gradients for forward pass but don't update
-        
-        logger.info(f"Total LoRA parameters: {sum(p.numel() for p in lora_params):,}")
-        logger.info(f"Total frozen parameters: {sum(p.numel() for p in frozen_params):,}")
-
-        # Load datasets
-        train_dataset, eval_dataset, num_classes, dataset_info = load_dataset(task_args, model_args, data_args, training_args, logger)
+        # Load datasets with processor for preprocessing
+        train_dataset, eval_dataset, num_classes, dataset_info = load_dataset(
+            task_args, model_args, data_args, training_args, logger, processor
+        )
         
         # Create training arguments
         hf_training_args = create_training_arguments(task_args, training_args, optimizer_args, data_args, metrics_args)
         
         # Create custom LoRA trainer
-        trainer = LoRATrainer(
-            lora_params=lora_params,
-            frozen_params=frozen_params,
+        trainer = Trainer(
             model=model,
             args=hf_training_args,
             train_dataset=train_dataset,
             eval_dataset=eval_dataset if task_args.do_eval else None,
             compute_metrics=compute_metrics if task_args.do_eval else None,
         )
-        
         results = {}
         
         # Training
