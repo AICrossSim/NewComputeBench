@@ -68,6 +68,7 @@ nav:
               - LLM: "02-model-behaviour-level-simulation/llm-bitflip.md"
           - Optical Neural Networks:
               - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
+      - Mase-triton: "02-model-behaviour-level-simulation/mase-triton.md"
   - Developer Guide:
       - Maintaining Docs: "dev-guide.md"
       - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/llm-optical-dev-guidelines.md"

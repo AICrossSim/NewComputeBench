@@ -26,6 +26,9 @@
     | Optical Transformer | [Tutorial](02-model-behaviour-level-simulation/roberta-onn.md) |
     | **CompleteThis** |  |
 
+- 🚩 **9th, Jun, 2025 Milestone**: Our Software-emulation & acceleration backend, Mase-triton, is released on [PyPI](https://pypi.org/project/mase-triton/). Try it via `pip install mase-triton`.
+    - For more details, please refer to [Intro to Mase-triton](/docs/02-model-behaviour-level-simulation/mase-triton.md) and [Mase-triton GitHub](https://github.com/DeepWok/mase-triton/tree/master)
+
 - 🚩 **15th April, 2025 Milestone**: System and model-level training simulation (Small Language Models).
 
     | Item | Description |
