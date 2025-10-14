@@ -66,7 +66,8 @@ nav:
       - Model Behaviour Level Simulation:
           - Random BitFlip:
               - LLM: "02-model-behaviour-level-simulation/llm-bitflip.md"
-      - Hardware Performance Simulation: "03-hardware-performance-simulation/underconstruction.md"
+          - Optical Neural Networks:
+              - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
   - Developer Guide:
       - Maintaining Docs: "dev-guide.md"
       - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/llm-optical-dev-guidelines.md"

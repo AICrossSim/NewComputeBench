@@ -15,7 +15,7 @@ We adopt Llama-3 architecture and aim to support the following features:
 
 - Pretraining
 - Generation (inference)
-- `🚧 TODO`: Parameter-efficient fine-tuning;
+- Parameter-efficient fine-tuning
 - `🚧 TODO` `🐌 LowPriority`: Supervised-fine-tuning
 - Evaluation
 
@@ -35,7 +35,7 @@ We provide a script to convert the torchtitan checkpoint to a HuggingFace checkp
 
 
 #### Parameter-Efficient Fine-tuning
-- `🚧 TODO`: For models larger than 1.1B, we fine-tune pretrained checkpoints.
+- For models larger than 1.1B, we fine-tune pretrained checkpoints.
   - LoRA fine-tuning data
   - LoRA fine-tuning scripts
 
@@ -44,7 +44,10 @@ We provide a script to convert the torchtitan checkpoint to a HuggingFace checkp
 - [Random bitflip](/experiments/llm-bitflip/)
   - Post-training bitflip transform
   - Bitflip-aware pretraining
-- Optical compute `🚧 TODO`
+- Optical compute
+  - [Roberta on GLUE](/experiments/roberta-optical-transformer/)
+  - CLM `🚧 WIP`
+
 - Spiking neural networks `🚧 TODO`
 - In-memory compute `🚧 TODO
 `
