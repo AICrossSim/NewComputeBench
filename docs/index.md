@@ -12,22 +12,29 @@
 - [x] Filter out promising new compute paradigms by running small & medium scale experiments (Roberta on GLUE)
 - [ ] Scale up the promising new compute paradigms to large-scale language models
   - [ ] Fine-tuning/pretraining of CLM models (60M - 1.1B)
+    - [x] Optical compute
+    - [ ] Spiking neural networks
+    - [ ] In-memory compute
   - [ ] Parameter-efficient fine-tuning of larger LLMs (e.g., Llama-3.1-8B)
 
 
 ## What's New
 
-- 🚧 Fine-tuning/pretraining of alternative compute paradigms on CLMs.
+- 🚧**4th Oct, 2025 Milestone**: Fine-tuning/pretraining of alternative compute paradigms on CLMs.
+
+    | Item | Description |
+    | ---- | ----------- |
+    | Optical Transformer | [Tutorial](02-model-behaviour-level-simulation/clm-onn.md) |
 
 - 🚩**1th Oct, 2025 Milestone**: Fine-tuning/pretraining of alternative compute paradigms on Roberta
 
     | Item | Description |
     | ---- | ----------- |
-    | Optical Transformer | [Tutorial](/docs/02-model-behaviour-level-simulation/roberta-onn.md) |
+    | Optical Transformer | [Tutorial](02-model-behaviour-level-simulation/roberta-onn.md) |
     | **CompleteThis** |  |
 
 - 🚩 **9th, Jun, 2025 Milestone**: Our Software-emulation & acceleration backend, Mase-triton, is released on [PyPI](https://pypi.org/project/mase-triton/). Try it via `pip install mase-triton`.
-    - For more details, please refer to [Intro to Mase-triton](/docs/02-model-behaviour-level-simulation/mase-triton.md) and [Mase-triton GitHub](https://github.com/DeepWok/mase-triton/tree/master)
+    - For more details, please refer to [Intro to Mase-triton](02-model-behaviour-level-simulation/mase-triton.md) and [Mase-triton GitHub](https://github.com/DeepWok/mase-triton/tree/master)
 
 - 🚩 **15th April, 2025 Milestone**: System and model-level training simulation (Small Language Models).
 
@@ -35,7 +42,7 @@
     | ---- | ----------- |
     | Environment setup | [Tutorial](env-setup.md) |
     | Pretraining AICrossSim LLMs (60M, 200M, 400M, 1.1B) & evaluation | [Tutorial](01-model-training/llm-pretrain-and-eval.md) |
-    | Software-emulated bitflip-aware pretraining & evaluation | [Tutorial](02-model-behaviour-level-simulation/llm-bitflip.md) |
+    | Software-emulated bitflip-aware pretraining & evaluation | [Tutorial](02-model-behaviour-level-simulation/clm-bitflip.md) |
 
 ## Roadmap
 

@@ -65,11 +65,14 @@ nav:
           - LLM Pretraining and Evaluation: "01-model-training/llm-pretrain-and-eval.md"
       - Model Behaviour Level Simulation:
           - Random BitFlip:
-              - LLM: "02-model-behaviour-level-simulation/llm-bitflip.md"
+              - LLM: "02-model-behaviour-level-simulation/clm-bitflip.md"
+          - Optical Neural Networks:
+              - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
+              - CLM: "02-model-behaviour-level-simulation/clm-onn.md"
           - Optical Neural Networks:
               - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
       - Mase-triton: "02-model-behaviour-level-simulation/mase-triton.md"
   - Developer Guide:
       - Maintaining Docs: "dev-guide.md"
-      - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/llm-optical-dev-guidelines.md"
+      - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/dev-guidelines.md"
       - Vision Transformer fine-tuning with CIM Simulation: "02-model-behaviour-level-simulation/vit-cim.md"
