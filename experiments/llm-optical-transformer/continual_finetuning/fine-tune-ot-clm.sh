@@ -51,7 +51,7 @@ echo "Calculated max_train_steps: ${MAX_TRAIN_STEPS}"
 
 
 # Generate output directory name
-OUTPUT_DIR="./output/$(basename ${MODEL_NAME_OR_PATH})-optical-lora"
+OUTPUT_DIR="./output/$(basename ${MODEL_NAME_OR_PATH})-optical"
 
 # Generate wandb tags
 WANDB_TAGS="${MODEL_NAME_OR_PATH},lr${LEARNING_RATE},steps${MAX_TRAIN_STEPS}"
