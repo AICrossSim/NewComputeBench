@@ -1,7 +1,7 @@
 import math
 
 import torch
-from mase_triton.optical_compute.core.optical_transformer import fake
+from mase_triton.optical_compute.core.optical_transformer import ot_qlinear_fn
 from mase_triton.optical_compute.layers import (
     OpticalTransformerLinear,
     optical_transformer_update_qstats,
@@ -88,7 +88,7 @@ class OpticalTransformerLinearLora(OpticalTransformerLinear):
                     )
                     self.out_min_max.copy_(o_min_max)
 
-        out_q, q_seed = fake.qlinear_fn(
+        out_q, q_seed = ot_qlinear_fn(
             x,
             w,
             self.bias,
