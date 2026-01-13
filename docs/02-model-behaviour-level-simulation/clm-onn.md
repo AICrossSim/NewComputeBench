@@ -8,9 +8,9 @@ We tried out three starting points for the ONN-CLM experiments and ended up usin
 
 | Starting Point | Observations| Codes |
 | -------------- | ------- | ----- |
-| Training an ONN CLM from scratch | 🙁 The training loss did not decrease| [link](https://github.com/AICrossSim/NewComputeBench/blob/1588586dfb4cce2aaacb218b0353ff98383fab40/experiments/llm-optical-transformer/pretrain) |
-| Parameter-efficient fine-tuning a pre-trained CLM using LoRA| 🙁 Only the training loss of 60M model decreased | [link](https://github.com/AICrossSim/NewComputeBench/blob/cz/onn/experiments/llm-optical-transformer/lora_finetuning)
-| Full fine-tuning a pre-trained CLM| ✅ The training loss decreases but requires a small learning rate <1e-5 | [link](https://github.com/AICrossSim/NewComputeBench/blob/cz/onn/experiments/llm-optical-transformer/continual_finetuning) |
+| Training an ONN CLM from scratch | 🙁 The training loss did not decrease| [link](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/pretrain) |
+| Parameter-efficient fine-tuning a pre-trained CLM using LoRA| 🙁 Only the training loss of 60M model decreased | [link](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/lora_finetuning)
+| Full fine-tuning a pre-trained CLM| ✅ The training loss decreases but requires a small learning rate <1e-5 | [link](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/continual_finetuning) |
 
 
 ## Environment Setup
