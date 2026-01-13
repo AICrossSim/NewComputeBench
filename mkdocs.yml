@@ -1,78 +1,76 @@
 site_name: NewComputeBench
 theme:
-  name: material
-  logo: images/logo.png
-  favicon: images/logo.png
-  language: en
-  font:
-    text: Roboto
-    code: Roboto Mono
-  palette:
-    scheme: default
-    primary: indigo
-    accent: deep orange
-  icon:
-    repo: fontawesome/brands/github
-  features:
-    - navigation.instant
-    - navigation.instant.progress
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.path
-    - toc.integrate
-    - toc.follow
-    - search.highlight
-    - search.suggest
-    - search.share
-    - content.action.edit
-    - content.action.view
-    - content.code.copy
-    - content.code.select
+    name: material
+    logo: images/logo.png
+    favicon: images/logo.png
+    language: en
+    font:
+        text: Roboto
+        code: Roboto Mono
+    palette:
+        scheme: default
+        primary: indigo
+        accent: deep orange
+    icon:
+        repo: fontawesome/brands/github
+    features:
+        - navigation.instant
+        - navigation.instant.progress
+        - navigation.tabs
+        - navigation.tabs.sticky
+        - navigation.path
+        - toc.integrate
+        - toc.follow
+        - search.highlight
+        - search.suggest
+        - search.share
+        - content.action.edit
+        - content.action.view
+        - content.code.copy
+        - content.code.select
 plugins:
-  - search
-  - tags
-  - git-revision-date-localized:
-      enable_creation_date: true
-  - git-committers:
-      repository: AICrossSim/NewComputeBench
-      branch: master
+    - search
+    - tags
+    - git-revision-date-localized:
+          enable_creation_date: true
+    - git-committers:
+          repository: AICrossSim/NewComputeBench
+          branch: master
 repo_url: https://github.com/AICrossSim/NewComputeBench
 repo_name: NewComputeBench
 edit_uri: edit/master/docs/
 markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-  - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      pygments_lang_class: true
-  - pymdownx.inlinehilite
-  - pymdownx.snippets
-  - def_list
-  - pymdownx.tasklist:
-      custom_checkbox: true
-  - tables
-  - attr_list
-  - md_in_html
-  - pymdownx.blocks.caption
+    - admonition
+    - pymdownx.details
+    - pymdownx.superfences
+    - pymdownx.highlight:
+          anchor_linenums: true
+          line_spans: __span
+          pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - def_list
+    - pymdownx.tasklist:
+          custom_checkbox: true
+    - tables
+    - attr_list
+    - md_in_html
+    - pymdownx.blocks.caption
 nav:
-  - Home: index.md
-  - Getting Started:
-      - Environment Setup: env-setup.md
-      - Supported Models: model-list.md
-      - Pretraining:
-          - LLM Pretraining and Evaluation: "01-model-training/llm-pretrain-and-eval.md"
-      - Model Behaviour Level Simulation:
-          - Random BitFlip:
-              - LLM: "02-model-behaviour-level-simulation/clm-bitflip.md"
-          - Optical Neural Networks:
-              - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
-              - CLM: "02-model-behaviour-level-simulation/clm-onn.md"
-          - Optical Neural Networks:
-              - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
-      - Mase-triton: "02-model-behaviour-level-simulation/mase-triton.md"
-  - Developer Guide:
-      - Maintaining Docs: "dev-guide.md"
-      - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/dev-guidelines.md"
-      - Vision Transformer fine-tuning with CIM Simulation: "02-model-behaviour-level-simulation/vit-cim.md"
+    - Home: index.md
+    - Getting Started:
+          - Environment Setup: env-setup.md
+          - Supported Models: model-list.md
+          - Pretraining:
+                - LLM Pretraining and Evaluation: "01-model-training/llm-pretrain-and-eval.md"
+          - Model Behaviour Level Simulation:
+                - Random BitFlip:
+                      - LLM: "02-model-behaviour-level-simulation/clm-bitflip.md"
+                - Optical Neural Networks:
+                      - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
+                      - CLM: "02-model-behaviour-level-simulation/clm-onn.md"
+          - Mase-triton: "02-model-behaviour-level-simulation/mase-triton.md"
+    - Developer Guide:
+          - Maintaining Docs: "dev-guide.md"
+          - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/dev-guidelines.md"
+          - Vision Transformer fine-tuning with CIM Simulation: "02-model-behaviour-level-simulation/vit-cim.md"
