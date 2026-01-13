@@ -395,6 +395,10 @@ def transform_roberta(
         if not isinstance(layer, nn.Linear):
             continue
 
+        # skip "classifier"
+        if name.endswith("classifier"):
+            continue
+
         new_fc = OTLinear.from_linear(
             layer,
             **fc_config,
