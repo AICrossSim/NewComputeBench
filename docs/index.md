@@ -16,6 +16,7 @@
     - [ ] Spiking neural networks
     - [ ] In-memory compute
   - [ ] Parameter-efficient fine-tuning of larger LLMs (e.g., Llama-3.1-8B)
+    - [x] Optical compute (failed to converge)
 
 
 ## What's New
@@ -54,9 +55,9 @@
         - [ ] Supervised fine-tuning
 - Model Behavior-Level Simulation
     - [x] Post-training bitflip transform & bitflip-aware pretraining
-    - [ ] Optical compute
+    - [x] Optical compute
         - [x] Roberta
-        - [ ] CLM
+        - [x] CLM
     - [ ] Spiking neural networks
     - [ ] In-memory compute
 

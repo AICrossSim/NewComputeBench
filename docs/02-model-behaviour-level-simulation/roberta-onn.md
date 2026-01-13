@@ -7,7 +7,7 @@ This tutorial demonstrates how to apply optical transformer modifications to RoB
 - **Optical Transform**: Applies optical computing simulation to RoBERTa models by replacing standard attention and linear layers with optical transformer equivalents.
     - The entry point is at [`experiments/roberta-optical-transformer/run_glue.py`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-optical-transformer/run_glue.py).
 - **Optical Attention**: Custom attention mechanism with quantization-aware operations simulating optical matrix operations.
-    - Implemented in [`experiments/roberta-optical-transformer/ot_roberta.py`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-optical-transformer/ot_roberta.py).
+    - Implemented in [`src/aixsim_models/optical_compute/optical_transformer/fine_tune/ot_roberta.py`](https://github.com/AICrossSim/NewComputeBench/blob/master/src/aixsim_models/optical_compute/optical_transformer/fine_tune/ot_roberta.py).
 - **GLUE Task Support**: Fine-tune and evaluate optical RoBERTa models on GLUE benchmark tasks.
     - Configuration scripts available at [`experiments/roberta-optical-transformer/finetune_base.sh`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-optical-transformer/finetune_base.sh).
 
