@@ -31,7 +31,6 @@ import transformers
 import wandb
 import yaml
 from datasets import load_dataset
-from ot_roberta import transform_roberta
 from transformers import (
     AutoConfig,
     AutoModelForSequenceClassification,
@@ -48,6 +47,10 @@ from transformers import (
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
+
+from aixsim_models.optical_compute.optical_transformer.fine_tune.ot_roberta import (
+    transform_roberta,
+)
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.50.0.dev0")

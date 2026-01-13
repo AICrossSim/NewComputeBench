@@ -70,7 +70,9 @@ from transformers import (
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
-from new_compute.optical.ot_llama import transform_llama
+from aixsim_models.optical_compute.optical_transformer.fine_tune.ot_llama import (
+    transform_llama,
+)
 
 ATTN_CFG = dict(
     q_levels=256,
