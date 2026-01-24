@@ -2,7 +2,7 @@ datasets
 huggingface_hub[hf_transfer]
 jsonargparse[all]
 wandb
-transformers==4.49
+transformers==4.51
 accelerate
 torch
 numpy
@@ -13,4 +13,4 @@ colorlog
 torchdata
 tensorboard
 lm-eval==0.4.7
-mase-tools @ git+https://github.com/DeepWok/mase@cz/mase-triton-bitflip
+mase @ git+https://github.com/DeepWok/mase@main

@@ -1,0 +1,10 @@
+by: "type"
+conv2d:
+  config:
+    tile_type: "original"
+    core_size: 16
+
+linear:
+  config:
+    tile_type: "original"
+    core_size: 16

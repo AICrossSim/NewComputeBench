@@ -355,9 +355,9 @@ class TaskArguments:
     do_eval: bool = field(default=False, metadata={"help": "Whether to run evaluation"})
     do_predict: bool = field(default=False, metadata={"help": "Whether to run prediction"})
     
-    # CIM Transform arguments
-    enable_cim_transform: bool = field(default=False, metadata={"help": "Enable CIM transformation"})
-    cim_config_path: str = field(default=None, metadata={"help": "Path to CIM configuration file"})
+    # PIM Transform arguments
+    enable_pim_transform: bool = field(default=False, metadata={"help": "Enable PIM transformation"})
+    pim_config_path: str = field(default=None, metadata={"help": "Path to PIM configuration file"})
 
 
 def create_training_arguments(task_args: TaskArguments, training_args: ArgTraining, optimizer_args: ArgOptimizer, data_args: ArgData, metrics_args: ArgMetrics):

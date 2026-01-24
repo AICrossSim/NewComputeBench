@@ -47,6 +47,9 @@ We provide a script to convert the torchtitan checkpoint to a HuggingFace checkp
 - Optical compute
   - [Roberta on GLUE](/experiments/roberta-optical-transformer/)
   - CLM `🚧 WIP`
+- Processing-in-memory compute
+  - [Roberta on GLUE](/experiments/roberta-pim/)
+  - CLM `🚧 TODO`
 
 - Spiking neural networks `🚧 TODO`
 - In-memory compute `🚧 TODO

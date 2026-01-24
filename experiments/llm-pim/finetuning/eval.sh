@@ -11,7 +11,7 @@ gradient_accumulation_steps="48"
 
 for learning_rate in 1e-5; do
     OUTPUT_DIR=${CX_DATA_HOME}/clm_finetuning_lora/$model/$learning_rate
-    CUDA_VISIBLE_DEVICES=0,1 python ${CX_PROJECT_HOME}/experiments/llm-cim/finetuning/run_clm.py \
+    CUDA_VISIBLE_DEVICES=0,1 python ${CX_PROJECT_HOME}/experiments/llm-pim/finetuning/run_clm.py \
         --model_name_or_path ${model} \
         --dataset_name HuggingFaceFW/fineweb-edu \
         --dataset_config_name "sample-10BT" \

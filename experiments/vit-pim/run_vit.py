@@ -64,15 +64,15 @@ def main():
     logger.info(f"Output directory: {training_args.output_dir}")
     logger.info(f"Do train: {task_args.do_train}")
     logger.info(f"Do eval: {task_args.do_eval}")
-    logger.info(f"CIM transform: {task_args.enable_cim_transform}")
-    if task_args.enable_cim_transform:
-        logger.info(f"CIM config: {task_args.cim_config_path}")
+    logger.info(f"PIM transform: {task_args.enable_pim_transform}")
+    if task_args.enable_pim_transform:
+        logger.info(f"PIM config: {task_args.pim_config_path}")
     logger.info("=" * 50)
     
     try:
         # Load model and processor
         model, processor, device = load_model_and_processor(task_args, model_args, data_args, training_args, logger)
-        with open(task_args.cim_config_path, 'r') as f:
+        with open(task_args.pim_config_path, 'r') as f:
             q_config = yaml.safe_load(f)
 
         lora_config = {
@@ -168,8 +168,8 @@ def main():
                 'num_classes': num_classes,
                 'image_size': dataset_info.image_size if hasattr(dataset_info, 'image_size') else data_args.image_size,
             },
-            'cim_transform_enabled': task_args.enable_cim_transform,
-            'cim_config_path': task_args.cim_config_path if task_args.enable_cim_transform else None,
+            'pim_transform_enabled': task_args.enable_pim_transform,
+            'pim_config_path': task_args.pim_config_path if task_args.enable_pim_transform else None,
         })
         
         # Save results
