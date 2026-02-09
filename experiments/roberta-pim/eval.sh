@@ -17,8 +17,6 @@ readonly MAX_LENGTH=128
 readonly MASTER_PORT=14402
 
 # Task configuration
-# MODEL_NAME can be a HuggingFace model ID or a local path to a checkpoint
-MODEL_NAME="FacebookAI/roberta-base"
 WITH_TRACKING="${WITH_TRACKING:-false}"
 USE_CPU="${USE_CPU:-false}"
 CUDA_DEVICE="${CUDA_DEVICE:-0}"
@@ -89,12 +87,12 @@ evaluate() {
 
 main() {
     echo "Starting evaluation process..."
-    echo "Model: $MODEL_NAME"
 
     for pim_config in $PIM_CONFIG_LIST; do
         for task in $TASK_LIST; do
             local task_output_dir="${SCRIPT_DIR}/eval_results/${pim_config}/${task}"
             mkdir -p "$task_output_dir"
+            MODEL_NAME="JeremiahZ/roberta-base-${task}"
 
             evaluate "$task" "$MODEL_NAME" "$pim_config" "$task_output_dir"
 
