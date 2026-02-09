@@ -48,9 +48,10 @@ evaluate() {
 
     # Using 1 GPU for evaluation. We use plain python since only 1 process is needed.
     # To force CPU if CUDA is incompatible, you can use: CUDA_VISIBLE_DEVICES="" 
-    CUDA_VISIBLE_DEVICES="" python -u "${SCRIPT_DIR}/run_glue.py" \
+    CUDA_VISIBLE_DEVICES="" uv run python -u "${SCRIPT_DIR}/run_glue.py" \
             --model_name_or_path "$model_name" \
             --task_name "$task_name" \
+            --do_eval \
             --max_length "$MAX_LENGTH" \
             --per_device_eval_batch_size "$BATCH_SIZE" \
             --output_dir "$output_dir" \

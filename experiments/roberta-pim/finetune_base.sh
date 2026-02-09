@@ -49,7 +49,7 @@ finetune() {
 
     # Using 1 GPU/process. run_glue.py uses Accelerator.
     # To use GPU, ensure CUDA_VISIBLE_DEVICES is set correctly in your environment.
-    python -u "${SCRIPT_DIR}/run_glue.py" \
+    uv run python -u "${SCRIPT_DIR}/run_glue.py" \
         --model_name_or_path "$model_name" \
         --task_name "$task_name" \
         --do_train \

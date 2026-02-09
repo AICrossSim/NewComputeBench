@@ -19,6 +19,7 @@ import logging
 import math
 import os
 import random
+import sys
 from pathlib import Path
 
 import datasets
@@ -46,7 +47,9 @@ from transformers import (
 import yaml
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
-from chop.passes.module.transforms.pim.pim_matmul_transform import pim_matmul_transform_pass
+
+sys.path.append(Path(__file__).resolve().parents[2].joinpath("src").as_posix())
+from aixsim_models.pim import pim_matmul_transform_pass
 
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
@@ -238,12 +241,15 @@ def parse_args():
 
     if args.push_to_hub:
         assert args.output_dir is not None, "Need an `output_dir` to create a repo when `--push_to_hub` is passed."
+    if not args.do_train and not args.do_eval:
+        raise ValueError("Need at least one of `--do_train` or `--do_eval`.")
 
     return args
 
 
 def main():
     args = parse_args()
+    eval_metric = None
 
     # Initialize the accelerator
     accelerator = Accelerator(log_with=args.report_to if args.with_tracking else None)
@@ -435,43 +441,43 @@ def main():
     else:
         metric = evaluate.load("accuracy", cache_dir=args.data_cache_dir)
 
-    # Train!
-    total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
-
-    logger.info("***** Running training *****")
-    logger.info(f"  Num examples = {len(train_dataset)}")
-    logger.info(f"  Num Epochs = {args.num_train_epochs}")
-    logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
-    logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
-    logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
-    logger.info(f"  Total optimization steps = {args.max_train_steps}")
-    # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
-    completed_steps = 0
-    starting_epoch = 0
-    # Potentially load resume from checkpoint
-    if args.resume_from_checkpoint:
-        if args.resume_from_checkpoint is not None or args.resume_from_checkpoint != "":
-            accelerator.print(f"Resumed from checkpoint: {args.resume_from_checkpoint}")
-            accelerator.load_state(args.resume_from_checkpoint)
-            path = os.path.basename(args.resume_from_checkpoint)
-        else:
-            # Get the most recent checkpoint
-            dirs = [f.name for f in os.scandir(os.getcwd()) if f.is_dir()]
-            dirs.sort(key=os.path.getctime)
-            path = dirs[-1]  # Sorts folders by date modified, most recent checkpoint is the last
-        # Extract `epoch_{i}` or `step_{i}`
-        training_difference = os.path.splitext(path)[0]
-
-        if "step" in training_difference:
-            completed_steps = int(training_difference.replace("step_", ""))
-            starting_epoch = completed_steps // num_update_steps_per_epoch
-            completed_steps -= starting_epoch * num_update_steps_per_epoch
-        else:
-            starting_epoch = int(training_difference.replace("epoch_", ""))
-            completed_steps = starting_epoch * num_update_steps_per_epoch
-
     if args.do_train:
+        # Train!
+        total_batch_size = args.per_device_train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
+
+        logger.info("***** Running training *****")
+        logger.info(f"  Num examples = {len(train_dataset)}")
+        logger.info(f"  Num Epochs = {args.num_train_epochs}")
+        logger.info(f"  Instantaneous batch size per device = {args.per_device_train_batch_size}")
+        logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
+        logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
+        logger.info(f"  Total optimization steps = {args.max_train_steps}")
+        # Only show the progress bar once on each machine.
+        progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
+        completed_steps = 0
+        starting_epoch = 0
+        # Potentially load resume from checkpoint
+        if args.resume_from_checkpoint:
+            if args.resume_from_checkpoint is not None or args.resume_from_checkpoint != "":
+                accelerator.print(f"Resumed from checkpoint: {args.resume_from_checkpoint}")
+                accelerator.load_state(args.resume_from_checkpoint)
+                path = os.path.basename(args.resume_from_checkpoint)
+            else:
+                # Get the most recent checkpoint
+                dirs = [f.name for f in os.scandir(os.getcwd()) if f.is_dir()]
+                dirs.sort(key=os.path.getctime)
+                path = dirs[-1]  # Sorts folders by date modified, most recent checkpoint is the last
+            # Extract `epoch_{i}` or `step_{i}`
+            training_difference = os.path.splitext(path)[0]
+
+            if "step" in training_difference:
+                completed_steps = int(training_difference.replace("step_", ""))
+                starting_epoch = completed_steps // num_update_steps_per_epoch
+                completed_steps -= starting_epoch * num_update_steps_per_epoch
+            else:
+                starting_epoch = int(training_difference.replace("epoch_", ""))
+                completed_steps = starting_epoch * num_update_steps_per_epoch
+
         for epoch in range(starting_epoch, args.num_train_epochs):
             model.train()
             if args.with_tracking:
@@ -588,7 +594,7 @@ def main():
                     token=args.hub_token,
                 )
             with open(os.path.join(args.output_dir, "all_results.json"), "w") as f:
-                json.dump(eval_metric, f)
+                json.dump(eval_metric if eval_metric is not None else {}, f)
 
 
 if __name__ == "__main__":
