@@ -1,5 +1,6 @@
 #!/bin/bash
 # Finetuning script for BERT/RoBERTa on GLUE tasks with PIM simulation
+# Optimized version supporting multiple PIM configs and improved GPU control
 
 set -euo pipefail  # Exit on error, undefined vars, and pipe failures
 
@@ -15,18 +16,18 @@ readonly BATCH_SIZE=16
 readonly SEED=42
 readonly MAX_LENGTH=128
 readonly NUM_EPOCHS=3
-readonly MASTER_PORT=14402
 
 # Task configuration
-USE_SINGLE_TASK=false
+WITH_TRACKING="${WITH_TRACKING:-false}"
+CUDA_DEVICE="${CUDA_DEVICE:-0}"
 MODEL_NAME="FacebookAI/roberta-base"
-TASK_NAME="mrpc"
-# LR=2e-5  # For single task
 
-# Multi-task configuration
-# Default tasks for fine-tuning
+# Tasks to finetune
 TASK_LIST="cola mnli mrpc qnli qqp rte sst2 stsb"
 LR_LIST="2e-5"
+
+# PIM configurations to evaluate (from experiments/llm-pim/configs/)
+PIM_CONFIG_LIST="sram pcm reram"
 
 # =================================================================================================
 
@@ -38,18 +39,27 @@ finetune() {
     local task_name="$1"
     local model_name="$2"
     local learning_rate="$3"
-    local output_dir="$4"
+    local pim_config="$4"
+    local output_dir="$5"
 
-    local run_name="ft_${task_name}_${learning_rate}"
+    local pim_config_path="./experiments/llm-pim/configs/${pim_config}.yaml"
+    local run_name="ft_${task_name}_${pim_config}_${learning_rate}"
 
     echo "--------------------------------------------------------------------------------"
-    echo "Starting finetuning: Task=$task_name, LR=$learning_rate, Model=$model_name"
+    echo "Starting finetuning: Task=$task_name, PIM=$pim_config, LR=$learning_rate"
+    echo "Model: $model_name"
     echo "Output directory: $output_dir"
     echo "--------------------------------------------------------------------------------"
 
-    # Using 1 GPU/process. run_glue.py uses Accelerator.
-    # To use GPU, ensure CUDA_VISIBLE_DEVICES is set correctly in your environment.
-    uv run python -u "${SCRIPT_DIR}/run_glue.py" \
+    local tracking_args=()
+    if [[ "$WITH_TRACKING" == "true" ]]; then
+        tracking_args+=(--with_tracking --report_to wandb)
+    else
+        tracking_args+=(--report_to none)
+    fi
+
+    # Using python instead of uv run for better compatibility
+    CUDA_VISIBLE_DEVICES="$CUDA_DEVICE" python -u "${SCRIPT_DIR}/run_glue.py" \
         --model_name_or_path "$model_name" \
         --task_name "$task_name" \
         --do_train \
@@ -62,38 +72,8 @@ finetune() {
         --output_dir "$output_dir" \
         --seed "$SEED" \
         --pim \
-        --pim_config_path "./experiments/llm-pim/configs/sram.yaml" \
-        --with_tracking \
-        --report_to wandb
-}
-
-# Run single task finetuning
-run_single_task() {
-    if [[ -z "${LR:-}" ]]; then
-        echo "ERROR: LR must be set for single task mode (e.g., LR=2e-5 bash finetune_base.sh)" >&2
-        exit 1
-    fi
-    local output_dir="${SCRIPT_DIR}/ckpt/roberta/finetune/${TASK_NAME}/lr_${LR}"
-    mkdir -p "$output_dir"
-    finetune "$TASK_NAME" "$MODEL_NAME" "$LR" "$output_dir"
-}
-
-# Run multi-task finetuning
-run_multi_task() {
-    echo "Multi-task finetuning process started..."
-    for lr in $LR_LIST; do
-        for task in $TASK_LIST; do
-            local task_output_dir="${SCRIPT_DIR}/ckpt/roberta/finetune/${task}/lr_${lr}"
-            mkdir -p "$task_output_dir"
-
-            finetune "$task" "$MODEL_NAME" "$lr" "$task_output_dir"
-
-            if [[ $? -ne 0 ]]; then
-                echo "ERROR: Finetuning failed for task=$task with LR=$lr" >&2
-                # Continue with next task
-            fi
-        done
-    done
+        --pim_config_path "$pim_config_path" \
+        "${tracking_args[@]}"
 }
 
 # =================================================================================================
@@ -102,13 +82,28 @@ run_multi_task() {
 # =================================================================================================
 
 main() {
-    if [[ "$USE_SINGLE_TASK" == true ]]; then
-        run_single_task
-    else
-        run_multi_task
-    fi
+    echo "Starting multi-task finetuning process using pre-trained task-specific models..."
 
-    echo "Fine-tuning process completed!"
+    for pim_config in $PIM_CONFIG_LIST; do
+        for lr in $LR_LIST; do
+            for task in $TASK_LIST; do
+                local task_output_dir="${SCRIPT_DIR}/ckpt/roberta/${pim_config}/${task}/lr_${lr}"
+                mkdir -p "$task_output_dir"
+                
+                # Use task-specific pre-trained models as a starting point, matching eval.sh logic
+                local current_model="JeremiahZ/roberta-base-${task}"
+
+                finetune "$task" "$current_model" "$lr" "$pim_config" "$task_output_dir"
+
+                if [[ $? -ne 0 ]]; then
+                    echo "ERROR: Finetuning failed for task=$task with PIM=$pim_config, LR=$lr" >&2
+                    # Continue with next task
+                fi
+            done
+        done
+    done
+
+    echo "All finetuning processes completed!"
 }
 
 # Run main function

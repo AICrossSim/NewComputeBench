@@ -2,8 +2,8 @@ import os
 import json
 import sys
 
-# 定义任务顺序和对应的结果文件名、指标键名
-# 图片顺序: MNLI, QNLI, RTE, SST, MRPC, CoLA, QQP, STSB
+# Define task order and corresponding result filenames and metric keys
+# Order as per image: MNLI, QNLI, RTE, SST, MRPC, CoLA, QQP, STSB
 TASKS = [
     {"name": "MNLI", "dir": "mnli", "metric": "accuracy"},
     {"name": "QNLI", "dir": "qnli", "metric": "accuracy"},
@@ -20,10 +20,10 @@ ROOT_EVAL_DIR = "experiments/roberta-pim/eval_results"
 def collect(target_subfolder):
     base_dir = os.path.join(ROOT_EVAL_DIR, target_subfolder)
     if not os.path.exists(base_dir):
-        print(f"错误: 找不到文件夹 {base_dir}")
+        print(f"Error: Folder not found: {base_dir}")
         return
 
-    print(f"\n>>> 正在分析目录: {base_dir}")
+    print(f"\n>>> Analyzing directory: {base_dir}")
     
     header = []
     values = []
@@ -46,7 +46,7 @@ def collect(target_subfolder):
         else:
             values.append("N/A")
 
-    # 计算 Avg
+    # Calculate Avg
     valid_vals = []
     for v in values:
         try:
@@ -58,22 +58,22 @@ def collect(target_subfolder):
     header.append("Avg")
     values.append(f"{avg:.4f}")
 
-    # 打印格式化表格
+    # Print formatted table
     col_width = 10
     print("-" * (col_width * len(header)))
     print("".join(word.ljust(col_width) for word in header))
     print("".join(word.ljust(col_width) for word in values))
     print("-" * (col_width * len(header)))
 
-    # 保存到 CSV
+    # Save to CSV
     csv_path = f"summary_{target_subfolder}.csv"
     with open(csv_path, "w") as f:
         f.write(",".join(header) + "\n")
         f.write(",".join(values) + "\n")
-    print(f"\n结果已导出至 CSV: {csv_path}")
+    print(f"\nResults exported to CSV: {csv_path}")
 
 if __name__ == "__main__":
-    # 获取 eval_results 下有哪些子文件夹 (sram, pcm, reram 等)
+    # Get available subfolders in eval_results (sram, pcm, reram, etc.)
     try:
         available_folders = [d for d in os.listdir(ROOT_EVAL_DIR) if os.path.isdir(os.path.join(ROOT_EVAL_DIR, d))]
     except:
@@ -83,8 +83,8 @@ if __name__ == "__main__":
         target = sys.argv[1]
     else:
         if available_folders:
-            print(f"可用文件夹: {', '.join(available_folders)}")
-            target = input("请输入要分析的文件夹名称 (默认 sram): ").strip() or "sram"
+            print(f"Available folders: {', '.join(available_folders)}")
+            target = input("Please enter the folder name to analyze (default sram): ").strip() or "sram"
         else:
             target = "sram"
     
