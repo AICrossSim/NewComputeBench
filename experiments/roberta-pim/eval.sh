@@ -19,6 +19,9 @@ readonly MASTER_PORT=14402
 # Task configuration
 # MODEL_NAME can be a HuggingFace model ID or a local path to a checkpoint
 MODEL_NAME="FacebookAI/roberta-base"
+WITH_TRACKING="${WITH_TRACKING:-false}"
+USE_CPU="${USE_CPU:-false}"
+CUDA_DEVICE="${CUDA_DEVICE:-0}"
 
 # Tasks to evaluate (GLUE benchmark)
 TASK_LIST="cola mnli mrpc qnli qqp rte sst2 stsb"
@@ -46,9 +49,14 @@ evaluate() {
     echo "Output directory: $output_dir"
     echo "--------------------------------------------------------------------------------"
 
-    # Using 1 GPU for evaluation. We use plain python since only 1 process is needed.
-    # To force CPU if CUDA is incompatible, you can use: CUDA_VISIBLE_DEVICES="" 
-    CUDA_VISIBLE_DEVICES="" uv run python -u "${SCRIPT_DIR}/run_glue.py" \
+    # Default: use one GPU. Set USE_CPU=true to force CPU.
+    local tracking_args=()
+    if [[ "$WITH_TRACKING" == "true" ]]; then
+        tracking_args+=(--with_tracking --report_to wandb)
+    fi
+
+    if [[ "$USE_CPU" == "true" ]]; then
+        CUDA_VISIBLE_DEVICES="" uv run python -u "${SCRIPT_DIR}/run_glue.py" \
             --model_name_or_path "$model_name" \
             --task_name "$task_name" \
             --do_eval \
@@ -58,8 +66,20 @@ evaluate() {
             --seed "$SEED" \
             --pim \
             --pim_config_path "$pim_config_path" \
-            --with_tracking \
-            --report_to wandb
+            "${tracking_args[@]}"
+    else
+        CUDA_VISIBLE_DEVICES="$CUDA_DEVICE" uv run python -u "${SCRIPT_DIR}/run_glue.py" \
+            --model_name_or_path "$model_name" \
+            --task_name "$task_name" \
+            --do_eval \
+            --max_length "$MAX_LENGTH" \
+            --per_device_eval_batch_size "$BATCH_SIZE" \
+            --output_dir "$output_dir" \
+            --seed "$SEED" \
+            --pim \
+            --pim_config_path "$pim_config_path" \
+            "${tracking_args[@]}"
+    fi
 }
 
 # =================================================================================================
