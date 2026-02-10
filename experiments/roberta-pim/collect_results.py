@@ -1,6 +1,6 @@
 import os
 import json
-import sys
+import argparse
 
 # Define task order and corresponding result filenames and metric keys
 # Order as per image: MNLI, QNLI, RTE, SST, MRPC, CoLA, QQP, STSB
@@ -15,10 +15,47 @@ TASKS = [
     {"name": "STSB", "dir": "stsb", "metric": ["pearson", "spearmanr"]},
 ]
 
-ROOT_EVAL_DIR = "experiments/roberta-pim/eval_results"
+DEFAULT_ROOT_DIR = "experiments/roberta-pim/eval_results"
 
-def collect(target_subfolder):
-    base_dir = os.path.join(ROOT_EVAL_DIR, target_subfolder)
+def safe_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def get_task_value(task, data):
+    metric = task["metric"]
+    if isinstance(metric, list):
+        metric_vals = [safe_float(data.get(m, 0)) for m in metric]
+        return sum(metric_vals) / len(metric_vals) if metric_vals else 0.0
+    return safe_float(data.get(metric, 0))
+
+
+def resolve_result_path(task_dir, result_file="all_results.json"):
+    # Pattern 1: <task>/all_results.json
+    direct_path = os.path.join(task_dir, result_file)
+    if os.path.exists(direct_path):
+        return direct_path
+
+    # Pattern 2: <task>/<any_subdir>/all_results.json (e.g., lr_2e-5)
+    if os.path.isdir(task_dir):
+        for entry in sorted(os.listdir(task_dir)):
+            candidate = os.path.join(task_dir, entry, result_file)
+            if os.path.exists(candidate):
+                return candidate
+
+    return None
+
+
+def collect(
+    target_subfolder,
+    root_dir,
+    result_file="all_results.json",
+    output_csv=None,
+):
+    base_dir = os.path.join(root_dir, target_subfolder)
+
     if not os.path.exists(base_dir):
         print(f"Error: Folder not found: {base_dir}")
         return
@@ -29,19 +66,17 @@ def collect(target_subfolder):
     values = []
     
     for task in TASKS:
-        path = os.path.join(base_dir, task["dir"], "all_results.json")
+        task_dir = os.path.join(base_dir, task["dir"])
+        path = resolve_result_path(task_dir, result_file=result_file)
         header.append(task["name"])
         
-        if os.path.exists(path):
+        if path and os.path.exists(path):
             try:
-                with open(path, 'r') as f:
+                with open(path, "r") as f:
                     data = json.load(f)
-                    if task["name"] == "STSB":
-                        val = (data.get("pearson", 0) + data.get("spearmanr", 0)) / 2
-                    else:
-                        val = data.get(task["metric"], 0)
+                    val = get_task_value(task, data)
                     values.append(f"{val:.4f}")
-            except:
+            except (json.JSONDecodeError, OSError):
                 values.append("Error")
         else:
             values.append("N/A")
@@ -51,7 +86,7 @@ def collect(target_subfolder):
     for v in values:
         try:
             valid_vals.append(float(v))
-        except:
+        except ValueError:
             continue
             
     avg = sum(valid_vals) / len(valid_vals) if valid_vals else 0
@@ -66,26 +101,49 @@ def collect(target_subfolder):
     print("-" * (col_width * len(header)))
 
     # Save to CSV
-    csv_path = f"summary_{target_subfolder}.csv"
+    safe_target_name = os.path.basename(os.path.normpath(str(target_subfolder))) or "results"
+    csv_path = output_csv or f"summary_{safe_target_name}.csv"
+    output_dir = os.path.dirname(csv_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
     with open(csv_path, "w") as f:
         f.write(",".join(header) + "\n")
         f.write(",".join(values) + "\n")
     print(f"\nResults exported to CSV: {csv_path}")
 
 if __name__ == "__main__":
-    # Get available subfolders in eval_results (sram, pcm, reram, etc.)
+    parser = argparse.ArgumentParser(description="Collect results with customizable root directory.")
+    parser.add_argument("target", nargs="?", help="Target folder (e.g., sram, pcm).")
+    parser.add_argument(
+        "--root",
+        default=DEFAULT_ROOT_DIR,
+        help="Root directory containing target folders (default: experiments/roberta-pim/eval_results).",
+    )
+    parser.add_argument(
+        "--output",
+        default=None,
+        help="Output CSV file path. Default: summary_<target>.csv",
+    )
+    
+    args = parser.parse_args()
+
+    root_dir = args.root
+    
     try:
-        available_folders = [d for d in os.listdir(ROOT_EVAL_DIR) if os.path.isdir(os.path.join(ROOT_EVAL_DIR, d))]
+        available_folders = [d for d in os.listdir(root_dir) if os.path.isdir(os.path.join(root_dir, d))]
     except:
         available_folders = []
     
-    if len(sys.argv) > 1:
-        target = sys.argv[1]
-    else:
+    target = args.target
+    if not target:
         if available_folders:
-            print(f"Available folders: {', '.join(available_folders)}")
-            target = input("Please enter the folder name to analyze (default sram): ").strip() or "sram"
+            print(f"Available folders in {root_dir}: {', '.join(available_folders)}")
+            target = input(f"Please enter the folder name to analyze (default sram): ").strip() or "sram"
         else:
             target = "sram"
     
-    collect(target)
+    collect(
+        target,
+        root_dir=root_dir,
+        output_csv=args.output,
+    )
