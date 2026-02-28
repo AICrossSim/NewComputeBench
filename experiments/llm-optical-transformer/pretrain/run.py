@@ -15,8 +15,8 @@ from aixsim_models.utils.logging import set_logging_verbosity
 
 from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_lm_eval
 from aixsim_models.llm.utils import convert_torch_to_hf, convert_hf_to_torch
-from aixsim_models.optical_compute.optical_transformer.pretrainer import pretrain
-from aixsim_models.optical_compute.optical_transformer.arg_manager import (
+from aixsim_models.optical_compute.optical_transformer.pretrain.pretrainer import pretrain
+from aixsim_models.optical_compute.optical_transformer.pretrain.arg_manager import (
     ArgJob,
     ArgProfiling,
     ArgMetrics,

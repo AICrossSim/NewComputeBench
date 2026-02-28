@@ -13,7 +13,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonargparse import CLI
 
 from aixsim_models.llm.evaluator import hf_lm_eval, hf_generate
-from aixsim_models.bitflip.transform import transform_model, TransformConfigManager
+from aixsim_models.bitflip.pretrain.transform import transform_model, TransformConfigManager
 
 DEFAULT_DTYPE = "float16"
 DEFAULT_TASKS = ["wikitext"]

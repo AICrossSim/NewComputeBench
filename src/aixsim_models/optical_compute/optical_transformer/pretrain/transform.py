@@ -5,9 +5,9 @@ from torchtitan.models.llama.model import Attention as TTLlamaAttention
 from torchtitan.models.llama.model import Transformer as TTLlamaTransformer
 from transformers import LlamaForCausalLM as HFLlamaForCausalLM
 from mase_triton.optical_compute.layers import OpticalTransformerLinear
-from ...utils.torch_module import set_layer_by_name, get_layer_name
-from ...utils.deps import all_packages_are_available
-from ...utils.torch_module import TransformConfigManager
+from ....utils.torch_module import set_layer_by_name, get_layer_name
+from ....utils.deps import all_packages_are_available
+from ....utils.torch_module import TransformConfigManager
 from .layers import TTOpticalTransformerLlamaAttention, HFOpticalTransformerLlamaAttention
 
 if not all_packages_are_available(("mase_triton",)):

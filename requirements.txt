@@ -13,4 +13,4 @@ colorlog
 torchdata
 tensorboard
 lm-eval==0.4.7
-mase-tools @ git+https://github.com/DeepWok/mase@cz/mase-triton-bitflip
+mase-triton

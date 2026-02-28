@@ -8,16 +8,15 @@ import yaml
 import math
 from pathlib import Path
 
-import torch
 from aixsim_models.llm.profiler import profile_num_params
 from aixsim_models.llm import register_model_configs, register_pretrain_dataset
 from aixsim_models.utils.logging import set_logging_verbosity
 
 from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_lm_eval
 from aixsim_models.llm.utils import convert_torch_to_hf
-from aixsim_models.bitflip.pretrainer import pretrain
-from aixsim_models.bitflip.arg_manager import ArgRandomBitFlipTransform
-from aixsim_models.bitflip.arg_manager import (
+from aixsim_models.bitflip.pretrain.pretrainer import pretrain
+from aixsim_models.bitflip.pretrain.arg_manager import ArgRandomBitFlipTransform
+from aixsim_models.bitflip.pretrain.arg_manager import (
     ArgJob,
     ArgProfiling,
     ArgMetrics,
@@ -32,7 +31,7 @@ from aixsim_models.bitflip.arg_manager import (
     ArgMemoryEstimation,
     PreTrainArgs,
 )
-from aixsim_models.bitflip.profiler import profile_stats_hf
+from aixsim_models.bitflip.pretrain.profiler import profile_stats_hf
 
 register_model_configs()
 register_pretrain_dataset()

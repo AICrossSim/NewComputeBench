@@ -2,7 +2,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Literal
 
 
-from ..llm.arg_manager import (
+from ...llm.arg_manager import (
     ArgJob,
     ArgProfiling,
     ArgMetrics,

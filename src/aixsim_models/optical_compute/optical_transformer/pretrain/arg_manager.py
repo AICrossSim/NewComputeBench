@@ -2,7 +2,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Literal
 
 
-from ...llm.arg_manager import (
+from ....llm.arg_manager import (
     ArgJob,
     ArgProfiling,
     ArgMetrics,
@@ -54,8 +54,8 @@ class PreTrainArgs:
             Communications library settings.
         memory_estimation : ArgMemoryEstimation
             Memory estimation settings.
-        transform: ArgRandomBitFlipTransform
-            Random bitflip transformation.
+        transform: ArgOpticalTransformerTransform
+            Optical transformer transformation.
     """
 
     job: ArgJob = field(default_factory=ArgJob)
