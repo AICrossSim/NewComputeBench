@@ -60,12 +60,15 @@
         - [x] Pretraining of LLMs (60M, 200M, 400M, 1.1B) using the Llama-3 architecture.
         - [x] `lm-eval-harness` evaluation of LLMs.
         - [x] Parameter-efficient fine-tuning
-        - [ ] Supervised fine-tuning
 - Model Behavior-Level Simulation
-    - [x] Post-training bitflip transform & bitflip-aware pretraining
+    - [x] Lossy Communication (random bitflip)
+        - [x] Post-training bitflip transform
+        - [x] Bitflip-aware pretraining (60M - 1.1B)
+        - [x] Bitflip-aware parameter-efficient fine-tuning (Llama-3.1-8B)
     - [x] Optical compute
-        - [x] Roberta
-        - [x] CLM
+        - [x] Roberta Fine-tuning (125M)
+        - [x] CLM full fine-tuning (60M - 1.1B)
+        - [x] CLM parameter efficient fine-tuning (60M - 1.1B)
     - [ ] Spiking neural networks
     - [ ] In-memory compute
 
