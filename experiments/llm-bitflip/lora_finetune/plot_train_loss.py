@@ -20,9 +20,12 @@ def plot_train_loss(csv_path: Path, output_path: Optional[Path] = None) -> None:
         raise ValueError(f"Missing column: {loss_col}")
 
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    ax.plot(df[step_col], df[loss_col], label="bitflip r32", color="tab:blue", linewidth=1.8)
-    ax.axhline(baseline_loss, color="tab:red", linestyle="--", linewidth=1.2,
-               label="original")
+    ax.plot(
+        df[step_col], df[loss_col], label="bitflip r32", color="tab:blue", linewidth=1.8
+    )
+    ax.axhline(
+        baseline_loss, color="tab:red", linestyle="--", linewidth=1.2, label="original"
+    )
 
     ax.set_xlabel("Train step")
     ax.set_ylabel("Train loss")
@@ -40,9 +43,13 @@ def plot_train_loss(csv_path: Path, output_path: Optional[Path] = None) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Plot train loss vs step from a W&B CSV export.")
+    parser = argparse.ArgumentParser(
+        description="Plot train loss vs step from a W&B CSV export."
+    )
     parser.add_argument("csv", type=Path, help="Path to the W&B CSV export")
-    parser.add_argument("--output", "-o", type=Path, default=None, help="Path to save the plot (PNG)")
+    parser.add_argument(
+        "--output", "-o", type=Path, default=None, help="Path to save the plot (PNG)"
+    )
     args = parser.parse_args()
 
     plot_train_loss(args.csv, args.output)

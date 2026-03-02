@@ -34,6 +34,7 @@ on a text file or a dataset without using HuggingFace Trainer.
 Here is the full list of checkpoints on the hub that can be fine-tuned by this script:
 https://huggingface.co/models?filter=text-generation
 """
+
 # You can also adapt this script on your own causal language modeling task. Pointers for this are left as comments.
 
 import argparse
@@ -42,8 +43,11 @@ import logging
 import math
 import os
 import random
+import sys
 from itertools import chain
 from pathlib import Path
+
+sys.path.append(Path(__file__).resolve().parents[3].joinpath("src").as_posix())
 
 import datasets
 import tomllib
@@ -393,6 +397,7 @@ def main():
             logger.info(
                 f"Number of trainable parameters: {n_params:,} ({100 * n_params / total_params:.2f}%)\nTrainable parameters: {trainable}"
             )
+
     else:
 
         def set_trainable(model: torch.nn.Module):
@@ -716,7 +721,9 @@ def main():
                         break
 
             if len(losses) == 0:
-                logger.warning(f"No batches processed for {split_name} split during evaluation.")
+                logger.warning(
+                    f"No batches processed for {split_name} split during evaluation."
+                )
                 return None
 
             losses = torch.cat(losses)
@@ -785,9 +792,11 @@ def main():
         name=args.lr_scheduler_type,
         optimizer=optimizer,
         num_warmup_steps=args.num_warmup_steps * accelerator.num_processes,
-        num_training_steps=args.max_train_steps
-        if overrode_max_train_steps
-        else args.max_train_steps * accelerator.num_processes,
+        num_training_steps=(
+            args.max_train_steps
+            if overrode_max_train_steps
+            else args.max_train_steps * accelerator.num_processes
+        ),
     )
 
     # Prepare everything with our `accelerator`.

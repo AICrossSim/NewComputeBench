@@ -15,7 +15,9 @@ from aixsim_models.utils.logging import set_logging_verbosity
 
 from aixsim_models.llm.evaluator import pt_evaluate_ppl, hf_check_ppl, hf_lm_eval
 from aixsim_models.llm.utils import convert_torch_to_hf, convert_hf_to_torch
-from aixsim_models.optical_compute.optical_transformer.pretrain.pretrainer import pretrain
+from aixsim_models.optical_compute.optical_transformer.pretrain.pretrainer import (
+    pretrain,
+)
 from aixsim_models.optical_compute.optical_transformer.pretrain.arg_manager import (
     ArgJob,
     ArgProfiling,
@@ -64,7 +66,9 @@ def generate_pretrain_cfg(
         silent=True,
     )
     num_tokens = token_num_scale * num_params
-    effective_batch_size = batch_size * data_parallel_replicate_degree * abs(data_parallel_shard_degree)
+    effective_batch_size = (
+        batch_size * data_parallel_replicate_degree * abs(data_parallel_shard_degree)
+    )
     num_steps = math.ceil(num_tokens / (effective_batch_size * seq_len))
 
     print(
@@ -73,7 +77,9 @@ def generate_pretrain_cfg(
     print(f"Effective batch size: {effective_batch_size}")
     print(f"Estimated number of steps: {num_steps}")
 
-    assert transform_config.exists(), f"Transform config file {transform_config} does not exist"
+    assert (
+        transform_config.exists()
+    ), f"Transform config file {transform_config} does not exist"
     with open(transform_config, "r") as f:
         transform_config = yaml.safe_load(f)
 
@@ -84,7 +90,9 @@ def generate_pretrain_cfg(
         ),
         profiling=ArgProfiling(),
         metrics=ArgMetrics(enable_tensorboard=False, enable_wandb=True),
-        model=ArgModel(name=model_arch, flavor=model_flavor, tokenizer_path=tokenizer_path),
+        model=ArgModel(
+            name=model_arch, flavor=model_flavor, tokenizer_path=tokenizer_path
+        ),
         optimizer=ArgOptimizer(lr=learning_rate),
         training=ArgTraining(
             dataset="fineweb-edu",

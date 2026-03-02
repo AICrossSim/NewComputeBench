@@ -96,7 +96,9 @@ def generate_pretrain_cfg(
         silent=True,
     )
     num_tokens = token_num_scale * num_params
-    effective_batch_size = batch_size * data_parallel_replicate_degree * abs(data_parallel_shard_degree)
+    effective_batch_size = (
+        batch_size * data_parallel_replicate_degree * abs(data_parallel_shard_degree)
+    )
     num_steps = math.ceil(num_tokens / (effective_batch_size * seq_len))
 
     print(
@@ -105,7 +107,9 @@ def generate_pretrain_cfg(
     print(f"Effective batch size: {effective_batch_size}")
     print(f"Estimated number of steps: {num_steps}")
 
-    assert transform_config.exists(), f"Transform config file {transform_config} does not exist"
+    assert (
+        transform_config.exists()
+    ), f"Transform config file {transform_config} does not exist"
     with open(transform_config, "r") as f:
         transform_config = yaml.safe_load(f)
 
@@ -116,7 +120,9 @@ def generate_pretrain_cfg(
         ),
         profiling=ArgProfiling(),
         metrics=ArgMetrics(enable_tensorboard=False, enable_wandb=True),
-        model=ArgModel(name=model_arch, flavor=model_flavor, tokenizer_path=tokenizer_path),
+        model=ArgModel(
+            name=model_arch, flavor=model_flavor, tokenizer_path=tokenizer_path
+        ),
         optimizer=ArgOptimizer(lr=learning_rate),
         training=ArgTraining(
             dataset="fineweb-edu",
@@ -168,9 +174,17 @@ def pt_eval_ppl(
     seq_len: int = 2048,
 ):
     from pprint import pformat
-    from torchtitan.models import model_name_to_cls, model_name_to_tokenizer, models_config
+    from torchtitan.models import (
+        model_name_to_cls,
+        model_name_to_tokenizer,
+        models_config,
+    )
     from aixsim_models.llm.tokenizer import build_tokenizer
-    from aixsim_models.bitflip.transform import transform_model, TransformConfigManager, make_transform_histogram
+    from aixsim_models.bitflip.transform import (
+        transform_model,
+        TransformConfigManager,
+        make_transform_histogram,
+    )
 
     transform_config_manager = TransformConfigManager(
         layer_name_to_config=transform_config.layer_name_to_config,

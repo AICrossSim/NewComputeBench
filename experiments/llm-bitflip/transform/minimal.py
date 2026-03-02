@@ -13,7 +13,10 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonargparse import CLI
 
 from aixsim_models.llm.evaluator import hf_lm_eval, hf_generate
-from aixsim_models.bitflip.pretrain.transform import transform_model, TransformConfigManager
+from aixsim_models.bitflip.pretrain.transform import (
+    transform_model,
+    TransformConfigManager,
+)
 
 DEFAULT_DTYPE = "float16"
 DEFAULT_TASKS = ["wikitext"]
@@ -31,7 +34,9 @@ def eval_ori(
 ):
     """Evaluate a pretrained model as baseline."""
     device = torch.device("cuda")
-    model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
+    model = AutoModelForCausalLM.from_pretrained(
+        model_name, torch_dtype=getattr(torch, dtype)
+    ).eval()
     model.to(device)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
 
