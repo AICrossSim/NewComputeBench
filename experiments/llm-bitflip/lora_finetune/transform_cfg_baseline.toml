@@ -1,0 +1,8 @@
+use_lora = true
+
+[fc]
+    # No bitflip — all probabilities remain at default (None)
+
+[lora]
+    r = 32
+    lora_alpha = 32

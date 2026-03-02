@@ -182,6 +182,8 @@ After training completes, the fine-tuned model (with LoRA weights merged into th
 
 ### Training Curves
 
+![Bitflip LoRA Fine-Tuning Curves](../images/bitflip/bitflip-lora-train-loss.png)
+
 <!-- TODO: Add W&B training loss and validation perplexity plots -->
 
 | Metric | Value |
