@@ -187,15 +187,15 @@ After training completes, the fine-tuned model (with LoRA weights merged into th
 
 | Metric | Value |
 |--------|-------|
-| Final Training Loss | *2.50* |
-| Final Validation Perplexity | *11.01* |
+| Final Training Loss ($\downarrow$) | *2.50* |
+| Final Validation Perplexity ($\downarrow$) | *11.01* |
 | Total Training Steps | *4883* |
 
 ### Comparison with Baselines
 
 We evaluate the model under three conditions:
 
-| Bitflipped | Fine-tuned | Bitflip Config | Fine-tune Config |  Train PPL |
+| Bitflipped | Fine-tuned | Bitflip Config | Fine-tune Config |  Val PPL ($\downarrow$) |
 |-------|---------------|------------------| ---------| ----|
 | ✘ | ✘ | N/A | N/A |  *7.91* |
 | ✔ | ✘ | `w/x_p_exp=1.53e-5, w/x_p_frac=1.53e-5`| N/A | *1008.95*  |
