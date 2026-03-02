@@ -195,7 +195,7 @@ After training completes, the fine-tuned model (with LoRA weights merged into th
 
 We evaluate the model under three conditions:
 
-| Bitflipped | Fine-tuned | Bitflip Config | Fine-tune Config |  Train PPL |
+| Bitflipped | Fine-tuned | Bitflip Config | Fine-tune Config |  Val PPL |
 |-------|---------------|------------------| ---------| ----|
 | ✘ | ✘ | N/A | N/A |  *7.91* |
 | ✔ | ✘ | `w/x_p_exp=1.53e-5, w/x_p_frac=1.53e-5`| N/A | *1008.95*  |
