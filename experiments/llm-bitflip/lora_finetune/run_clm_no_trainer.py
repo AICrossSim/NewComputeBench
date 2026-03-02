@@ -319,7 +319,21 @@ def parse_args():
         default=None,
         help="A comma-separated list of tags to apply to the W&B run.",
     )
+    parser.add_argument(
+        "--eval_only",
+        action="store_true",
+        help="Run evaluation on train/validation splits without any training or trainable parameters.",
+    )
+    parser.add_argument(
+        "--eval_max_steps",
+        type=int,
+        default=64,
+        help="Maximum number of evaluation batches per split. Use -1 to evaluate the full split.",
+    )
     args = parser.parse_args()
+
+    if args.eval_max_steps is not None and args.eval_max_steps < 0:
+        args.eval_max_steps = None
 
     # Sanity checks
     if (
@@ -644,7 +658,7 @@ def main():
     # DataLoaders creation:
     train_dataloader = DataLoader(
         train_dataset,
-        shuffle=True,
+        shuffle=not args.eval_only,
         collate_fn=default_data_collator,
         batch_size=args.per_device_train_batch_size,
     )
@@ -653,6 +667,86 @@ def main():
         collate_fn=default_data_collator,
         batch_size=args.per_device_eval_batch_size,
     )
+
+    if args.eval_only:
+        # Ensure nothing is marked trainable and skip optimizer/scheduler setup.
+        for p in model.parameters():
+            p.requires_grad = False
+
+        model, train_dataloader, eval_dataloader = accelerator.prepare(
+            model, train_dataloader, eval_dataloader
+        )
+
+        if args.with_tracking:
+            experiment_config = vars(args)
+            experiment_config["lr_scheduler_type"] = experiment_config[
+                "lr_scheduler_type"
+            ].value
+            experiment_config["bitflip_config"] = {
+                "use_lora": use_lora,
+                "fc_cfg": fc_cfg,
+            }
+            accelerator.init_trackers(
+                "Bitflip-CLM-Eval",
+                experiment_config,
+                init_kwargs={
+                    "wandb": {
+                        "name": args.output_dir.split("/")[-1],
+                        "tags": args.wandb_tags if args.wandb_tags is not None else [],
+                    },
+                },
+            )
+
+        def evaluate_split(split_name: str, dataloader: DataLoader):
+            model.eval()
+            losses = []
+            for step, batch in enumerate(dataloader):
+                with torch.no_grad():
+                    outputs = model(**batch)
+
+                loss = outputs.loss
+                losses.append(
+                    accelerator.gather_for_metrics(
+                        loss.repeat(args.per_device_eval_batch_size)
+                    )
+                )
+
+                if args.eval_max_steps is not None and args.eval_max_steps > 0:
+                    if (step + 1) >= args.eval_max_steps:
+                        break
+
+            if len(losses) == 0:
+                logger.warning(f"No batches processed for {split_name} split during evaluation.")
+                return None
+
+            losses = torch.cat(losses)
+            try:
+                eval_loss = torch.mean(losses)
+                perplexity = math.exp(eval_loss)
+            except OverflowError:
+                eval_loss = torch.mean(losses)
+                perplexity = float("inf")
+
+            logger.info(
+                f"{split_name} perplexity: {perplexity} loss: {eval_loss} (steps={(len(losses) // args.per_device_eval_batch_size)})"
+            )
+
+            if args.with_tracking:
+                accelerator.log(
+                    {
+                        f"{split_name}_perplexity": perplexity,
+                        f"{split_name}_loss": eval_loss,
+                    },
+                    step=0,
+                )
+
+            return eval_loss, perplexity
+
+        evaluate_split("train", train_dataloader)
+        evaluate_split("validation", eval_dataloader)
+        accelerator.wait_for_everyone()
+        accelerator.end_training()
+        return
 
     # Optimizer
     # Split weights in two groups, one with weight decay and the other not.
@@ -887,8 +981,9 @@ def main():
                     loss.repeat(args.per_device_eval_batch_size)
                 )
             )
-            if step > 64:
-                break
+            if args.eval_max_steps is not None and args.eval_max_steps > 0:
+                if (step + 1) >= args.eval_max_steps:
+                    break
 
         losses = torch.cat(losses)
         try:

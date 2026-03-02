@@ -182,33 +182,41 @@ After training completes, the fine-tuned model (with LoRA weights merged into th
 
 ### Training Curves
 
-![Bitflip LoRA Fine-Tuning Curves](../images/bitflip/bitflip-lora-train-loss.png)
+![Bitflip LoRA Fine-Tuning Curves](../images/bitflip/7b-lora-trainloss.png){ width=720px }
 
-<!-- TODO: Add W&B training loss and validation perplexity plots -->
 
 | Metric | Value |
 |--------|-------|
-| Final Training Loss | *TBD* |
-| Final Validation Perplexity | *TBD* |
-| Total Training Steps | *TBD* |
-| Training Time | *TBD* |
-| Environment | *TBD* |
+| Final Training Loss | *2.50* |
+| Final Validation Perplexity | *11.01* |
+| Total Training Steps | *4883* |
 
-### Comparison: Pre vs. Post Fine-Tuning
+### Comparison with Baselines
 
-<!-- TODO: Add evaluation comparison table -->
+We evaluate the model under three conditions:
 
-| Model | Bitflip Config | WikiText PPL (no bitflip) | WikiText PPL (with bitflip) |
-|-------|---------------|---------------------------|----------------------------|
-| `unsloth/Llama-3.1-8B` (baseline) | N/A | *TBD* | *TBD* |
-| `unsloth/Llama-3.1-8B` + LoRA fine-tune | `w/x_p_exp=1.53e-5, w/x_p_frac=1.53e-5` | *TBD* | *TBD* |
+| Bitflipped | Fine-tuned | Bitflip Config | Fine-tune Config |  Train PPL |
+|-------|---------------|------------------| ---------| ----|
+| ✘ | ✘ | N/A | N/A |  *7.91* |
+| ✔ | ✘ | `w/x_p_exp=1.53e-5, w/x_p_frac=1.53e-5`| N/A | *1008.95*  |
+| ✔ | ✔ | `w/x_p_exp=1.53e-5, w/x_p_frac=1.53e-5` | Lora rank=32 |  *11.01* |
+
+From the table above, we can see that *Lora fine-tuning effectively mitigates the impact of bitflip noise, reducing perplexity from 1008.95 to 11.01* for a 7B model.
+
+We can also safely assume that with more trainable parameters (e.g., a larger LoRA rank, or full fine-tuning) the model would be able to compensate for the noise even better.
 
 ### Resources
 
-<!-- TODO: Add links when available -->
-
 | Resource | Link |
 |----------|------|
-| W&B Logs | *TBD* |
-| HuggingFace Checkpoint | *TBD* |
+| W&B Logs | *https://wandb.ai/cz98/Bitflip-CLM-Fine-tune* |
 | Training Config | [`transform_cfg.toml`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune/transform_cfg.toml) |
+
+## Appendix: Evaluation Scripts
+
+The comparison table above was generated with two evaluation-only wrappers that reuse `run_clm_no_trainer.py` but bypass any optimizer steps. Both scripts share the signature `./script.sh [num_processes] [model_name_or_path] [per_device_batch_size] [block_size] [eval_max_steps]` so you can sweep models or batch sizes without editing Python code.
+
+| Script | Purpose | Notes |
+|--------|---------|-------|
+| [`experiments/llm-bitflip/lora_finetune/eval-bitflip-no-finetune.sh`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune/eval-bitflip-no-finetune.sh) | Measures perplexity when random bitflips are injected during inference. | This is biflipped (✔) fine-tuned (✘) entry |
+| [`experiments/llm-bitflip/lora_finetune/eval-no-biflip-no-finetune.sh`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune/eval-no-biflip-no-finetune.sh) | Serves as the clean baseline (no injected bitflips, no finetuning) so we can isolate the effect of noise. | This is biflip-free (✘) fine-tuned (✘) entry |
