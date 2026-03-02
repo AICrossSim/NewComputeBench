@@ -16,7 +16,7 @@ By fine-tuning with bitflip noise injected during training, the LoRA adapters le
 Each `nn.Linear` layer in the model is replaced by a [`BitFlipLinearLora`](https://github.com/AICrossSim/NewComputeBench/blob/master/src/aixsim_models/bitflip/fine_tune/bitflip_lora.py) layer. The forward pass of `BitFlipLinearLora` performs the following:
 
 ```
-Y = bitflip(X) @ bitflip(W + B @ A * scaling)^T + bias
+Y = bitflip(X) @ bitflip(W + B @ A * scaling)^T
 ```
 
 where:
