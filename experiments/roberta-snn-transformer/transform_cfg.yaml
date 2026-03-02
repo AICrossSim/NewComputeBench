@@ -1,0 +1,53 @@
+quantization_config:
+  by: regex
+  'roberta\.encoder\.layer\.\d+\.attention\.self':
+    config:
+      name: lsqinteger
+      level: 32
+  'roberta\.encoder\.layer\.\d+\.attention\.output':
+    config:
+      name: lsqinteger
+      level: 32
+  'roberta\.encoder\.layer\.\d+\.output':
+    config:
+      name: lsqinteger
+      level: 32
+  'roberta\.encoder\.layer\.\d+\.intermediate':
+    config:
+      name: lsqinteger
+      level: 32
+  classifier:
+    config:
+      name: lsqinteger
+      level: 32
+
+# transform the quantized model to SNN with zip_tf config
+snn_transformer_config_attn:
+  by: regex
+  'roberta\.encoder\.layer\.\d+\.attention\.self':
+    config:
+      name: zip_tf
+      level: 32
+      neuron_type: ST-BIF
+
+snn_transformer_config_fc:
+  by: type
+  embedding:
+    config:
+      name: zip_tf
+  layernorm:
+    config:
+      name: zip_tf
+  linear:
+    config:
+      name: unfold_bias
+      level: 32
+      neuron_type: ST-BIF
+  relu:
+    manual_instantiate: true
+    config:
+      name: identity
+  lsqinteger:
+    manual_instantiate: true
+    config:
+      name: st_bif
