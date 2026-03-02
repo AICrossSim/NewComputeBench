@@ -1,0 +1,13 @@
+use_lora = true
+
+[fc]
+    w_p_exp = 1.52587890625e-05
+    w_p_frac = 1.52587890625e-05
+    w_zero_out_t = 1.25
+    x_p_exp = 1.52587890625e-05
+    x_p_frac = 1.52587890625e-05
+    x_zero_out_t = 30.0
+
+[lora]
+    r = 32
+    lora_alpha = 32

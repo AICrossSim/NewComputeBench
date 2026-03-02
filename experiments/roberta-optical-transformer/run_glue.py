@@ -21,7 +21,10 @@ import os
 import random
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
+
+sys.path.append(Path(__file__).resolve().parents[2].joinpath("src").as_posix())
 
 import datasets
 import evaluate

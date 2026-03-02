@@ -66,6 +66,7 @@ nav:
           - Model Behaviour Level Simulation:
                 - Random BitFlip:
                       - LLM: "02-model-behaviour-level-simulation/clm-bitflip.md"
+                      - LoRA Fine-Tuning: "02-model-behaviour-level-simulation/clm-bitflip-lora-finetune.md"
                 - Optical Neural Networks:
                       - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
                       - CLM: "02-model-behaviour-level-simulation/clm-onn.md"
