@@ -40,6 +40,7 @@
     | Item | Description |
     | ---- | ----------- |
     | Optical Transformer | [Tutorial](02-model-behaviour-level-simulation/roberta-onn.md) |
+    | Spiking Transformer | [Tutorial](02-model-behaviour-level-simulation/roberta-snn.md) |
     | **CompleteThis** |  |
 
 - 🚩 **9th, Jun, 2025 Milestone**: Our Software-emulation & acceleration backend, Mase-triton, is released on [PyPI](https://pypi.org/project/mase-triton/). Try it via `pip install mase-triton`.
@@ -69,7 +70,8 @@
         - [x] Roberta Fine-tuning (125M)
         - [x] CLM full fine-tuning (60M - 1.1B)
         - [x] CLM parameter efficient fine-tuning (60M - 1.1B)
-    - [ ] Spiking neural networks
+    - [x] Spiking neural networks
+        - [x] Roberta Fine-tuning (125M)
     - [ ] In-memory compute
 
 ## About the Project
