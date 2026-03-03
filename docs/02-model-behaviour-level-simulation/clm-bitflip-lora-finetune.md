@@ -177,9 +177,6 @@ After training completes, the fine-tuned model (with LoRA weights merged into th
 
 ## Results
 
-!!! warning "Results Pending"
-    The following results are placeholders and will be updated once experiments complete.
-
 ### Training Curves
 
 ![Bitflip LoRA Fine-Tuning Curves](../images/bitflip/7b-lora-trainloss.png){ width=720px }
