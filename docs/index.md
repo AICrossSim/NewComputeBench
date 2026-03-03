@@ -69,7 +69,8 @@
         - [x] Roberta Fine-tuning (125M)
         - [x] CLM full fine-tuning (60M - 1.1B)
         - [x] CLM parameter efficient fine-tuning (60M - 1.1B)
-    - [ ] Spiking neural networks
+    - [x] Spiking neural networks
+        - [x] Roberta Fine-tuning (125M)
     - [ ] In-memory compute
 
 ## About the Project

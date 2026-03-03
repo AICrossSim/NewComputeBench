@@ -70,6 +70,8 @@ nav:
                 - Optical Neural Networks:
                       - RoBERTa: "02-model-behaviour-level-simulation/roberta-onn.md"
                       - CLM: "02-model-behaviour-level-simulation/clm-onn.md"
+                - Spiking Neural Networks:
+                      - RoBERTa: "02-model-behaviour-level-simulation/roberta-snn.md"
           - Mase-triton: "02-model-behaviour-level-simulation/mase-triton.md"
     - Developer Guide:
           - Maintaining Docs: "dev-guide.md"
