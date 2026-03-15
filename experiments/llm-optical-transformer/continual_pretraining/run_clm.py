@@ -283,14 +283,18 @@ class DataTrainingArguments:
         else:
             if self.train_file is not None:
                 extension = self.train_file.split(".")[-1]
-                assert extension in ["csv", "json", "txt"], (
-                    "`train_file` should be a csv, a json or a txt file."
-                )
+                assert extension in [
+                    "csv",
+                    "json",
+                    "txt",
+                ], "`train_file` should be a csv, a json or a txt file."
             if self.validation_file is not None:
                 extension = self.validation_file.split(".")[-1]
-                assert extension in ["csv", "json", "txt"], (
-                    "`validation_file` should be a csv, a json or a txt file."
-                )
+                assert extension in [
+                    "csv",
+                    "json",
+                    "txt",
+                ], "`validation_file` should be a csv, a json or a txt file."
 
 
 def main():
@@ -680,9 +684,11 @@ def main():
         processing_class=tokenizer,
         # Data collator will default to DataCollatorWithPadding, so we change it.
         data_collator=default_data_collator,
-        compute_metrics=compute_metrics
-        if training_args.do_eval and not is_torch_xla_available()
-        else None,
+        compute_metrics=(
+            compute_metrics
+            if training_args.do_eval and not is_torch_xla_available()
+            else None
+        ),
         preprocess_logits_for_metrics=(
             preprocess_logits_for_metrics
             if training_args.do_eval and not is_torch_xla_available()

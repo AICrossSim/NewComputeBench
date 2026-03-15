@@ -21,10 +21,7 @@ import os
 import random
 import sys
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Optional
-
-sys.path.append(Path(__file__).resolve().parents[2].joinpath("src").as_posix())
 
 import datasets
 import evaluate
@@ -51,9 +48,9 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
-from aixsim_models.optical_compute.optical_transformer.fine_tune.ot_roberta import (
-    transform_roberta,
-)
+import sys
+sys.path.insert(0, '/home/thw20/projects/NewComputeBench/src')
+from aixsim_models.snn.fine_tune.snn_roberta import transform_roberta
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
 # check_min_version("4.50.0.dev0")
@@ -273,6 +270,24 @@ class ModelArguments:
             )
         },
     )
+    model_weights_path: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Path to a directory or .safetensors/.bin file containing saved weights "
+                "of a transformed model. Weights are loaded after the transform is applied."
+            )
+        },
+    )
+    convert_to_snn: bool = field(
+        default=False,
+        metadata={
+            "help": (
+                "Whether to convert the model to a spiking neural network (SNN) after transformation. "
+                "If not specified, will not convert to SNN."
+            )
+        },
+    )
 
 
 def main():
@@ -485,14 +500,49 @@ def main():
         ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
     )
     if model_args.transform_config is not None:
-        with open(model_args.transform_config, "r") as f:
-            transform_config = yaml.safe_load(f)
-        replaced_layers = transform_roberta(
-            model,
-            attn_config=transform_config["attn"],
-            fc_config=transform_config["fc"],
-        )
-        print(f"🔍 Replaced layers: {replaced_layers}")
+        with open(model_args.transform_config, 'r') as f:
+            SPIKE_ZIP_TF_CONFIG = yaml.safe_load(f)
+
+        model, replaced_layers = transform_roberta(model, SPIKE_ZIP_TF_CONFIG["quantization_config"])
+        logger.info(f"✅ Replaced layers: {replaced_layers}")
+
+        # Load fine-tuned weights after transformation for SNN evaluation
+        if model_args.model_weights_path is not None:
+            import os as _os
+            from safetensors.torch import load_file as _load_file
+            weights_path = model_args.model_weights_path
+            if _os.path.isdir(weights_path):
+                sf = _os.path.join(weights_path, "model.safetensors")
+                pt = _os.path.join(weights_path, "pytorch_model.bin")
+                if _os.path.exists(sf):
+                    weights_path = sf
+                elif _os.path.exists(pt):
+                    weights_path = pt
+                else:
+                    raise FileNotFoundError(f"No model.safetensors or pytorch_model.bin found in {weights_path}")
+            if weights_path.endswith(".safetensors"):
+                state_dict = _load_file(weights_path)
+            else:
+                state_dict = torch.load(weights_path, map_location="cpu")
+            missing, unexpected = model.load_state_dict(state_dict, strict=False)
+            if missing:
+                logger.warning(f"Missing keys when loading model_weights_path: {missing}")
+            if unexpected:
+                logger.warning(f"Unexpected keys when loading model_weights_path: {unexpected}")
+            logger.info(f"✅ Loaded fine-tuned weights from {weights_path}")
+        
+        if model_args.convert_to_snn:
+            model, replaced_layers = transform_roberta(model, SPIKE_ZIP_TF_CONFIG["snn_transformer_config_attn"])
+            logger.info(f"✅ Replaced layers: {replaced_layers}")
+            model, replaced_layers = transform_roberta(model, SPIKE_ZIP_TF_CONFIG["snn_transformer_config_fc"])
+            logger.info(f"✅ Replaced layers: {replaced_layers}")
+            logger.info("✅ Model converted to SNN.")
+            # save the converted SNN model, create subdir snn_model in the output_dir
+            output_dir = model_args.model_weights_path if model_args.model_weights_path is not None else "./converted_snn_model"
+            output_dir = os.path.join(output_dir, "snn_model")
+            model.save_pretrained(output_dir)
+            logger.info(f"✅ Converted SNN model saved to {output_dir}")
+            return model
     else:
         print("⚠️ No transform config provided. Skip transformation.")
 

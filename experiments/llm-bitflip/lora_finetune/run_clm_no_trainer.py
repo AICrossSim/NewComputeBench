@@ -74,26 +74,19 @@ from transformers import (
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
-from aixsim_models.optical_compute.optical_transformer.fine_tune.ot_llama import (
-    transform_llama,
-)
-
-ATTN_CFG = dict(
-    q_levels=256,
-    q_lut_min=0.020040,
-    q_quantiles=None,
-    q_smooth_factor=0.9,
-    q_init_seed=0,
-    q_bypass=False,
-)
+from aixsim_models.bitflip.fine_tune.bitflip_llama import transform_llama
 
 FC_CFG = dict(
-    q_levels=256,
-    q_lut_min=0.020040,
-    q_quantiles=None,
-    q_smooth_factor=0.9,
-    q_init_seed=0,
-    q_bypass=False,
+    x_p_exp=None,
+    x_p_frac=None,
+    x_zero_out_t=None,
+    w_p_exp=None,
+    w_p_frac=None,
+    w_zero_out_t=None,
+    x_seed_exp=0,
+    x_seed_frac=0,
+    w_seed_exp=0,
+    w_seed_frac=0,
 )
 
 LORA_CFG = dict(r=32, lora_alpha=32)
@@ -331,13 +324,20 @@ def parse_args():
         help="A comma-separated list of tags to apply to the W&B run.",
     )
     parser.add_argument(
-        "--attn_impl",
-        type=str,
-        default=None,
-        help="The attention implementation to use. If not provided, the default attention implementation of the model will be used.",
-        choices=["eager", "sdpa"],
+        "--eval_only",
+        action="store_true",
+        help="Run evaluation on train/validation splits without any training or trainable parameters.",
+    )
+    parser.add_argument(
+        "--eval_max_steps",
+        type=int,
+        default=64,
+        help="Maximum number of evaluation batches per split. Use -1 to evaluate the full split.",
     )
     args = parser.parse_args()
+
+    if args.eval_max_steps is not None and args.eval_max_steps < 0:
+        args.eval_max_steps = None
 
     # Sanity checks
     if (
@@ -370,13 +370,11 @@ def main():
 
     transform_cfg = None
     use_lora = False
-    attn_cfg = None
     fc_cfg = None
     if args.transform_cfg is not None:
         with open(args.transform_cfg, "rb") as f:
             transform_cfg = tomllib.load(f)
         use_lora = transform_cfg["use_lora"]
-        attn_cfg = ATTN_CFG | transform_cfg["attention"]
         fc_cfg = FC_CFG | transform_cfg["fc"]
         lora_cfg = LORA_CFG | transform_cfg["lora"]
         if use_lora:
@@ -569,20 +567,18 @@ def main():
             from_tf=bool(".ckpt" in args.model_name_or_path),
             config=config,
             trust_remote_code=args.trust_remote_code,
-            attn_implementation=args.attn_impl,
         )
     else:
         logger.info("Training new model from scratch")
         model = AutoModelForCausalLM.from_config(
             config,
             trust_remote_code=args.trust_remote_code,
-            attn_implementation=args.attn_impl,
         )
 
     assert isinstance(model, LlamaForCausalLM), "model must be a LlamaForCausalLM model"
     if transform_cfg is not None:
         print("Transforming model...")
-        replaced_layers = transform_llama(model, attn_cfg, fc_cfg, use_lora=use_lora)
+        replaced_layers = transform_llama(model, fc_cfg, use_lora=use_lora)
         print(f"Replaced {len(replaced_layers)} layers")
 
     # We resize the embeddings only when necessary to avoid index errors. If you are creating a model from scratch
@@ -667,7 +663,7 @@ def main():
     # DataLoaders creation:
     train_dataloader = DataLoader(
         train_dataset,
-        shuffle=True,
+        shuffle=not args.eval_only,
         collate_fn=default_data_collator,
         batch_size=args.per_device_train_batch_size,
     )
@@ -676,6 +672,88 @@ def main():
         collate_fn=default_data_collator,
         batch_size=args.per_device_eval_batch_size,
     )
+
+    if args.eval_only:
+        # Ensure nothing is marked trainable and skip optimizer/scheduler setup.
+        for p in model.parameters():
+            p.requires_grad = False
+
+        model, train_dataloader, eval_dataloader = accelerator.prepare(
+            model, train_dataloader, eval_dataloader
+        )
+
+        if args.with_tracking:
+            experiment_config = vars(args)
+            experiment_config["lr_scheduler_type"] = experiment_config[
+                "lr_scheduler_type"
+            ].value
+            experiment_config["bitflip_config"] = {
+                "use_lora": use_lora,
+                "fc_cfg": fc_cfg,
+            }
+            accelerator.init_trackers(
+                "Bitflip-CLM-Eval",
+                experiment_config,
+                init_kwargs={
+                    "wandb": {
+                        "name": args.output_dir.split("/")[-1],
+                        "tags": args.wandb_tags if args.wandb_tags is not None else [],
+                    },
+                },
+            )
+
+        def evaluate_split(split_name: str, dataloader: DataLoader):
+            model.eval()
+            losses = []
+            for step, batch in enumerate(dataloader):
+                with torch.no_grad():
+                    outputs = model(**batch)
+
+                loss = outputs.loss
+                losses.append(
+                    accelerator.gather_for_metrics(
+                        loss.repeat(args.per_device_eval_batch_size)
+                    )
+                )
+
+                if args.eval_max_steps is not None and args.eval_max_steps > 0:
+                    if (step + 1) >= args.eval_max_steps:
+                        break
+
+            if len(losses) == 0:
+                logger.warning(
+                    f"No batches processed for {split_name} split during evaluation."
+                )
+                return None
+
+            losses = torch.cat(losses)
+            try:
+                eval_loss = torch.mean(losses)
+                perplexity = math.exp(eval_loss)
+            except OverflowError:
+                eval_loss = torch.mean(losses)
+                perplexity = float("inf")
+
+            logger.info(
+                f"{split_name} perplexity: {perplexity} loss: {eval_loss} (steps={(len(losses) // args.per_device_eval_batch_size)})"
+            )
+
+            if args.with_tracking:
+                accelerator.log(
+                    {
+                        f"{split_name}_perplexity": perplexity,
+                        f"{split_name}_loss": eval_loss,
+                    },
+                    step=0,
+                )
+
+            return eval_loss, perplexity
+
+        evaluate_split("train", train_dataloader)
+        evaluate_split("validation", eval_dataloader)
+        accelerator.wait_for_everyone()
+        accelerator.end_training()
+        return
 
     # Optimizer
     # Split weights in two groups, one with weight decay and the other not.
@@ -750,13 +828,12 @@ def main():
         experiment_config["lr_scheduler_type"] = experiment_config[
             "lr_scheduler_type"
         ].value
-        experiment_config["ot_config"] = {
+        experiment_config["bitflip_config"] = {
             "use_lora": use_lora,
-            "attn_cfg": attn_cfg,
             "fc_cfg": fc_cfg,
         }
         accelerator.init_trackers(
-            "OT-CLM-Fine-tune",
+            "Bitflip-CLM-Fine-tune",
             experiment_config,
             init_kwargs={
                 "wandb": {
@@ -913,8 +990,9 @@ def main():
                     loss.repeat(args.per_device_eval_batch_size)
                 )
             )
-            if step > 64:
-                break
+            if args.eval_max_steps is not None and args.eval_max_steps > 0:
+                if (step + 1) >= args.eval_max_steps:
+                    break
 
         losses = torch.cat(losses)
         try:
