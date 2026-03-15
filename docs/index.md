@@ -15,7 +15,6 @@
     - [x] Random bitflip
     - [x] Optical compute
     - [ ] Spiking neural networks
-    - [ ] In-memory compute
   - [ ] Parameter-efficient fine-tuning of larger LLMs (e.g., Llama-3.1-8B)
     - [x] Random bitflip (promising results)
     - [x] Optical compute (failed to converge)
@@ -41,7 +40,7 @@
     | ---- | ----------- |
     | Optical Transformer | [Tutorial](02-model-behaviour-level-simulation/roberta-onn.md) |
     | Spiking Transformer | [Tutorial](02-model-behaviour-level-simulation/roberta-snn.md) |
-    | **CompleteThis** |  |
+    | Processing in Memory | [Tutorial](02-model-behaviour-level-simulation/roberta-pim.md) |
 
 - 🚩 **9th, Jun, 2025 Milestone**: Our Software-emulation & acceleration backend, Mase-triton, is released on [PyPI](https://pypi.org/project/mase-triton/). Try it via `pip install mase-triton`.
     - For more details, please refer to [Intro to Mase-triton](02-model-behaviour-level-simulation/mase-triton.md) and [Mase-triton GitHub](https://github.com/DeepWok/mase-triton/tree/master)
@@ -72,7 +71,9 @@
         - [x] CLM parameter efficient fine-tuning (60M - 1.1B)
     - [x] Spiking neural networks
         - [x] Roberta Fine-tuning (125M)
-    - [ ] In-memory compute
+    - [x] Processing in Memory
+        - [x] Roberta Fine-tuning (125M)
+        - [x] ViT-Base Fine-tuning (86M)
 
 ## About the Project
 
