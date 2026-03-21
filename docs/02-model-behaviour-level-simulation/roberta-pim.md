@@ -15,6 +15,9 @@ This tutorial demonstrates how to apply Processing-in-Memory (PIM) transformatio
 !!! info "Environment Setup"
     If you have not set up environments, please follow the guidelines in [Environment Setup](../env-setup.md).
 
+!!! note "MASE Dependency"
+    The PIM simulation uses quantization primitives from the [MASE](https://github.com/DeepWok/mase) submodule (e.g., `scale_integer_quantizer` for integer quantization with dynamic scaling). Ensure MASE is installed: `pip install -e ./submodules/mase`.
+
 ## PIM Configuration
 
 PIM behavior is controlled through YAML configuration files that specify technology-specific parameters.

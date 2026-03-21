@@ -1,6 +1,6 @@
 import torch
 from torch import Tensor
-from .utils import my_clamp, my_round
+from chop.nn.quantizers.utils import my_clamp, my_round
 
 
 def programming_noise(weight, gmax):

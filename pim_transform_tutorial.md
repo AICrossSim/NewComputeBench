@@ -1,6 +1,6 @@
 # Advanced: PIM Simulation Tutorial
 
-This tutorial demonstrates how to use the Mase framework to model and simulate the models' behaviour on PIM(process in memory) devices. 
+This tutorial demonstrates how to use the NewComputeBench PIM simulation framework (built on the [MASE](https://github.com/DeepWok/mase) quantization backend) to model and simulate the models' behaviour on PIM (process in memory) devices.
 
 In this tutorial, we will focus on simulating the behaviour of PCM devices (phase change memory). For detailed information about the simulating parameters please refer to [Hardware-aware training for large-scale and diverse deep learning inference workloads using in-memory computing-based accelerators](https://www.nature.com/articles/s41467-023-40770-4)
 
@@ -69,7 +69,7 @@ Now we apply the `pim_matmul_transform_pass` to simulate the PIM hardware. We co
 - `out_noise`: Simulates noise at the output of the crossbar.
 
 ```python
-from chop.passes.module.transforms import pim_matmul_transform_pass
+from aixsim_models.pim import pim_matmul_transform_pass
 import copy
 
 q_config = {

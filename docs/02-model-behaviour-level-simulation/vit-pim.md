@@ -14,6 +14,9 @@ The PIM transformation simulates the effect of processing-in-memory architecture
 !!! info "Environment Setup"
     If you have not set up environments, please follow the guidelines in [Environment Setup](../env-setup.md).
 
+!!! note "MASE Dependency"
+    The PIM simulation uses quantization primitives from the [MASE](https://github.com/DeepWok/mase) submodule. Ensure MASE is installed: `pip install -e ./submodules/mase`.
+
 We provide scripts to apply PIM-aware fine-tuning on Vision Transformer models and evaluate their performance on standard vision benchmarks.
 
 ### PIM-aware Fine-tuning & Evaluate on Vision Tasks

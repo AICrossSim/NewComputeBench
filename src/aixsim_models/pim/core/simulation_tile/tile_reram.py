@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from .quantization import scale_integer_quantizer
+from chop.nn.quantizers.scale_integer import scale_integer_quantizer
 
 
 def reram_tile(x, weight, config):

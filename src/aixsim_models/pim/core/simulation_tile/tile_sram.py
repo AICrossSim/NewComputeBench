@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch import Tensor
-from .quantization import scale_integer_quantizer
+from chop.nn.quantizers.scale_integer import scale_integer_quantizer
 from logging import getLogger
 
 logger = getLogger(__name__)

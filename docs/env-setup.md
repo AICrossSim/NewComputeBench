@@ -49,7 +49,10 @@
     Then install the required packages:
     ```bash
     pip install -r requirements.txt
+    pip install -e ./submodules/mase
     ```
+
+    The [MASE](https://github.com/DeepWok/mase) submodule provides the quantization backend used by PIM and other hardware simulation passes.
 
 5. (Optional) You may want to log in [Wandb](https://wandb.ai/site/) to track the training logs.
 
