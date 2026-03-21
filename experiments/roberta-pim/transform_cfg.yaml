@@ -1,0 +1,14 @@
+"attn":
+  q_levels: 256
+  q_lut_min: 0.020040
+  q_quantiles: null
+  q_smooth_factor: 0.9
+  q_init_seed: 0
+  q_bypass: false
+"fc":
+  q_levels: 256
+  q_lut_min: 0.020040
+  q_quantiles: null
+  q_smooth_factor: 0.9
+  q_init_seed: 0
+  q_bypass: false

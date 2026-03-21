@@ -12,7 +12,7 @@ gradient_accumulation_steps="8"
 for learning_rate in 5e-5 2e-5 1e-5 5e-6 1e-6; do
     mkdir -p ./logs
     OUTPUT_DIR=${CX_DATA_HOME}/clm_finetuning_lora/$model/$learning_rate
-    CUDA_VISIBLE_DEVICES=1,2 python ${CX_PROJECT_HOME}/experiments/llm-cim/finetuning/run_clm.py \
+    CUDA_VISIBLE_DEVICES=1,2 python ${CX_PROJECT_HOME}/experiments/llm-pim/finetuning/run_clm.py \
         --model_name_or_path ${model} \
         --dataset_name Cheng98/fineweb-edu-1.25B \
         --dataset_config_name "default" \

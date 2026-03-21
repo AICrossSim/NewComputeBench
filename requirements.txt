@@ -2,7 +2,7 @@ datasets
 huggingface_hub[hf_transfer]
 jsonargparse[all]
 wandb
-transformers==4.49
+transformers==4.51
 accelerate
 torch
 numpy

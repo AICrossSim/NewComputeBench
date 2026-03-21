@@ -1,3 +1,6 @@
 [submodule "submodules/torchtitan"]
 	path = submodules/torchtitan
 	url = https://github.com/pytorch/torchtitan.git
+[submodule "submodules/mase"]
+	path = submodules/mase
+	url = https://github.com/DeepWok/mase.git

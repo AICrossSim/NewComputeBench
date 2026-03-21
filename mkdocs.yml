@@ -72,8 +72,10 @@ nav:
                       - CLM: "02-model-behaviour-level-simulation/clm-onn.md"
                 - Spiking Neural Networks:
                       - RoBERTa: "02-model-behaviour-level-simulation/roberta-snn.md"
+                - Processing in Memory:
+                      - RoBERTa: "02-model-behaviour-level-simulation/roberta-pim.md"
+                      - ViT: "02-model-behaviour-level-simulation/vit-pim.md"
           - Mase-triton: "02-model-behaviour-level-simulation/mase-triton.md"
     - Developer Guide:
           - Maintaining Docs: "dev-guide.md"
           - Transform-aware Training of LLMs: "02-model-behaviour-level-simulation/dev-guidelines.md"
-          - Vision Transformer fine-tuning with CIM Simulation: "02-model-behaviour-level-simulation/vit-cim.md"
