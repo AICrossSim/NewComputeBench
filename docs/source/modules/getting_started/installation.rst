@@ -55,8 +55,8 @@ Step-by-Step Setup
 
    .. code-block:: bash
 
-      uv python install 3.11
-      uv venv --python 3.11
+      uv python install        # reads .python-version (Python 3.11)
+      uv venv
       source .venv/bin/activate
       uv pip install -r requirements.txt
       uv pip install -e ./submodules/mase
