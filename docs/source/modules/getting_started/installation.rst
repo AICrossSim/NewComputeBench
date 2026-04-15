@@ -55,11 +55,14 @@ Step-by-Step Setup
 
    .. code-block:: bash
 
-      uv python install        # reads .python-version (Python 3.11)
-      uv venv
-      source .venv/bin/activate
-      uv pip install -r requirements.txt
+      uv sync
       uv pip install -e ./submodules/mase
+
+   .. note::
+
+      ``uv sync`` reads ``pyproject.toml`` and ``uv.lock`` to reproduce the exact
+      environment. Run ``git submodule update --init`` before this step to ensure
+      the MASE submodule is available.
 
    **Option 2 — conda + pip** (use this if CUDA is not pre-installed):
 

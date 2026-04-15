@@ -29,11 +29,8 @@ git submodule update --init
 **Option 1 — uv** (recommended, assumes CUDA is pre-installed on the system)
 
 ```bash
-uv python install        # reads .python-version (Python 3.11)
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
-uv pip install -e ./submodules/mase
+uv sync
+uv pip install -e ./submodules/mase   # install MASE quantization backend
 ```
 
 **Option 2 — conda + pip** (use this if CUDA is not pre-installed)
