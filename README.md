@@ -26,19 +26,20 @@ cd NewComputeBench
 git submodule update --init
 ```
 
-**Option 1 — uv** (recommended)
+**Option 1 — uv** (recommended, assumes CUDA is pre-installed on the system)
 
 ```bash
-conda env create -f environment.yaml   # Python 3.11 + CUDA Toolkit
-conda activate new-compute
+uv python install 3.11
+uv venv --python 3.11
+source .venv/bin/activate
 uv pip install -r requirements.txt
 uv pip install -e ./submodules/mase
 ```
 
-**Option 2 — pip**
+**Option 2 — conda + pip** (use this if CUDA is not pre-installed)
 
 ```bash
-conda env create -f environment.yaml   # Python 3.11 + CUDA Toolkit
+conda env create -f environment.yaml   # installs Python 3.11 + CUDA Toolkit
 conda activate new-compute
 pip install -r requirements.txt
 pip install -e ./submodules/mase
