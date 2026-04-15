@@ -49,16 +49,19 @@ Step-by-Step Setup
 
       conda activate new-compute
 
-   Install the required packages. Use ``uv pip`` instead of ``pip`` for faster installs
-   (recommended):
+   Install the required packages. Choose one option:
+
+   **Option 1 — uv** (recommended, faster):
 
    .. code-block:: bash
 
-      # with uv (faster — recommended)
       uv pip install -r requirements.txt
       uv pip install -e ./submodules/mase
 
-      # or with pip
+   **Option 2 — pip:**
+
+   .. code-block:: bash
+
       pip install -r requirements.txt
       pip install -e ./submodules/mase
 
