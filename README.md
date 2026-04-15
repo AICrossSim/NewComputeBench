@@ -24,12 +24,27 @@ The project is structured around three phases:
 git clone https://github.com/AICrossSim/NewComputeBench.git
 cd NewComputeBench
 git submodule update --init
+```
 
-conda env create -f environment.yaml
+**Option 1 — uv** (recommended)
+
+```bash
+conda env create -f environment.yaml   # Python 3.11 + CUDA Toolkit
 conda activate new-compute
 uv pip install -r requirements.txt
 uv pip install -e ./submodules/mase
+```
 
+**Option 2 — pip**
+
+```bash
+conda env create -f environment.yaml   # Python 3.11 + CUDA Toolkit
+conda activate new-compute
+pip install -r requirements.txt
+pip install -e ./submodules/mase
+```
+
+```bash
 # Run inference with a pretrained model
 cd experiments/llm-digital/pretrain
 python run.py hf-gen --model_name AICrossSim/clm-60m --prompt "London is"
