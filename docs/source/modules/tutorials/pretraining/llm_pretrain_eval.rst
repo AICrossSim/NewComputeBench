@@ -39,6 +39,17 @@ AICrossSim-CLM-60M
    .. code-block:: bash
 
       cd experiments/llm-digital/pretrain
+
+   **uv:**
+
+   .. code-block:: bash
+
+      source .venv/bin/activate
+
+   **conda:**
+
+   .. code-block:: bash
+
       conda activate new-compute
 
 2. Generate the training config:
@@ -74,7 +85,9 @@ AICrossSim-CLM-60M
    .. code-block:: bash
 
       num_gpus="2"
+      cuda_devices="1,2"   # GPU indices to use, e.g. "0,1" for the first two GPUs
 
+      CUDA_VISIBLE_DEVICES=${cuda_devices} \
       PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
       torchrun --nproc_per_node=${num_gpus} --rdzv_backend c10d \
           --rdzv_endpoint="localhost:0" --local-ranks-filter 0 \
