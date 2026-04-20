@@ -29,7 +29,7 @@ The table below lists all models currently targeted by NewComputeBench.
    * - Image classification
      - ``ViT-Base``
      - 86M
-     - ``google/vit-base-patch16-224`` from HuggingFace.
+     - `google/vit-base-patch16-224 <https://huggingface.co/google/vit-base-patch16-224>`_ from HuggingFace.
    * - Causal language modeling
      - TBD
      - TBD
@@ -132,16 +132,16 @@ Post-transform evaluation
    * - Random Bitflip
      - lm-eval-harness
      - ``AICrossSim-CLM``, ``Llama-3``
-     - ⏹️
+     - ✅
    * - Optical Compute
      - lm-eval-harness
      - ``AICrossSim-CLM``, ``Llama-3``
-     - ⏹️
+     - ✅
    * - In-Memory Compute
      - lm-eval-harness
      - ``AICrossSim-CLM``, ``Llama-3``
-     - ⏹️
+     - ✅
    * - Spiking Neural Networks
      - lm-eval-harness
      - ``AICrossSim-CLM``, ``Llama-3``
-     - ⏹️
+     - ✅

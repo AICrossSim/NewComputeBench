@@ -13,6 +13,20 @@ Prerequisites
 Step 1 — Activate the environment
 ----------------------------------
 
+**uv** (activate venv):
+
+.. code-block:: bash
+
+   source .venv/bin/activate
+
+Or prefix every command with ``uv run`` to skip activation:
+
+.. code-block:: bash
+
+   uv run python run.py hf-gen ...
+
+**conda**:
+
 .. code-block:: bash
 
    conda activate new-compute
@@ -28,7 +42,7 @@ no local training needed.
 
    cd experiments/llm-digital/pretrain
 
-   python run.py hf-gen \
+   CUDA_VISIBLE_DEVICES=0 python run.py hf-gen \
        --model_name AICrossSim/clm-60m \
        --prompt "London is" \
        --max_new_tokens 100 \
@@ -37,6 +51,7 @@ no local training needed.
        --top_k 50 \
        --top_p 0.9
 
+Set ``CUDA_VISIBLE_DEVICES`` to the GPU index you want to use (e.g., ``0``, ``1``).
 You should see generated text printed to stdout within a few seconds.
 
 .. tip::
@@ -52,7 +67,7 @@ Evaluate the same checkpoint on ``wikitext`` using ``lm-eval-harness``:
 
 .. code-block:: bash
 
-   python run.py eval hf-lm-eval \
+   CUDA_VISIBLE_DEVICES=0 python run.py eval hf-lm-eval \
        AICrossSim/clm-60m \
        --tasks ['wikitext'] \
        --dtype float16

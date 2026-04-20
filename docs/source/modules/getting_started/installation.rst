@@ -37,17 +37,8 @@ Step-by-Step Setup
       cd NewComputeBench
       git submodule update --init
 
-3. **Create the conda environment.**
 
-   .. code-block:: bash
-
-      conda env create -f environment.yaml
-
-4. **Activate the environment and install dependencies.**
-
-   .. code-block:: bash
-
-      conda activate new-compute
+3. **Activate the environment and install dependencies.**
 
    Install the required packages. Choose one option:
 
@@ -86,7 +77,7 @@ Step-by-Step Setup
 
          curl -LsSf https://astral.sh/uv/install.sh | sh
 
-5. **(Optional) Log in to Weights & Biases** to track experiment metrics.
+4. **(Optional) Log in to Weights & Biases** to track experiment metrics.
 
    .. code-block:: bash
 
