@@ -180,7 +180,7 @@ def pt_eval_ppl(
         models_config,
     )
     from aixsim_models.llm.tokenizer import build_tokenizer
-    from aixsim_models.bitflip.transform import (
+    from aixsim_models.bitflip.pretrain.transform import (
         transform_model,
         TransformConfigManager,
         make_transform_histogram,

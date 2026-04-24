@@ -19,8 +19,8 @@ def wandb_update_config(metric_logger: WandBLogger, config_d: dict):
 
 def wandb_extract_and_update_tags(metric_logger: WandBLogger, args):
     from aixsim_models.llm.arg_manager import PreTrainArgs as PlainArgs
-    from aixsim_models.bitflip.arg_manager import PreTrainArgs as BitflipArgs
-    from aixsim_models.optical_compute.optical_transformer.arg_manager import PreTrainArgs as OpticalTransformerArgs
+    from aixsim_models.bitflip.pretrain.arg_manager import PreTrainArgs as BitflipArgs
+    from aixsim_models.optical_compute.optical_transformer.pretrain.arg_manager import PreTrainArgs as OpticalTransformerArgs
 
     if not isinstance(metric_logger, WandBLogger):
         logger.warning("Metric logger is not a WandBLogger, skipping tag update")
