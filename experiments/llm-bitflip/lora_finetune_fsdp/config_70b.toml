@@ -1,0 +1,44 @@
+# Llama 3 70B bitflip-aware LoRA fine-tuning with FSDP2 on 8x B200
+# Steps configurable via --steps CLI flag (default 20 for testing)
+#
+# Full run: ~21,000 steps (1% of 70B params = 700M tokens)
+#   torchrun --nproc_per_node=8 train.py --config config_70b.toml --steps 21000
+
+[model]
+flavor = "70B"
+hf_model_path = "meta-llama/Meta-Llama-3-70B"
+
+[training]
+dtype = "bfloat16"
+mixed_precision_param = "bfloat16"
+mixed_precision_reduce = "float32"
+seq_len = 2048
+local_batch_size = 2
+gradient_accumulation_steps = 2
+steps = 20  # override with --steps for full run
+lr = 1e-5
+weight_decay = 0.01
+warmup_steps = 100
+max_norm = 1.0
+log_freq = 5
+save_freq = 500
+save_dir = "/data/models/zz7522/new-compute-70b/checkpoints/70b_bitflip_lora"
+num_workers = 4
+
+[parallelism]
+fsdp_degree = 8
+
+[lora]
+r = 32
+lora_alpha = 32
+
+[bitflip]
+w_p_frac = 0.000244140625  # 0.5^12 ~ 2.44e-4
+base_seed = 42
+skip_patterns = ["output"]
+
+[dataset]
+# Local snapshot path avoids re-downloading (~2.5GB of parquet files)
+name = "/data/models/zz7522/datasets--Cheng98--fineweb-edu-1.25B/snapshots/ded284806aa214b59076a66f63210ba784f6ab28"
+split = "train"
+text_field = "text"

@@ -1,0 +1,41 @@
+# Debug config: small model for testing the pipeline locally
+# Launch: torchrun --nproc_per_node=1 train.py --config config_debug.toml
+
+[model]
+flavor = "debugmodel"
+hf_model_path = "./torchtitan/tests/assets/tokenizer"
+
+[training]
+dtype = "bfloat16"
+mixed_precision_param = "bfloat16"
+mixed_precision_reduce = "float32"
+seq_len = 256
+local_batch_size = 2
+gradient_accumulation_steps = 1
+steps = 20
+lr = 2e-4
+weight_decay = 0.0
+warmup_steps = 5
+max_norm = 1.0
+log_freq = 5
+save_freq = 10
+save_dir = "./checkpoints/debug"
+num_workers = 0
+
+[parallelism]
+fsdp_degree = 1
+
+[lora]
+r = 8
+lora_alpha = 8
+
+[bitflip]
+w_p_frac = 0.000244140625  # 0.5^12
+base_seed = 42
+skip_patterns = ["output"]
+
+[dataset]
+name = "allenai/c4"
+config = "en"
+split = "train"
+text_field = "text"

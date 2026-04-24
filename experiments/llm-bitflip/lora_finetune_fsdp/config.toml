@@ -1,0 +1,53 @@
+# Bitflip-aware LoRA fine-tuning config for Llama 3.1 70B
+# Launch: torchrun --nproc_per_node=8 train.py --config config.toml
+
+[model]
+# Model flavor from torchtitan's llama3 config registry
+flavor = "70B"
+# Path to HuggingFace model directory (safetensors + tokenizer)
+hf_model_path = "unsloth/Meta-Llama-3.1-70B"
+# tokenizer_path = "unsloth/Meta-Llama-3.1-70B"  # defaults to hf_model_path
+
+[training]
+dtype = "bfloat16"
+mixed_precision_param = "bfloat16"
+mixed_precision_reduce = "float32"
+seq_len = 2048
+local_batch_size = 1
+gradient_accumulation_steps = 4
+steps = 1000
+lr = 2e-4
+weight_decay = 0.0
+warmup_steps = 100
+max_norm = 1.0
+log_freq = 10
+save_freq = 250
+save_dir = "./checkpoints/llama3-70b-bitflip-lora"
+num_workers = 2
+
+[parallelism]
+# FSDP degree = number of GPUs (typically 8 for single-node)
+fsdp_degree = 8
+
+[lora]
+r = 32
+lora_alpha = 32
+
+[bitflip]
+# Bitflip probabilities for activation (x) and weight (w)
+# Set to null/omit to disable bitflip for that component.
+# p = 0.5^16 ~ 1.53e-5
+# w_p_exp = 1.526e-05
+w_p_frac = 0.000244140625  # 0.5^12, ~2.44e-4
+# x_p_exp = null  # disabled
+# x_p_frac = null  # disabled
+# x_zero_out_t = null
+# w_zero_out_t = null
+base_seed = 42
+skip_patterns = ["output"]  # skip lm_head
+
+[dataset]
+name = "allenai/c4"
+config = "en"
+split = "train"
+text_field = "text"

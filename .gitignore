@@ -12,3 +12,11 @@ wandb/
 log*
 specific.sh
 __pycache__/
+
+# FSDP fine-tuning experiment
+/experiments/llm-bitflip/lora_finetune_fsdp/.venv/
+/experiments/llm-bitflip/lora_finetune_fsdp/torchtitan/
+/experiments/llm-bitflip/lora_finetune_fsdp/checkpoints/
+
+# Claude Code
+/.claude/

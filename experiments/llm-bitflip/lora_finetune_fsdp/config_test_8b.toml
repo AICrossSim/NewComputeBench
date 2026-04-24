@@ -1,0 +1,41 @@
+# Test config: Llama 3.1 8B with FSDP2 on 8 GPUs
+# Launch: torchrun --nproc_per_node=8 train.py --config config_test_8b.toml
+
+[model]
+flavor = "8B"
+hf_model_path = "unsloth/Llama-3.1-8B"
+
+[training]
+dtype = "bfloat16"
+mixed_precision_param = "bfloat16"
+mixed_precision_reduce = "float32"
+seq_len = 512
+local_batch_size = 1
+gradient_accumulation_steps = 1
+steps = 20
+lr = 2e-4
+weight_decay = 0.0
+warmup_steps = 5
+max_norm = 1.0
+log_freq = 5
+save_freq = 20
+save_dir = "./checkpoints/test_8b"
+num_workers = 2
+
+[parallelism]
+fsdp_degree = 8
+
+[lora]
+r = 16
+lora_alpha = 16
+
+[bitflip]
+w_p_frac = 0.000244140625  # 0.5^12
+base_seed = 42
+skip_patterns = ["output"]
+
+[dataset]
+name = "allenai/c4"
+config = "en"
+split = "train"
+text_field = "text"
