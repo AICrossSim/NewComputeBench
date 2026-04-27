@@ -91,7 +91,7 @@ Text generation with bitflip
 
    python minimal.py hf-gen \
        AICrossSim/clm-60m \
-       ${prompt} \
+       --prompt "${prompt}" \
        --max_new_tokens ${max_new_tokens} \
        --do_sample true \
        --temperature 0.6 \

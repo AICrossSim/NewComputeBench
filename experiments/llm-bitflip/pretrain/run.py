@@ -197,11 +197,11 @@ def pt_eval_ppl(
     model_config.max_seq_len = seq_len
     model_cls = model_name_to_cls[model_arch]
     model = model_cls.from_model_args(model_config)
-    transform_model(model, config_manager=transform_config_manager)
+    transform_model(model, config_manager=transform_config_manager, transform_flavor="fc")
     # transform_histogram = make_transform_histogram(replaced_layers)
     # print(f"Transformed model with the following layers:\n{pformat(transform_histogram)}")
 
-    ppl = pt_evaluate_ppl(
+    pt_evaluate_ppl(
         model_arch=model_arch,
         model_flavor=model_flavor,
         tokenizer_path=tokenizer_path,
