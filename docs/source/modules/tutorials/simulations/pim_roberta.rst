@@ -35,7 +35,7 @@ PIM Configuration
 -----------------
 
 PIM behaviour is controlled through YAML configuration files.
-Example configs are in ``experiments/llm-pim/configs/``:
+Example configs are in ``experiments/roberta-pim/configs/``:
 
 - ``sram.yaml`` — Digital PIM (FP8)
 - ``reram.yaml`` — Analogue RRAM
@@ -46,7 +46,7 @@ SRAM (digital, FP8) — example
 
 .. code-block:: yaml
 
-   # experiments/llm-pim/configs/sram.yaml
+   # experiments/roberta-pim/configs/sram.yaml
    by: "type"
    linear:
      config:
@@ -90,7 +90,7 @@ Fine-Tuning RoBERTa with PIM
 
    TASK_NAME="mrpc"
    MODEL_NAME="FacebookAI/roberta-base"
-   PIM_CONFIG="./experiments/llm-pim/configs/sram.yaml"
+   PIM_CONFIG="./experiments/roberta-pim/configs/sram.yaml"
 
    python experiments/roberta-pim/run_glue.py \
        --model_name_or_path ${MODEL_NAME} \

@@ -396,7 +396,7 @@ def create_training_arguments(task_args: TaskArguments, training_args: ArgTraini
         dataloader_pin_memory=data_args.pin_memory,
         
         # Evaluation
-        evaluation_strategy=training_args.evaluation_strategy,
+        eval_strategy=training_args.evaluation_strategy,
         eval_steps=training_args.eval_steps,
         
         # Saving

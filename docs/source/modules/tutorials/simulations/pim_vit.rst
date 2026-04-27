@@ -48,7 +48,7 @@ SRAM (digital, FP8) example for ViT
 
 .. code-block:: yaml
 
-   # experiments/llm-pim/configs/sram.yaml
+   # experiments/vit-pim/configs/sram.yaml
    by: "type"
    conv2d:
      config:
@@ -66,7 +66,7 @@ SRAM (digital, FP8) example for ViT
        weight_quant_type: "e4m3"
 
 The ViT config covers both ``conv2d`` (patch embedding) and ``linear`` (attention / MLP)
-layers. See ``experiments/llm-pim/configs/`` for RRAM and PCM variants.
+layers. See ``experiments/vit-pim/configs/`` for RRAM and PCM variants.
 
 
 PIM-Aware Fine-Tuning
@@ -76,7 +76,7 @@ PIM-Aware Fine-Tuning
 
    model_name="google/vit-base-patch16-224"
    dataset_name="imagenet"
-   pim_config_path="./experiments/llm-pim/configs/sram.yaml"
+   pim_config_path="./experiments/vit-pim/configs/sram.yaml"
    output_dir="./log_eval_results"
 
    python experiments/vit-pim/run_vit.py \
