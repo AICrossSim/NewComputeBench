@@ -157,7 +157,7 @@ Single task
        --output_dir ./output/${TASK_NAME}_snn \
        --overwrite_output_dir \
        --transform_config ${TRANSFORM_CONFIG} \
-       --evaluation_strategy epoch \
+       --eval_strategy epoch \
        --save_strategy epoch \
        --logging_steps 50 \
        --seed 42
@@ -225,7 +225,7 @@ Baseline (no SNN transform)
        --num_train_epochs ${NUM_EPOCHS} \
        --output_dir ./output/${TASK_NAME}_baseline \
        --overwrite_output_dir \
-       --evaluation_strategy epoch \
+       --eval_strategy epoch \
        --save_strategy epoch
 
 

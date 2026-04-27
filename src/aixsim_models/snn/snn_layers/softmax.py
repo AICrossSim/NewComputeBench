@@ -7,10 +7,9 @@ from copy import deepcopy
 from typing import List, Optional, Tuple, Union
 import math
 
-import chop.nn.snn.base as base
 
 
-class SoftmaxZIPTF(nn.Softmax, base.StepModule):
+class SoftmaxZIPTF(nn.Softmax):
     """
     Stateful Softmax function
     Copied from SpikeZIP-TF
