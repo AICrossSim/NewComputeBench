@@ -112,7 +112,7 @@ def eval_random_bitflip(
     bitflip_config = TransformConfigManager(layer_name_to_config=bitflip_config, use_regex=True)
     device = torch.device("cuda")
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
-    transform_model(model, config_manager=bitflip_config)
+    transform_model(model, config_manager=bitflip_config, transform_flavor="fc")
     # replaced_layers = flip_bits_in_linear(model, bitflip_config)
     # print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
 
@@ -131,7 +131,8 @@ def eval_random_bitflip(
 
 
 def bitflip_hf_generate(
-    model_name: str = "meta-llama/Llama-3.1-8B",
+    model_name: str,
+    *,
     bitflip_config: Union[Literal["default"], Path, dict] = "default",
     default_bitflip_config: DefaultBitFlipConfig = DefaultBitFlipConfig(
         x_p_exp=None,
@@ -151,10 +152,13 @@ def bitflip_hf_generate(
     top_p: float = 0.9,
     save_dir: Optional[Path] = None,
 ):
-    """Randomly flip bit in linear layers of a model and evaluate it.
+    """Randomly flip bit in linear layers of a model, then run HF generation (see ``hf_generate``).
+
+    ``jsonargparse`` exposes ``model_name`` as the only positional subcommand arg; pass the prompt
+    with ``--prompt "..."`` (or rely on the default), not as a second bare word.
 
     Args:
-        model_name (str): The name of the model to use. Default is "meta-llama/Llama-3.1-8B".
+        model_name (str): Hugging Face id or local path to the model (positional only).
         bitflip_config (Union[Literal["default"], Path, dict]): The config for the bitflip. Default is "default".
         default_bitflip_config (DefaultBitFlipConfig): The default config for the bitflip. Default is DefaultBitFlipConfig.
         dtype (Literal["float32", "float16", "bfloat16"]): The dtype to use. Default is "float16".
@@ -184,7 +188,7 @@ def bitflip_hf_generate(
 
     device = torch.device("cuda")
     model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=getattr(torch, dtype)).eval()
-    transform_model(model, config_manager=bitflip_config)
+    transform_model(model, config_manager=bitflip_config, transform_flavor="fc")
     # print(f"Replaced layers:\n{tabulate(replaced_layers, headers=['Layer', 'Config'])}")
 
     model.to(device)
@@ -219,6 +223,8 @@ if __name__ == "__main__":
     |wikitext|      2|none  |     0|bits_per_byte  |↓  |0.5588|±  |   N/A|
     |        |       |none  |     0|byte_perplexity|↓  |1.4730|±  |   N/A|
     |        |       |none  |     0|word_perplexity|↓  |7.9336|±  |   N/A|
+
+    $ python minimal.py hf-gen AICrossSim/clm-60m --prompt "London is" --max_new_tokens 100
 
     $ python minimal.py eval-bitflip --model_name meta-llama/Llama-3.1-8B
     # a-w-both, p_frac=2^-16, p_exp=2^-16, a_t=30, w_t=1.25

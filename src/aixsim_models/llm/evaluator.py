@@ -1,8 +1,9 @@
 from pathlib import Path
 from typing import Literal, Union, Optional
+import gc
+import json
 import logging
 import yaml
-import json
 
 import torch
 import torch.distributed.checkpoint as dcp
@@ -119,7 +120,21 @@ def pt_evaluate_ppl(
     avg_nll = nll_sum / n_tokens
     ppl = torch.exp(avg_nll).item()
     logger.info(f"Perplexity: {ppl:.2f}")
+    _release_ppl_eval_resources(device, model, data_loader)
     return ppl
+
+
+def _release_ppl_eval_resources(device, model, data_loader) -> None:
+    """Tear down GPU and loader references before interpreter exit to reduce
+    C++/CUDA destructor races that can abort with 'terminate called without
+    an active exception' on some driver/PyTorch stacks.
+    """
+    del data_loader
+    del model
+    gc.collect()
+    if device.type == "cuda":
+        torch.cuda.synchronize()
+        torch.cuda.empty_cache()
 
 
 def hf_check_ppl(
@@ -130,7 +145,7 @@ def hf_check_ppl(
     batch_size: int = 32,
     num_batches: int = 32,
     seq_len: int = 2048,
-):
+) -> float:
     """Similar to `pt_evaluate_ppl`, calculate perplexity of a Hugging Face model.
     This can be used as a sanity check for converted checkpoint in HuggingFace format.
 
@@ -144,7 +159,7 @@ def hf_check_ppl(
         num_batches (int): Number of batches to process. Defaults to 32.
         seq_len (int): Length of input sequences. Defaults to 2048.
     Returns:
-        None: Prints the calculated perplexity to the logger.
+        float: The calculated perplexity (also logged).
     """
     from aixsim_models.llm.tokenizer import HFTokenizer
 
@@ -198,6 +213,8 @@ def hf_check_ppl(
     avg_nll = nll_sum / n_tokens
     ppl = torch.exp(avg_nll).item()
     logger.info(f"Perplexity: {ppl:.2f}")
+    _release_ppl_eval_resources(device, model, data_loader)
+    return ppl
 
 
 def hf_generate(
