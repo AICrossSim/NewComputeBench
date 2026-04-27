@@ -26,7 +26,7 @@ MODEL_NAME="FacebookAI/roberta-base"
 TASK_LIST="cola mnli mrpc qnli qqp rte sst2 stsb"
 LR_LIST="2e-5"
 
-# PIM configurations to evaluate (from experiments/llm-pim/configs/)
+# PIM configurations to evaluate (from experiments/roberta-pim/configs/)
 PIM_CONFIG_LIST="sram pcm reram"
 
 # =================================================================================================
@@ -42,7 +42,7 @@ finetune() {
     local pim_config="$4"
     local output_dir="$5"
 
-    local pim_config_path="./experiments/llm-pim/configs/${pim_config}.yaml"
+    local pim_config_path="./experiments/roberta-pim/configs/${pim_config}.yaml"
     local run_name="ft_${task_name}_${pim_config}_${learning_rate}"
 
     echo "--------------------------------------------------------------------------------"

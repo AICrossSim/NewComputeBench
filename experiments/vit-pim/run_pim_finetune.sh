@@ -26,7 +26,7 @@ python experiments/vit-pim/run_vit.py \
     --greater_is_better \
     --max_grad_norm 1.0 \
     --enable_pim_transform \
-    --pim_config_path ./experiments/llm-pim/configs/sram.yaml \
+    --pim_config_path ./experiments/vit-pim/configs/sram.yaml \
     --seed 42
     # --max_train_samples 1000 \
     # --max_eval_samples 500

@@ -24,7 +24,7 @@ PIM behavior is controlled through YAML configuration files that specify technol
 
 ### Configuration Examples
 
-Example configurations can be found in `experiments/llm-pim/configs/`:
+Example configurations can be found in `experiments/roberta-pim/configs/`:
 - `sram.yaml`: Digital PIM (FP8)
 - `reram.yaml`: Analogue RRAM
 - `pcm.yaml`: Analogue PCM
@@ -32,7 +32,7 @@ Example configurations can be found in `experiments/llm-pim/configs/`:
 ### Typical SRAM PIM Configuration (FP8)
 
 ```yaml
-# experiments/llm-pim/configs/sram.yaml
+# experiments/roberta-pim/configs/sram.yaml
 by: "type"
 linear:
   config:
@@ -69,7 +69,7 @@ The other parameters are related to the specific PIM technology:
 # Set task parameters
 TASK_NAME="mrpc"                                    # GLUE task (mrpc, sst2, cola, etc.)
 MODEL_NAME="FacebookAI/roberta-base"                # Base model
-PIM_CONFIG="./experiments/llm-pim/configs/sram.yaml" # PIM config (sram, reram, or pcm)
+PIM_CONFIG="./experiments/roberta-pim/configs/sram.yaml" # PIM config (sram, reram, or pcm)
 
 python experiments/roberta-pim/run_glue.py \
     --model_name_or_path ${MODEL_NAME} \

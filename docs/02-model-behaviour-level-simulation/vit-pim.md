@@ -27,7 +27,7 @@ cd NewComputeBench
 
 model_name="google/vit-base-patch16-224"    # HuggingFace ViT model
 dataset_name="imagenet"                      # Vision dataset for evaluation
-pim_config_path="./experiments/llm-pim/configs/sram.yaml" # PIM transformation configuration
+pim_config_path="./experiments/vit-pim/configs/sram.yaml" # PIM transformation configuration
 output_dir="./log_eval_results"             # Output directory for results
 
 python experiments/vit-pim/run_vit.py \
@@ -41,14 +41,14 @@ python experiments/vit-pim/run_vit.py \
 ```
 
 !!! info "PIM Configuration"
-    The PIM configuration file defines the noise characteristics, quantization levels, and other parameters that simulate the analog processing-in-memory effects. See [`experiments/llm-pim/configs/`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-pim/configs/) for example configurations.
+    The PIM configuration file defines the noise characteristics, quantization levels, and other parameters that simulate the analog processing-in-memory effects. See [`experiments/vit-pim/configs/`](https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/vit-pim/configs/) for example configurations.
 
 ## PIM Configuration Examples
 
 ### Typical SRAM PIM Configuration
 
 ```yaml
-# experiments/llm-pim/configs/sram.yaml
+# experiments/vit-pim/configs/sram.yaml
 by: "type"
 conv2d:
   config:

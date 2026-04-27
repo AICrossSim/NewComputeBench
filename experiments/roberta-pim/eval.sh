@@ -24,7 +24,7 @@ CUDA_DEVICE="${CUDA_DEVICE:-0}"
 # Tasks to evaluate (GLUE benchmark)
 TASK_LIST="cola mnli mrpc qnli qqp rte sst2 stsb"
 
-# PIM configurations to evaluate (from experiments/llm-pim/configs/)
+# PIM configurations to evaluate (from experiments/roberta-pim/configs/)
 PIM_CONFIG_LIST="sram pcm reram"
 
 # =================================================================================================
@@ -39,7 +39,7 @@ evaluate() {
     local pim_config="$3"
     local output_dir="$4"
 
-    local pim_config_path="./experiments/llm-pim/configs/${pim_config}.yaml"
+    local pim_config_path="./experiments/roberta-pim/configs/${pim_config}.yaml"
     local run_name="eval_${task_name}_${pim_config}"
 
     echo "--------------------------------------------------------------------------------"
