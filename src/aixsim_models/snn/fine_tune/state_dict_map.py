@@ -6,10 +6,10 @@ from typing import Tuple
 
 from chop.nn.quantizers.SNN.LSQ import LSQInteger
 from chop.nn.quantized.modules.roberta.attention import RobertaSelfAttentionLSQInteger
-from chop.nn.snn.modules.linear import LinearUnfoldBias
-from chop.nn.snn.modules.roberta.attention import RobertaSelfAttentionZIPTF
+from aixsim_models.snn.snn_layers.linear import LinearUnfoldBias
+from aixsim_models.snn.snn_layers.attention import RobertaSelfAttentionZIPTF
 
-from chop.nn.snn.modules.neuron.st_bifnode import ST_BIFNode
+from aixsim_models.snn.neuron.st_bifnode import ST_BIFNode
 import torch
 from pathlib import Path
 from functools import reduce

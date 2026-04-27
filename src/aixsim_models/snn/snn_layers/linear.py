@@ -1,9 +1,8 @@
 from torch import nn
-import chop.nn.snn.base as base
 import torch
 
 
-class Linear(nn.Linear, base.StepModule):
+class Linear(nn.Linear):
     def __init__(
         self, in_features: int, out_features: int, bias: bool = True, step_mode="s"
     ) -> None:

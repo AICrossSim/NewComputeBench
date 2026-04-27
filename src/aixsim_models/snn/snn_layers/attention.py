@@ -8,9 +8,9 @@ from typing import List, Optional, Tuple, Union
 import math
 
 
-from chop.nn.snn.modules.linear import LinearUnfoldBias
-from chop.nn.snn.modules.neuron import ST_BIFNode
-from chop.nn.snn.modules.softmax import SoftmaxZIPTF
+from aixsim_models.snn.snn_layers.linear import LinearUnfoldBias
+from aixsim_models.snn.neuron.st_bifnode import ST_BIFNode
+from aixsim_models.snn.snn_layers.softmax import SoftmaxZIPTF
 
 
 def multi(x1_t, x2_t, x1_sum_t, x2_sum_t):
