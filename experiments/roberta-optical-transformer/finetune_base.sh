@@ -71,12 +71,11 @@ finetune() {
     echo "Output directory: $output_dir"
     echo "Best metric: $best_metric"
 
-    python -u -m torch.distributed.launch \
+    uv run torchrun \
         --master_port="$MASTER_PORT" \
         --nproc_per_node=1 \
         --nnodes=1 \
         --node_rank=0 \
-        --use_env \
         run_glue.py \
             --seed "$SEED" \
             --model_name_or_path "$model_name" \

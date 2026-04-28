@@ -5,7 +5,7 @@ gradient_accumulation_steps := "8"
 seed := "42"
 
 pretrainer:
-    python run_clm.py \
+    uv run python run_clm.py \
         --model_name_or_path {{model}} \
         --dataset_name HuggingFaceFW/fineweb-edu \
         --dataset_config_name "sample-10BT" \
