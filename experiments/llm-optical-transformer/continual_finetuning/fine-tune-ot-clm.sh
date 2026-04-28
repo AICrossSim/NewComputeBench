@@ -78,7 +78,7 @@ echo "Wandb Tags: ${WANDB_TAGS}"
 echo "============================================"
 
 # Run the training
-accelerate launch --num_processes=${NUM_PROCESSES} \
+uv run accelerate launch --num_processes=${NUM_PROCESSES} \
     run_clm_no_trainer.py \
     --model_name_or_path ${MODEL_NAME_OR_PATH} \
     --dataset_name Cheng98/fineweb-edu-1.25B \

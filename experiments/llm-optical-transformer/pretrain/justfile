@@ -6,7 +6,7 @@ pretrain:
         echo "Pretrain config file not found: {{pretrain_cfg}}"; \
     fi
     PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
-        torchrun --nproc_per_node={{n_gpus}} --rdzv_backend c10d \
+        uv run torchrun --nproc_per_node={{n_gpus}} --rdzv_backend c10d \
         --rdzv_endpoint="localhost:0" --local-ranks-filter 0 \
         --role rank --tee 3 \
         run.py pretrain --config {{pretrain_cfg}}
@@ -16,7 +16,7 @@ seed-ckpt:
         echo "Pretrain config file not found: {{pretrain_cfg}}"; \
     fi
     PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True" STREAM_HF_DATA="1" \
-        torchrun --nproc_per_node=1 --rdzv_backend c10d \
+        uv run torchrun --nproc_per_node=1 --rdzv_backend c10d \
         --rdzv_endpoint="localhost:0" --local-ranks-filter 0 \
         --role rank --tee 3 \
         run.py pretrain --config {{pretrain_cfg}} \
