@@ -1,0 +1,717 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Scaling Optical Transformers to Causal Language Models &#8212; NewComputeBench</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/tutorials/simulations/onn_clm';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Spiking Neural Networks on RoBERTa" href="snn_roberta.html" />
+    <link rel="prev" title="Optical Neural Networks on RoBERTa" href="onn_roberta.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">NewComputeBench</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    NewComputeBench
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quickstart.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/models.html">Supported Models</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../pretraining/llm_pretrain_eval.html">LLM Pretraining &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitflip_clm.html">Random Bitflip on CLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitflip_lora.html">Bitflip-Aware LoRA Fine-Tuning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onn_roberta.html">Optical Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Scaling Optical Transformers to Causal Language Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="snn_roberta.html">Spiking Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pim_roberta.html">Processing-in-Memory on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pim_vit.html">Processing-in-Memory on Vision Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mase_triton.html">Mase-Triton</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../developer/index.html">Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer/contributing.html">Contributing &amp; Maintaining Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer/sim_guidelines.html">Transform-Aware LLM Training Guidelines</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/edit/master/docs/source/modules/tutorials/simulations/onn_clm.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/issues/new?title=Issue%20on%20page%20%2Fmodules/tutorials/simulations/onn_clm.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/modules/tutorials/simulations/onn_clm.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Scaling Optical Transformers to Causal Language Models</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-points-explored">Starting Points Explored</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-fine-tuning-with-optical-transformer">Full Fine-Tuning with Optical Transformer</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optical-transformer-configuration">Optical Transformer configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-setup">Training setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-fine-tuning-command">Basic fine-tuning command</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-shell-script">Using the shell script</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-rate-sweep">Learning rate sweep</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="scaling-optical-transformers-to-causal-language-models">
+<h1>Scaling Optical Transformers to Causal Language Models<a class="headerlink" href="#scaling-optical-transformers-to-causal-language-models" title="Link to this heading">#</a></h1>
+<p>Following the <a class="reference internal" href="onn_roberta.html"><span class="doc">Optical Neural Networks on RoBERTa</span></a> experiments, we scale the Optical Transformer to
+causal language models (CLMs). This tutorial demonstrates full fine-tuning of a
+pretrained CLM with Mase-triton acceleration.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you have not set up the environment yet, follow <a class="reference internal" href="../../getting_started/installation.html"><span class="doc">Installation</span></a> first.</p>
+</div>
+<section id="starting-points-explored">
+<h2>Starting Points Explored<a class="headerlink" href="#starting-points-explored" title="Link to this heading">#</a></h2>
+<p>We evaluated three starting points before settling on the main approach:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 40.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Starting point</p></th>
+<th class="head"><p>Observation</p></th>
+<th class="head"><p>Code</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Pretraining from scratch</p></td>
+<td><p>Training loss did not decrease.</p></td>
+<td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/pretrain">link</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>LoRA fine-tuning of a pretrained CLM</p></td>
+<td><p>Training loss decreased only for the 60M model.</p></td>
+<td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/lora_finetuning">link</a></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Full fine-tuning of a pretrained CLM</strong> ✅</p></td>
+<td><p>Training loss decreases with a small learning rate (&lt; 1e-5).</p></td>
+<td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/continual_finetuning">link</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="full-fine-tuning-with-optical-transformer">
+<h2>Full Fine-Tuning with Optical Transformer<a class="headerlink" href="#full-fine-tuning-with-optical-transformer" title="Link to this heading">#</a></h2>
+<p>Entry point:
+<a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/continual_finetuning/run_clm_no_trainer.py">experiments/llm-optical-transformer/continual_finetuning/run_clm_no_trainer.py</a></p>
+<section id="optical-transformer-configuration">
+<h3>Optical Transformer configuration<a class="headerlink" href="#optical-transformer-configuration" title="Link to this heading">#</a></h3>
+<p>The optical transformer is configured through a TOML file
+(<a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/continual_finetuning/transform_cfg.toml">experiments/llm-optical-transformer/continual_finetuning/transform_cfg.toml</a>):</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">use_lora</span></code> — set to <code class="docutils literal notranslate"><span class="pre">false</span></code> for full fine-tuning</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention.q_levels</span></code> — quantization levels (default: 256)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention.q_lut_min</span></code> — minimum LUT value (default: 0.020040)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention.q_smooth_factor</span></code> — smoothing factor for running statistics (default: 0.9)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention.q_init_seed</span></code> — random seed (default: 0)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attention.q_bypass</span></code> — bypass quantization in attention layers (default: false)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fc</span></code> — same parameters apply to fully-connected layers</p></li>
+</ul>
+</section>
+<section id="training-setup">
+<h3>Training setup<a class="headerlink" href="#training-setup" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Setting</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Pretrained model</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">AICrossSim/clm</span></code> series</p></td>
+</tr>
+<tr class="row-odd"><td><p>Dataset</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Cheng98/fineweb-edu-1.25B</span></code> (1.25B-token subset of CLM pretraining data)</p></td>
+</tr>
+<tr class="row-even"><td><p>Fine-tuning tokens</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">22</span> <span class="pre">×</span> <span class="pre">N_params</span> <span class="pre">/</span> <span class="pre">100</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Learning rate</p></td>
+<td><p>Sweep from 1e-7 to 1e-5 depending on model size. Larger models require smaller rates.</p></td>
+</tr>
+<tr class="row-even"><td><p>Effective batch size</p></td>
+<td><p>16 (via gradient accumulation steps and number of processes)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="basic-fine-tuning-command">
+<h3>Basic fine-tuning command<a class="headerlink" href="#basic-fine-tuning-command" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>accelerate<span class="w"> </span>launch<span class="w"> </span>--num_processes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>run_clm_no_trainer.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name_or_path<span class="w"> </span><span class="s2">&quot;AICrossSim/clm-60m&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--dataset_name<span class="w"> </span><span class="s2">&quot;Cheng98/fineweb-edu-1.25B&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span>2e-5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--weight_decay<span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--gradient_accumulation_steps<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--lr_scheduler_type<span class="w"> </span>linear<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span><span class="s2">&quot;./output/clm-60m-optical&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--preprocessing_num_workers<span class="w"> </span><span class="m">32</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--trust_remote_code<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--with_tracking<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--report_to<span class="w"> </span>wandb<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--transform_cfg<span class="w"> </span>./transform_cfg.toml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--block_size<span class="w"> </span><span class="m">1024</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--log_train_loss_steps<span class="w"> </span><span class="m">50</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Learning rate is critical.</strong> Optical Transformer fine-tuning requires a very small
+learning rate (&lt; 1e-5) for stable training. Larger learning rates cause loss divergence.
+The larger the model, the smaller the required learning rate.</p>
+<figure class="align-default" id="id7">
+<a class="reference internal image-reference" href="../_static/images/onn/onn-clm-400m-failed.png"><img alt="CLM-400M loss divergence with high learning rate" src="../_static/images/onn/onn-clm-400m-failed.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">CLM-400M with learning rate too high — loss diverges.</span><a class="headerlink" href="#id7" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="using-the-shell-script">
+<h3>Using the shell script<a class="headerlink" href="#using-the-shell-script" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-optical-transformer/continual_finetuning/fine-tune-ot-clm.sh">fine-tune-ot-clm.sh</a>
+automatically calculates training steps and configures W&amp;B logging:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default parameters</span>
+./fine-tune-ot-clm.sh
+
+<span class="c1"># Custom parameters</span>
+<span class="c1"># Usage: ./fine-tune-ot-clm.sh [num_processes] [model_name_or_path]</span>
+<span class="c1">#        [per_device_train_batch_size] [learning_rate] [weight_decay]</span>
+<span class="c1">#        [gradient_accumulation_steps] [block_size]</span>
+./fine-tune-ot-clm.sh<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="s2">&quot;AICrossSim/clm-200m&quot;</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="s2">&quot;1e-5&quot;</span><span class="w"> </span><span class="m">0</span>.01<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">1024</span>
+</pre></div>
+</div>
+</section>
+<section id="learning-rate-sweep">
+<h3>Learning rate sweep<a class="headerlink" href="#learning-rate-sweep" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Edit sweep.sh to set desired learning rate ranges, then run:</span>
+./sweep.sh
+</pre></div>
+</div>
+</section>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
+<figure class="align-default" id="id8">
+<a class="reference internal image-reference" href="../_static/images/onn/onn-clm-full-ft.png"><img alt="Optical Transformer fine-tuning results on CLM models" src="../_static/images/onn/onn-clm-full-ft.png" style="width: 800px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Training loss for full fine-tuning across CLM model sizes (traces smoothed for clarity).</span><a class="headerlink" href="#id8" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="pst-scrollable-table-container"><table class="table" id="id9">
+<caption><span class="caption-text">W&amp;B logs</span><a class="headerlink" href="#id9" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 75.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>W&amp;B log</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>60M</p></td>
+<td><p><a class="reference external" href="https://wandb.ai/cz98/OT-CLM-full-fine-tune/runs/2vs467kj">link</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>200M</p></td>
+<td><p><a class="reference external" href="https://wandb.ai/cz98/OT-CLM-full-fine-tune/runs/3kxuoe4x">link</a></p></td>
+</tr>
+<tr class="row-even"><td><p>400M</p></td>
+<td><p><a class="reference external" href="https://wandb.ai/cz98/OT-CLM-full-fine-tune/runs/b92g3elq">link</a></p></td>
+</tr>
+<tr class="row-odd"><td><p>600M</p></td>
+<td><p><a class="reference external" href="https://wandb.ai/cz98/OT-CLM-full-fine-tune/runs/2ss0tb5h">link</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>More traces with various learning rates: <a class="reference external" href="https://wandb.ai/cz98/OT-CLM-full-fine-tune">W&amp;B Project: OT-CLM-full-ft</a></p>
+<p><strong>Takeaway:</strong> Full fine-tuning of pretrained optical CLM models does not scale as well as
+standard CLM fine-tuning. We observe moderate improvement for smaller models (60M → 200M),
+while larger models (400M, 600M) show degraded performance.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="onn_roberta.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Optical Neural Networks on RoBERTa</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="snn_roberta.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Spiking Neural Networks on RoBERTa</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#starting-points-explored">Starting Points Explored</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#full-fine-tuning-with-optical-transformer">Full Fine-Tuning with Optical Transformer</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optical-transformer-configuration">Optical Transformer configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training-setup">Training setup</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-fine-tuning-command">Basic fine-tuning command</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-the-shell-script">Using the shell script</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-rate-sweep">Learning rate sweep</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By AICrossSim
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, AICrossSim.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

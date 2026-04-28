@@ -1,0 +1,806 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Spiking Neural Networks on RoBERTa &#8212; NewComputeBench</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/tutorials/simulations/snn_roberta';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Processing-in-Memory on RoBERTa" href="pim_roberta.html" />
+    <link rel="prev" title="Scaling Optical Transformers to Causal Language Models" href="onn_clm.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">NewComputeBench</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    NewComputeBench
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quickstart.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/models.html">Supported Models</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../pretraining/llm_pretrain_eval.html">LLM Pretraining &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitflip_clm.html">Random Bitflip on CLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitflip_lora.html">Bitflip-Aware LoRA Fine-Tuning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onn_roberta.html">Optical Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onn_clm.html">Scaling Optical Transformers to Causal Language Models</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Spiking Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pim_roberta.html">Processing-in-Memory on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pim_vit.html">Processing-in-Memory on Vision Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mase_triton.html">Mase-Triton</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../developer/index.html">Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer/contributing.html">Contributing &amp; Maintaining Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer/sim_guidelines.html">Transform-Aware LLM Training Guidelines</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/edit/master/docs/source/modules/tutorials/simulations/snn_roberta.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/issues/new?title=Issue%20on%20page%20%2Fmodules/tutorials/simulations/snn_roberta.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/modules/tutorials/simulations/snn_roberta.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Spiking Neural Networks on RoBERTa</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#snn-transform-configuration">SNN Transform Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-structure">Configuration structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quantization-parameters">Quantization parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#snn-conversion-parameters">SNN conversion parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-configuration-experiments-roberta-snn-transformer-transform-cfg-yaml">Default configuration (<code class="docutils literal notranslate"><span class="pre">experiments/roberta-snn-transformer/transform_cfg.yaml</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fine-tuning-roberta-with-snn-transform">Fine-Tuning RoBERTa with SNN Transform</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-task">Single task</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-only-post-transform-no-fine-tuning">Evaluation only (post-transform, no fine-tuning)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-with-fine-tuned-snn-weights">Evaluation with fine-tuned SNN weights</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-to-full-spiking-form">Convert to full spiking form</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-no-snn-transform">Baseline (no SNN transform)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results-mrpc">Results (MRPC)</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="spiking-neural-networks-on-roberta">
+<h1>Spiking Neural Networks on RoBERTa<a class="headerlink" href="#spiking-neural-networks-on-roberta" title="Link to this heading">#</a></h1>
+<p>This tutorial demonstrates how to convert a RoBERTa model to a Spiking Neural Network
+(SNN) transformer for sequence classification on GLUE benchmark tasks.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you have not set up the environment yet, follow <a class="reference internal" href="../../getting_started/installation.html"><span class="doc">Installation</span></a> first.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><strong>SNN Transform</strong> — a two-stage conversion pipeline: (1) quantize with LSQ Integer
+layers, then (2) convert to SNN equivalents using ST-BIF spiking neurons.</p>
+<ul>
+<li><p>Entry point: <a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-snn-transformer/run_glue.py">experiments/roberta-snn-transformer/run_glue.py</a></p></li>
+</ul>
+</li>
+<li><p><strong>SNN RoBERTa</strong> — custom SNN attention and linear layers replacing standard modules
+with spiking-neuron equivalents.</p>
+<ul>
+<li><p>Implementation: <a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/src/aixsim_models/snn/fine_tune/snn_roberta.py">src/aixsim_models/snn/fine_tune/snn_roberta.py</a></p></li>
+</ul>
+</li>
+<li><p><strong>Multi-task script</strong>: <a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-snn-transformer/finetune_base.sh">experiments/roberta-snn-transformer/finetune_base.sh</a></p></li>
+</ul>
+<p>The SNN transformation pipeline:</p>
+<ol class="arabic simple">
+<li><p><strong>Quantization stage</strong> — replaces attention, output, intermediate, and classifier
+layers with LSQ Integer quantized equivalents.</p></li>
+<li><p><strong>SNN conversion stage</strong> — converts quantized layers to spiking equivalents:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">zip_tf</span></code> (SpikeZip-TF) for attention blocks, embeddings, and LayerNorm</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">unfold_bias</span></code> linear layers with ST-BIF neurons for fully connected layers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">identity</span></code> replaces ReLU activations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">st_bif</span></code> spiking nodes replace LSQ Integer quantizers</p></li>
+</ul>
+</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>ReLU-based base model required.</strong> The SNN conversion requires a RoBERTa model with
+ReLU activations (not GELU). Use <code class="docutils literal notranslate"><span class="pre">JeffreyWong/roberta-base-relu-{task}</span></code> checkpoints
+from HuggingFace.</p>
+</div>
+</section>
+<section id="snn-transform-configuration">
+<h2>SNN Transform Configuration<a class="headerlink" href="#snn-transform-configuration" title="Link to this heading">#</a></h2>
+<section id="configuration-structure">
+<h3>Configuration structure<a class="headerlink" href="#configuration-structure" title="Link to this heading">#</a></h3>
+<p>The YAML config contains three top-level keys:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">quantization_config</span></code> — applies LSQ Integer quantization by regex matching on module names.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">snn_transformer_config_attn</span></code> — converts quantized attention layers to SNN by regex.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">snn_transformer_config_fc</span></code> — converts remaining layer types (embedding, LayerNorm,
+linear, ReLU, LSQ Integer) to SNN equivalents by type.</p></li>
+</ul>
+</section>
+<section id="quantization-parameters">
+<h3>Quantization parameters<a class="headerlink" href="#quantization-parameters" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> — quantization method (<code class="docutils literal notranslate"><span class="pre">lsqinteger</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">level</span></code> — number of quantization levels (default: 32)</p></li>
+</ul>
+</section>
+<section id="snn-conversion-parameters">
+<h3>SNN conversion parameters<a class="headerlink" href="#snn-conversion-parameters" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code> — conversion type: <code class="docutils literal notranslate"><span class="pre">zip_tf</span></code> (attention/embedding/LayerNorm),
+<code class="docutils literal notranslate"><span class="pre">unfold_bias</span></code> (linear), <code class="docutils literal notranslate"><span class="pre">st_bif</span></code> (quantizer nodes), <code class="docutils literal notranslate"><span class="pre">identity</span></code> (ReLU)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">level</span></code> — spike resolution (default: 32, used by <code class="docutils literal notranslate"><span class="pre">unfold_bias</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">neuron_type</span></code> — spiking neuron model (default: <code class="docutils literal notranslate"><span class="pre">ST-BIF</span></code>)</p></li>
+</ul>
+</section>
+<section id="default-configuration-experiments-roberta-snn-transformer-transform-cfg-yaml">
+<h3>Default configuration (<code class="docutils literal notranslate"><span class="pre">experiments/roberta-snn-transformer/transform_cfg.yaml</span></code>)<a class="headerlink" href="#default-configuration-experiments-roberta-snn-transformer-transform-cfg-yaml" title="Link to this heading">#</a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">quantization_config</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">regex</span>
+<span class="w">  </span><span class="s">&#39;roberta\.encoder\.layer\.\d+\.attention\.self&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lsqinteger</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="s">&#39;roberta\.encoder\.layer\.\d+\.attention\.output&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lsqinteger</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="s">&#39;roberta\.encoder\.layer\.\d+\.output&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lsqinteger</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="s">&#39;roberta\.encoder\.layer\.\d+\.intermediate&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lsqinteger</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">  </span><span class="nt">classifier</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lsqinteger</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+
+<span class="nt">snn_transformer_config_attn</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">regex</span>
+<span class="w">  </span><span class="s">&#39;roberta\.encoder\.layer\.\d+\.attention\.self&#39;</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zip_tf</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">      </span><span class="nt">neuron_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST-BIF</span>
+
+<span class="nt">snn_transformer_config_fc</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">by</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">type</span>
+<span class="w">  </span><span class="nt">embedding</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zip_tf</span>
+<span class="w">  </span><span class="nt">layernorm</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">zip_tf</span>
+<span class="w">  </span><span class="nt">linear</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">unfold_bias</span>
+<span class="w">      </span><span class="nt">level</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">32</span>
+<span class="w">      </span><span class="nt">neuron_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ST-BIF</span>
+<span class="w">  </span><span class="nt">relu</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">manual_instantiate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">identity</span>
+<span class="w">  </span><span class="nt">lsqinteger</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">manual_instantiate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">st_bif</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="fine-tuning-roberta-with-snn-transform">
+<h2>Fine-Tuning RoBERTa with SNN Transform<a class="headerlink" href="#fine-tuning-roberta-with-snn-transform" title="Link to this heading">#</a></h2>
+<section id="single-task">
+<h3>Single task<a class="headerlink" href="#single-task" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>experiments/roberta-snn-transformer
+
+<span class="nv">TASK_NAME</span><span class="o">=</span><span class="s2">&quot;mrpc&quot;</span>
+<span class="nv">MODEL_NAME</span><span class="o">=</span><span class="s2">&quot;JeffreyWong/roberta-base-relu-</span><span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="nv">LEARNING_RATE</span><span class="o">=</span><span class="s2">&quot;2e-5&quot;</span>
+<span class="nv">BATCH_SIZE</span><span class="o">=</span><span class="s2">&quot;64&quot;</span>
+<span class="nv">NUM_EPOCHS</span><span class="o">=</span><span class="s2">&quot;10&quot;</span>
+<span class="nv">TRANSFORM_CONFIG</span><span class="o">=</span><span class="s2">&quot;./transform_cfg.yaml&quot;</span>
+
+python<span class="w"> </span>run_glue.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name_or_path<span class="w"> </span><span class="si">${</span><span class="nv">MODEL_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task_name<span class="w"> </span><span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_train<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_seq_length<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="si">${</span><span class="nv">BATCH_SIZE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span><span class="si">${</span><span class="nv">LEARNING_RATE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="si">${</span><span class="nv">NUM_EPOCHS</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./output/<span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span>_snn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overwrite_output_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--transform_config<span class="w"> </span><span class="si">${</span><span class="nv">TRANSFORM_CONFIG</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_strategy<span class="w"> </span>epoch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_strategy<span class="w"> </span>epoch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--logging_steps<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--seed<span class="w"> </span><span class="m">42</span>
+</pre></div>
+</div>
+</section>
+<section id="evaluation-only-post-transform-no-fine-tuning">
+<h3>Evaluation only (post-transform, no fine-tuning)<a class="headerlink" href="#evaluation-only-post-transform-no-fine-tuning" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_glue.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name_or_path<span class="w"> </span><span class="si">${</span><span class="nv">MODEL_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task_name<span class="w"> </span><span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_seq_length<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="si">${</span><span class="nv">BATCH_SIZE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./output/<span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span>_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--transform_config<span class="w"> </span><span class="si">${</span><span class="nv">TRANSFORM_CONFIG</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overwrite_output_dir
+</pre></div>
+</div>
+</section>
+<section id="evaluation-with-fine-tuned-snn-weights">
+<h3>Evaluation with fine-tuned SNN weights<a class="headerlink" href="#evaluation-with-fine-tuned-snn-weights" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_glue.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name_or_path<span class="w"> </span><span class="si">${</span><span class="nv">MODEL_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task_name<span class="w"> </span><span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_seq_length<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="si">${</span><span class="nv">BATCH_SIZE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./output/<span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span>_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--transform_config<span class="w"> </span><span class="si">${</span><span class="nv">TRANSFORM_CONFIG</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_weights_path<span class="w"> </span>./output/<span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span>_snn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overwrite_output_dir
+</pre></div>
+</div>
+</section>
+<section id="convert-to-full-spiking-form">
+<h3>Convert to full spiking form<a class="headerlink" href="#convert-to-full-spiking-form" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_glue.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name_or_path<span class="w"> </span><span class="si">${</span><span class="nv">MODEL_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task_name<span class="w"> </span><span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_seq_length<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_eval_batch_size<span class="w"> </span><span class="si">${</span><span class="nv">BATCH_SIZE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./output/<span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span>_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--transform_config<span class="w"> </span><span class="si">${</span><span class="nv">TRANSFORM_CONFIG</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--convert_to_snn<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overwrite_output_dir
+</pre></div>
+</div>
+</section>
+<section id="baseline-no-snn-transform">
+<h3>Baseline (no SNN transform)<a class="headerlink" href="#baseline-no-snn-transform" title="Link to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_glue.py<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--model_name_or_path<span class="w"> </span><span class="si">${</span><span class="nv">MODEL_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--task_name<span class="w"> </span><span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_train<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--do_eval<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max_seq_length<span class="w"> </span><span class="m">128</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--per_device_train_batch_size<span class="w"> </span><span class="si">${</span><span class="nv">BATCH_SIZE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--learning_rate<span class="w"> </span><span class="si">${</span><span class="nv">LEARNING_RATE</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num_train_epochs<span class="w"> </span><span class="si">${</span><span class="nv">NUM_EPOCHS</span><span class="si">}</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--output_dir<span class="w"> </span>./output/<span class="si">${</span><span class="nv">TASK_NAME</span><span class="si">}</span>_baseline<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--overwrite_output_dir<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--eval_strategy<span class="w"> </span>epoch<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--save_strategy<span class="w"> </span>epoch
+</pre></div>
+</div>
+</section>
+</section>
+<section id="results-mrpc">
+<h2>Results (MRPC)<a class="headerlink" href="#results-mrpc" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 45.0%" />
+<col style="width: 20.0%" />
+<col style="width: 15.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Model</p></th>
+<th class="head"><p>Accuracy</p></th>
+<th class="head"><p>F1</p></th>
+<th class="head"><p>Combined Score</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Post-transform (no fine-tune)</p></td>
+<td><p>0.5613</p></td>
+<td><p>0.6551</p></td>
+<td><p>0.6082</p></td>
+</tr>
+<tr class="row-odd"><td><p>SNN fine-tuned (10 epochs)</p></td>
+<td><p>0.7819</p></td>
+<td><p>0.8468</p></td>
+<td><p>0.8143</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Takeaways</strong></p>
+<ul class="simple">
+<li><p>Applying the SNN transform without fine-tuning causes a significant accuracy drop
+because the integer-quantized weights are not yet adapted to the spiking regime.</p></li>
+<li><p>SNN-aware fine-tuning (10 epochs) substantially recovers accuracy, approaching the
+performance of the quantized ANN baseline.</p></li>
+<li><p>The ST-BIF neuron enables effective gradient flow during fine-tuning via a
+straight-through estimator.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="onn_clm.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Scaling Optical Transformers to Causal Language Models</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pim_roberta.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Processing-in-Memory on RoBERTa</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#snn-transform-configuration">SNN Transform Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#configuration-structure">Configuration structure</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#quantization-parameters">Quantization parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#snn-conversion-parameters">SNN conversion parameters</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#default-configuration-experiments-roberta-snn-transformer-transform-cfg-yaml">Default configuration (<code class="docutils literal notranslate"><span class="pre">experiments/roberta-snn-transformer/transform_cfg.yaml</span></code>)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fine-tuning-roberta-with-snn-transform">Fine-Tuning RoBERTa with SNN Transform</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#single-task">Single task</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-only-post-transform-no-fine-tuning">Evaluation only (post-transform, no fine-tuning)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluation-with-fine-tuned-snn-weights">Evaluation with fine-tuned SNN weights</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convert-to-full-spiking-form">Convert to full spiking form</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-no-snn-transform">Baseline (no SNN transform)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results-mrpc">Results (MRPC)</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By AICrossSim
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, AICrossSim.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

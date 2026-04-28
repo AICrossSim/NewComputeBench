@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>NewComputeBench &#8212; NewComputeBench</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'index';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Getting Started" href="modules/getting_started/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="#">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">NewComputeBench</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1 current active">
+                <a class="reference internal" href="#">
+                    NewComputeBench
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules/getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/getting_started/quickstart.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/getting_started/models.html">Supported Models</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules/tutorials/index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/pretraining/llm_pretrain_eval.html">LLM Pretraining &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/bitflip_clm.html">Random Bitflip on CLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/bitflip_lora.html">Bitflip-Aware LoRA Fine-Tuning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/onn_roberta.html">Optical Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/onn_clm.html">Scaling Optical Transformers to Causal Language Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/snn_roberta.html">Spiking Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/pim_roberta.html">Processing-in-Memory on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/pim_vit.html">Processing-in-Memory on Vision Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/tutorials/simulations/mase_triton.html">Mase-Triton</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="modules/developer/index.html">Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="modules/developer/contributing.html">Contributing &amp; Maintaining Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modules/developer/sim_guidelines.html">Transform-Aware LLM Training Guidelines</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="modules/changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/edit/master/docs/source/index.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/issues/new?title=Issue%20on%20page%20%2Findex.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>NewComputeBench</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-overview">Project Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roadmap">Roadmap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-new">What’s New</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="newcomputebench">
+<h1>NewComputeBench<a class="headerlink" href="#newcomputebench" title="Link to this heading">#</a></h1>
+<figure class="align-center">
+<a class="reference internal image-reference" href="_static/images/logo.png"><img alt="NewComputeBench" src="_static/images/logo.png" style="width: 200px;" />
+</a>
+</figure>
+<p><strong>NewComputeBench</strong> (<a class="reference external" href="https://github.com/AICrossSim/NewComputeBench">GitHub</a>) is a
+benchmark suite for new compute paradigms — Spiking Neural Networks, Optical computation,
+Processing-in-Memory, and more — via software emulation.
+The project aims to predict the scaling law of neural networks trained with new compute
+paradigms by running small- and medium-scale experiments and extrapolating observed trends.</p>
+<p>The project is led by <a class="reference external" href="https://aaron-zhao123.github.io/">Dr. Yiren Zhao</a> (Imperial College
+London), <a class="reference external" href="https://luomai.github.io/">Dr. Luo Mai</a> (University of Edinburgh), and
+<a class="reference external" href="https://www.cl.cam.ac.uk/~rdm34/">Prof. Robert Mullins</a> (University of Cambridge),
+and is funded by the <a class="reference external" href="https://www.aria.org.uk/">Advanced Research + Invention Agency (ARIA)</a>.</p>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<div class="toctree-wrapper compound">
+</div>
+<section id="project-overview">
+<h2>Project Overview<a class="headerlink" href="#project-overview" title="Link to this heading">#</a></h2>
+<p>NewComputeBench is structured around three phases:</p>
+<ol class="arabic simple">
+<li><p>Build a scaling framework to support pretraining of language models up to 1.1B parameters
+(the AICrossSim-CLM series).</p></li>
+<li><p>Implement software emulation of new compute paradigms (optical compute, spiking neural
+networks, in-memory compute, etc.).</p></li>
+<li><p>Filter out promising paradigms through small- and medium-scale experiments, then scale up.</p></li>
+</ol>
+<p>Current status:</p>
+<ul class="simple">
+<li><p>✅ Scaling framework for CLM pretraining (60M – 1.1B)</p></li>
+<li><p>✅ Software emulation of Random Bitflip, Optical Compute, Spiking Neural Networks, PIM</p></li>
+<li><p>✅ RoBERTa experiments on GLUE (sanity checks)</p></li>
+<li><p>✅ CLM bitflip-aware pretraining and LoRA fine-tuning of Llama-3.1-8B</p></li>
+<li><p>⏹️ Full CLM scaling for Optical Compute, SNN, PIM</p></li>
+</ul>
+</section>
+<section id="roadmap">
+<h2>Roadmap<a class="headerlink" href="#roadmap" title="Link to this heading">#</a></h2>
+<p><strong>Model Training &amp; Evaluation</strong></p>
+<ul class="simple">
+<li><p>✅ Pretraining of CLM models (60M, 200M, 400M, 1.1B) using the Llama-3 architecture</p></li>
+<li><p>✅ <code class="docutils literal notranslate"><span class="pre">lm-eval-harness</span></code> evaluation of pretrained CLMs</p></li>
+<li><p>✅ Parameter-efficient fine-tuning (LoRA)</p></li>
+</ul>
+<p><strong>Model Behaviour-Level Simulation</strong></p>
+<ul class="simple">
+<li><p>✅ Random Bitflip</p>
+<ul>
+<li><p>✅ Post-training bitflip transform</p></li>
+<li><p>✅ Bitflip-aware pretraining (60M – 1.1B)</p></li>
+<li><p>✅ Bitflip-aware LoRA fine-tuning (Llama-3.1-8B)</p></li>
+</ul>
+</li>
+<li><p>✅ Optical Compute</p>
+<ul>
+<li><p>✅ RoBERTa fine-tuning (125M)</p></li>
+<li><p>✅ CLM full fine-tuning (60M – 1.1B)</p></li>
+<li><p>✅ CLM parameter-efficient fine-tuning (60M – 1.1B)</p></li>
+</ul>
+</li>
+<li><p>✅ Spiking Neural Networks</p>
+<ul>
+<li><p>✅ RoBERTa fine-tuning (125M)</p></li>
+</ul>
+</li>
+<li><p>✅ Processing in Memory</p>
+<ul>
+<li><p>✅ RoBERTa fine-tuning (125M)</p></li>
+<li><p>✅ ViT-Base fine-tuning (86M)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="what-s-new">
+<span id="changelog-index"></span><h2>What’s New<a class="headerlink" href="#what-s-new" title="Link to this heading">#</a></h2>
+<p><strong>4 Feb 2026</strong> — Bitflip-aware LoRA fine-tuning of Llama-3.1-8B.
+LoRA adapters with only 1.2% trainable parameters reduce perplexity from 1008.95 to 11.01
+(clean baseline: 7.91). See <a class="reference internal" href="modules/tutorials/simulations/bitflip_lora.html"><span class="doc">Bitflip-Aware LoRA Fine-Tuning</span></a>.</p>
+<p><strong>4 Oct 2025</strong> — Optical Transformer fine-tuning on CLM models (60M – 1.1B).
+See <a class="reference internal" href="modules/tutorials/simulations/onn_clm.html"><span class="doc">Scaling Optical Transformers to Causal Language Models</span></a>.</p>
+<p><strong>1 Oct 2025</strong> — Optical Transformer, Spiking Transformer, and PIM experiments on RoBERTa.
+See <a class="reference internal" href="modules/tutorials/simulations/onn_roberta.html"><span class="doc">Optical Neural Networks on RoBERTa</span></a>,
+<a class="reference internal" href="modules/tutorials/simulations/snn_roberta.html"><span class="doc">Spiking Neural Networks on RoBERTa</span></a>,
+<a class="reference internal" href="modules/tutorials/simulations/pim_roberta.html"><span class="doc">Processing-in-Memory on RoBERTa</span></a>.</p>
+<p><strong>9 Jun 2025</strong> — Mase-triton released on PyPI (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">mase-triton</span></code>).
+See <a class="reference internal" href="modules/tutorials/simulations/mase_triton.html"><span class="doc">Mase-Triton</span></a>.</p>
+<p><strong>15 Apr 2025</strong> — System and model-level training simulation (Small Language Models).
+Environment setup, pretraining of AICrossSim-CLM (60M – 1.1B), and bitflip-aware pretraining.
+See <a class="reference internal" href="modules/getting_started/installation.html"><span class="doc">Installation</span></a> and
+<a class="reference internal" href="modules/tutorials/pretraining/llm_pretrain_eval.html"><span class="doc">LLM Pretraining &amp; Evaluation</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="right-next"
+       href="modules/getting_started/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Getting Started</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-overview">Project Overview</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#roadmap">Roadmap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-new">What’s New</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By AICrossSim
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, AICrossSim.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
