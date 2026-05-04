@@ -47,8 +47,11 @@ Configuration parameters
 - ``q_init_seed`` — random seed for initialization (default: 0)
 - ``q_bypass`` — bypass the optical transform (default: false)
 
-Default configuration (`experiments/roberta-optical-transformer/transform_cfg.yaml`)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Default configuration
+~~~~~~~~~~~~~~~~~~~~~
+
+Config file:
+`experiments/roberta-optical-transformer/transform_cfg.yaml <https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-optical-transformer/transform_cfg.yaml>`_
 
 .. code-block:: yaml
 

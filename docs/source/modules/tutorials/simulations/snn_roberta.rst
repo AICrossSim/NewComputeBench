@@ -69,8 +69,11 @@ SNN conversion parameters
 - ``level`` — spike resolution (default: 32, used by ``unfold_bias``)
 - ``neuron_type`` — spiking neuron model (default: ``ST-BIF``)
 
-Default configuration (``experiments/roberta-snn-transformer/transform_cfg.yaml``)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Default configuration
+~~~~~~~~~~~~~~~~~~~~~
+
+Config file:
+`experiments/roberta-snn-transformer/transform_cfg.yaml <https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/roberta-snn-transformer/transform_cfg.yaml>`_
 
 .. code-block:: yaml
 
