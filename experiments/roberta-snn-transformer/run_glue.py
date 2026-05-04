@@ -21,6 +21,7 @@ import os
 import random
 import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Optional
 
 import datasets
@@ -48,8 +49,7 @@ from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version, send_example_telemetry
 from transformers.utils.versions import require_version
 
-import sys
-sys.path.insert(0, '/home/thw20/projects/NewComputeBench/src')
+sys.path.append(Path(__file__).resolve().parents[2].joinpath("src").as_posix())
 from aixsim_models.snn.fine_tune.snn_roberta import transform_roberta
 
 # Will error if the minimal version of Transformers is not installed. Remove at your own risks.
