@@ -76,24 +76,33 @@ Training setup
 Basic fine-tuning command
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Run from the repository root:
+
 .. code-block:: bash
+
+   cd experiments/llm-optical-transformer/continual_finetuning
+
+   MODEL_NAME="AICrossSim/clm-60m"
+   DATASET_NAME="Cheng98/fineweb-edu-1.25B"
+   OUTPUT_DIR="./output/clm-60m-optical"
+   TRANSFORM_CFG="./transform_cfg.toml"
 
    accelerate launch --num_processes=1 \
        run_clm_no_trainer.py \
-       --model_name_or_path "AICrossSim/clm-60m" \
-       --dataset_name "Cheng98/fineweb-edu-1.25B" \
+       --model_name_or_path "${MODEL_NAME}" \
+       --dataset_name "${DATASET_NAME}" \
        --per_device_train_batch_size 8 \
        --learning_rate 2e-5 \
        --weight_decay 0.01 \
        --num_train_epochs 1 \
        --gradient_accumulation_steps 2 \
        --lr_scheduler_type linear \
-       --output_dir "./output/clm-60m-optical" \
+       --output_dir "${OUTPUT_DIR}" \
        --preprocessing_num_workers 32 \
        --trust_remote_code \
        --with_tracking \
        --report_to wandb \
-       --transform_cfg ./transform_cfg.toml \
+       --transform_cfg "${TRANSFORM_CFG}" \
        --block_size 1024 \
        --log_train_loss_steps 50
 
@@ -117,6 +126,8 @@ automatically calculates training steps and configures W&B logging:
 
 .. code-block:: bash
 
+   cd experiments/llm-optical-transformer/continual_finetuning
+
    # Default parameters
    ./fine-tune-ot-clm.sh
 
@@ -130,6 +141,8 @@ Learning rate sweep
 ~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
+
+   cd experiments/llm-optical-transformer/continual_finetuning
 
    # Edit sweep.sh to set desired learning rate ranges, then run:
    ./sweep.sh
