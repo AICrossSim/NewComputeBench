@@ -97,7 +97,7 @@ Single task
        --output_dir ./output/${TASK_NAME}_optical \
        --overwrite_output_dir \
        --transform_config ${TRANSFORM_CONFIG} \
-       --evaluation_strategy epoch \
+       --eval_strategy epoch \
        --save_strategy epoch \
        --logging_steps 50 \
        --seed 42
