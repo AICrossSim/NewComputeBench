@@ -47,7 +47,7 @@ Configuration parameters
 - ``q_init_seed`` — random seed for initialization (default: 0)
 - ``q_bypass`` — bypass the optical transform (default: false)
 
-Default configuration (``experiments/roberta-optical-transformer/transform_cfg.yaml``)
+Default configuration (`experiments/roberta-optical-transformer/transform_cfg.yaml`)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: yaml
@@ -148,7 +148,7 @@ Baseline comparison (no transform)
        --num_train_epochs ${NUM_EPOCHS} \
        --output_dir ./output/${TASK_NAME}_baseline \
        --overwrite_output_dir \
-       --evaluation_strategy epoch \
+       --eval_strategy epoch \
        --save_strategy epoch
 
 
