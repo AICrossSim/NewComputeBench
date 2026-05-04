@@ -137,8 +137,11 @@ Fine-Tuning RoBERTa with SNN Transform
 Single task
 ~~~~~~~~~~~
 
+Run from the repository root:
+
 .. code-block:: bash
 
+   cd /path/to/NewComputeBench
    cd experiments/roberta-snn-transformer
 
    TASK_NAME="mrpc"
@@ -149,17 +152,17 @@ Single task
    TRANSFORM_CONFIG="./transform_cfg.yaml"
 
    python run_glue.py \
-       --model_name_or_path ${MODEL_NAME} \
-       --task_name ${TASK_NAME} \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
        --do_train \
        --do_eval \
        --max_seq_length 128 \
-       --per_device_train_batch_size ${BATCH_SIZE} \
-       --learning_rate ${LEARNING_RATE} \
-       --num_train_epochs ${NUM_EPOCHS} \
-       --output_dir ./output/${TASK_NAME}_snn \
+       --per_device_train_batch_size "${BATCH_SIZE}" \
+       --learning_rate "${LEARNING_RATE}" \
+       --num_train_epochs "${NUM_EPOCHS}" \
+       --output_dir "./output/${TASK_NAME}_snn" \
        --overwrite_output_dir \
-       --transform_config ${TRANSFORM_CONFIG} \
+       --transform_config "${TRANSFORM_CONFIG}" \
        --eval_strategy epoch \
        --save_strategy epoch \
        --logging_steps 50 \
@@ -171,13 +174,13 @@ Evaluation only (post-transform, no fine-tuning)
 .. code-block:: bash
 
    python run_glue.py \
-       --model_name_or_path ${MODEL_NAME} \
-       --task_name ${TASK_NAME} \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
        --do_eval \
        --max_seq_length 128 \
-       --per_device_eval_batch_size ${BATCH_SIZE} \
-       --output_dir ./output/${TASK_NAME}_eval \
-       --transform_config ${TRANSFORM_CONFIG} \
+       --per_device_eval_batch_size "${BATCH_SIZE}" \
+       --output_dir "./output/${TASK_NAME}_eval" \
+       --transform_config "${TRANSFORM_CONFIG}" \
        --overwrite_output_dir
 
 Evaluation with fine-tuned SNN weights
@@ -186,14 +189,14 @@ Evaluation with fine-tuned SNN weights
 .. code-block:: bash
 
    python run_glue.py \
-       --model_name_or_path ${MODEL_NAME} \
-       --task_name ${TASK_NAME} \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
        --do_eval \
        --max_seq_length 128 \
-       --per_device_eval_batch_size ${BATCH_SIZE} \
-       --output_dir ./output/${TASK_NAME}_eval \
-       --transform_config ${TRANSFORM_CONFIG} \
-       --model_weights_path ./output/${TASK_NAME}_snn \
+       --per_device_eval_batch_size "${BATCH_SIZE}" \
+       --output_dir "./output/${TASK_NAME}_eval" \
+       --transform_config "${TRANSFORM_CONFIG}" \
+       --model_weights_path "./output/${TASK_NAME}_snn" \
        --overwrite_output_dir
 
 Convert to full spiking form
@@ -202,13 +205,13 @@ Convert to full spiking form
 .. code-block:: bash
 
    python run_glue.py \
-       --model_name_or_path ${MODEL_NAME} \
-       --task_name ${TASK_NAME} \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
        --do_eval \
        --max_seq_length 128 \
-       --per_device_eval_batch_size ${BATCH_SIZE} \
-       --output_dir ./output/${TASK_NAME}_eval \
-       --transform_config ${TRANSFORM_CONFIG} \
+       --per_device_eval_batch_size "${BATCH_SIZE}" \
+       --output_dir "./output/${TASK_NAME}_eval" \
+       --transform_config "${TRANSFORM_CONFIG}" \
        --convert_to_snn \
        --overwrite_output_dir
 
@@ -218,15 +221,15 @@ Baseline (no SNN transform)
 .. code-block:: bash
 
    python run_glue.py \
-       --model_name_or_path ${MODEL_NAME} \
-       --task_name ${TASK_NAME} \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
        --do_train \
        --do_eval \
        --max_seq_length 128 \
-       --per_device_train_batch_size ${BATCH_SIZE} \
-       --learning_rate ${LEARNING_RATE} \
-       --num_train_epochs ${NUM_EPOCHS} \
-       --output_dir ./output/${TASK_NAME}_baseline \
+       --per_device_train_batch_size "${BATCH_SIZE}" \
+       --learning_rate "${LEARNING_RATE}" \
+       --num_train_epochs "${NUM_EPOCHS}" \
+       --output_dir "./output/${TASK_NAME}_baseline" \
        --overwrite_output_dir \
        --eval_strategy epoch \
        --save_strategy epoch
