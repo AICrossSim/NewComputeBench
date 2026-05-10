@@ -120,19 +120,62 @@ Multiple GLUE tasks
 
    bash finetune_base.sh
 
-Evaluation only
-~~~~~~~~~~~~~~~
+Evaluation only (post-transform, no fine-tuning)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Evaluate the optical transform applied directly to a **task-fine-tuned** RoBERTa
+(no extra fine-tuning). ``MODEL_NAME`` must point to a checkpoint that already
+contains a fine-tuned classifier head for the task — using the bare
+``FacebookAI/roberta-base`` here gives near-random results because its
+classifier weights are randomly initialized.
 
 .. code-block:: bash
 
+   cd experiments/roberta-optical-transformer
+
+   TASK_NAME="mrpc"
+   MODEL_NAME="Intel/roberta-base-mrpc"
+   BATCH_SIZE="16"
+   TRANSFORM_CONFIG="transform_cfg.yaml"
+
    python run_glue.py \
-       --model_name_or_path ${MODEL_NAME} \
-       --task_name ${TASK_NAME} \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
        --do_eval \
        --max_seq_length 128 \
-       --per_device_eval_batch_size ${BATCH_SIZE} \
-       --output_dir ./output/${TASK_NAME}_eval \
-       --transform_config ${TRANSFORM_CONFIG} \
+       --per_device_eval_batch_size "${BATCH_SIZE}" \
+       --output_dir "./output/${TASK_NAME}_eval" \
+       --transform_config "${TRANSFORM_CONFIG}" \
+       --overwrite_output_dir
+
+Evaluation with fine-tuned optical weights
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Evaluate a checkpoint produced by the Single task block above. ``--model_weights_path``
+loads the saved state dict **after** the optical transform is re-applied, so the
+calibrated ``*_min_max`` and ``seed`` buffers from training are restored — without
+this flag those buffers are dropped as "unexpected keys" during the standard
+``from_pretrained`` load and re-initialized from scratch on the eval set, which
+gives noticeably worse numbers than the eval reported at the end of training.
+
+.. code-block:: bash
+
+   cd experiments/roberta-optical-transformer
+
+   TASK_NAME="mrpc"
+   MODEL_NAME="FacebookAI/roberta-base"
+   BATCH_SIZE="16"
+   TRANSFORM_CONFIG="transform_cfg.yaml"
+
+   python run_glue.py \
+       --model_name_or_path "${MODEL_NAME}" \
+       --task_name "${TASK_NAME}" \
+       --do_eval \
+       --max_seq_length 128 \
+       --per_device_eval_batch_size "${BATCH_SIZE}" \
+       --output_dir "./output/${TASK_NAME}_eval" \
+       --transform_config "${TRANSFORM_CONFIG}" \
+       --model_weights_path "./output/${TASK_NAME}_optical" \
        --overwrite_output_dir
 
 Baseline comparison (no transform)

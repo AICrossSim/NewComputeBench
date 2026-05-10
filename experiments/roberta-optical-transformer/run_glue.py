@@ -273,6 +273,17 @@ class ModelArguments:
             )
         },
     )
+    model_weights_path: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Path to a directory or .safetensors/.bin file containing saved weights "
+                "of an optical-transformed model. Weights are loaded after the optical "
+                "transform is applied so the calibrated *_min_max and seed buffers "
+                "produced during fine-tuning are restored."
+            )
+        },
+    )
 
 
 def main():
@@ -493,6 +504,39 @@ def main():
             fc_config=transform_config["fc"],
         )
         print(f"🔍 Replaced layers: {replaced_layers}")
+
+        # Load fine-tuned weights AFTER the transform so the OT modules' calibrated
+        # *_min_max / seed buffers are restored. Loading before the transform would
+        # drop those keys as "unexpected" against the vanilla architecture.
+        if model_args.model_weights_path is not None:
+            from safetensors.torch import load_file as _load_file
+
+            weights_path = model_args.model_weights_path
+            if os.path.isdir(weights_path):
+                sf = os.path.join(weights_path, "model.safetensors")
+                pt = os.path.join(weights_path, "pytorch_model.bin")
+                if os.path.exists(sf):
+                    weights_path = sf
+                elif os.path.exists(pt):
+                    weights_path = pt
+                else:
+                    raise FileNotFoundError(
+                        f"No model.safetensors or pytorch_model.bin found in {weights_path}"
+                    )
+            if weights_path.endswith(".safetensors"):
+                state_dict = _load_file(weights_path)
+            else:
+                state_dict = torch.load(weights_path, map_location="cpu")
+            missing, unexpected = model.load_state_dict(state_dict, strict=False)
+            if missing:
+                logger.warning(
+                    f"Missing keys when loading model_weights_path: {missing}"
+                )
+            if unexpected:
+                logger.warning(
+                    f"Unexpected keys when loading model_weights_path: {unexpected}"
+                )
+            logger.info(f"✅ Loaded fine-tuned optical weights from {weights_path}")
     else:
         print("⚠️ No transform config provided. Skip transformation.")
 
