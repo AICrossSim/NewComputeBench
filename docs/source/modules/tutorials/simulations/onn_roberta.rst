@@ -129,6 +129,13 @@ contains a fine-tuned classifier head for the task — using the bare
 ``FacebookAI/roberta-base`` here gives near-random results because its
 classifier weights are randomly initialized.
 
+``--calibration_steps N`` runs ``N`` forward passes over the training split in
+train mode (no optimizer step) before evaluation, so the OT layers' running
+``*_min_max`` statistics are populated. Without this the buffers stay at their
+``[+inf, -inf]`` initialization and the kernel produces ``nan`` logits, so the
+flag is **required** for this flow. Roughly 16–64 steps is enough for GLUE-sized
+tasks; larger calibration sets give marginally tighter quantization ranges.
+
 .. code-block:: bash
 
    cd experiments/roberta-optical-transformer
@@ -146,6 +153,7 @@ classifier weights are randomly initialized.
        --per_device_eval_batch_size "${BATCH_SIZE}" \
        --output_dir "./output/${TASK_NAME}_eval" \
        --transform_config "${TRANSFORM_CONFIG}" \
+       --calibration_steps 32 \
        --overwrite_output_dir
 
 Evaluation with fine-tuned optical weights

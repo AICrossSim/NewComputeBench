@@ -284,6 +284,22 @@ class ModelArguments:
             )
         },
     )
+    calibration_steps: int = field(
+        default=0,
+        metadata={
+            "help": (
+                "Number of forward passes over the training split to run in train "
+                "mode (no optimizer step) before evaluation, to populate the OT "
+                "layers' *_min_max running statistics. Required for eval-only "
+                "flows that apply the optical transform to a model that has not "
+                "been fine-tuned with the transform active — without calibration "
+                "those buffers stay at [+inf, -inf] and the kernel produces nan "
+                "logits. Ignored when --do_train is set (training calibrates the "
+                "stats already) or when no transform_config is provided. "
+                "Default: 0 (disabled)."
+            )
+        },
+    )
 
 
 def main():
@@ -627,9 +643,18 @@ def main():
             load_from_cache_file=not data_args.overwrite_cache,
             desc="Running tokenizer on dataset",
         )
-    if training_args.do_train:
+    train_dataset = None
+    need_train_split = training_args.do_train or (
+        training_args.do_eval
+        and not training_args.do_train
+        and model_args.calibration_steps > 0
+        and model_args.transform_config is not None
+    )
+    if need_train_split:
         if "train" not in raw_datasets:
-            raise ValueError("--do_train requires a train dataset")
+            raise ValueError(
+                "--do_train (or --calibration_steps > 0) requires a train dataset"
+            )
         train_dataset = raw_datasets["train"]
         if data_args.max_train_samples is not None:
             max_train_samples = min(len(train_dataset), data_args.max_train_samples)
@@ -730,6 +755,39 @@ def main():
         trainer.log_metrics("train", metrics)
         trainer.save_metrics("train", metrics)
         trainer.save_state()
+
+    # OT calibration pass: populate the OT layers' running min/max stats by
+    # running a few forward passes in train mode (no optimizer step). Without
+    # this, eval-only runs that apply the transform to a not-yet-calibrated
+    # model produce nan logits because the *_min_max buffers stay at ±inf.
+    if (
+        training_args.do_eval
+        and not training_args.do_train
+        and model_args.calibration_steps > 0
+        and model_args.transform_config is not None
+    ):
+        if train_dataset is None:
+            raise ValueError(
+                "calibration_steps > 0 requires a 'train' split in the dataset"
+            )
+        logger.info(
+            f"🌡️  Calibrating OT layers: {model_args.calibration_steps} forward "
+            f"pass(es) on the training split (per_device_eval_batch_size="
+            f"{training_args.per_device_eval_batch_size})"
+        )
+        calib_dataloader = trainer.get_eval_dataloader(eval_dataset=train_dataset)
+        model.train()
+        with torch.no_grad():
+            for step, batch in enumerate(calib_dataloader):
+                if step >= model_args.calibration_steps:
+                    break
+                batch = {
+                    k: v.to(trainer.args.device) if hasattr(v, "to") else v
+                    for k, v in batch.items()
+                }
+                model(**batch)
+        model.eval()
+        logger.info("✅ Calibration complete")
 
     # Evaluation
     if training_args.do_eval:
