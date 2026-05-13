@@ -77,6 +77,35 @@ Step-by-Step Setup
 
          curl -LsSf https://astral.sh/uv/install.sh | sh
 
+   **Option 3 — Docker** (fully isolated, reproducible environment):
+
+   .. code-block:: bash
+
+      git clone https://github.com/AICrossSim/NewComputeBench.git
+      cd NewComputeBench
+      git submodule update --init
+      docker build -t newcomputebench .
+      docker run --gpus all -it newcomputebench python
+
+   The image is based on ``nvidia/cuda:12.4.1-devel-ubuntu22.04`` and uses ``uv``
+   to install all dependencies from the lockfile. All source code and
+   dependencies are baked into the image at ``/app``, so the container is
+   fully self-contained and reproducible.
+
+   For development, mount your local project directory so that edits on the
+   host are reflected inside the container:
+
+   .. code-block:: bash
+
+      docker run --gpus all -v $(pwd):/workspace:z -it newcomputebench bash
+
+   .. note::
+
+      The `NVIDIA Container Toolkit <https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html>`_
+      must be installed for ``--gpus`` to work. Submodules must be checked out
+      *before* ``docker build`` because the build context does not include
+      ``.git``.
+
 4. **(Optional) Log in to Weights & Biases** to track experiment metrics.
 
    .. code-block:: bash

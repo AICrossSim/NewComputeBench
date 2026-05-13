@@ -1,0 +1,11 @@
+.git
+__pycache__
+*.pyc
+.cache
+wandb
+**/outputs/
+**/output/
+**/wandb/
+*.log
+tea_debug.log
+.vscode
