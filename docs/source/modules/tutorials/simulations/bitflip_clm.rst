@@ -49,6 +49,7 @@ Transform and evaluate
    cd experiments/llm-bitflip/transform
 
    model_name="unsloth/Meta-Llama-3.1-8B-Instruct"
+   batch_size="8"
    x_p_exp=null
    w_p_exp=null
    x_zero_out_t="100"
@@ -58,6 +59,7 @@ Transform and evaluate
 
    python minimal.py eval-bitflip \
        --model_name ${model_name} \
+       --batch_size ${batch_size} \
        --bitflip_config "default" \
        --default_bitflip_config.x_p_exp=${x_p_exp} \
        --default_bitflip_config.x_p_frac=${x_p_frac} \
@@ -72,13 +74,15 @@ Transform and evaluate
    ``eval-bitflip`` uses ``lm-eval-harness``'s ``simple_evaluate``.
    See the evaluation section of :doc:`../pretraining/llm_pretrain_eval` for argument details.
 
-Evaluate the original model (clean baseline)
+Evaluate the original model (clean baseline, in the same path of experiments/llm-bitflip/transform)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
-
+   model_name="unsloth/Meta-Llama-3.1-8B-Instruct"
+   batch_size="8"
    python minimal.py eval-ori \
        --model_name ${model_name} \
+       --batch_size ${batch_size} \
        --tasks ['wikitext']
 
 Text generation with bitflip
