@@ -85,7 +85,6 @@ Step-by-Step Setup
       cd NewComputeBench
       git submodule update --init
       docker build -t newcomputebench .
-      docker run --gpus all -it newcomputebench python
 
    The image is based on ``nvidia/cuda:12.4.1-devel-ubuntu22.04`` and uses ``uv``
    to install all dependencies from the lockfile. All source code and
