@@ -10,7 +10,7 @@ Prerequisites
 - Completed :doc:`installation`
 - At least one CUDA-enabled GPU with ≥ 8 GB VRAM
 
-Step 1 — Activate the environment
+Step 1 — Activate the environment in the uv and conda
 ----------------------------------
 
 **uv** (activate venv):
