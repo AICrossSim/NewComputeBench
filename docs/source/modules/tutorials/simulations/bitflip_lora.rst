@@ -252,7 +252,7 @@ Results
 Training Curves
 ~~~~~~~~~~~~~~~
 
-.. figure:: ../../../../_static/images/bitflip/7b-lora-trainloss.png
+.. figure:: ../../../_static/images/bitflip/7b-lora-trainloss.png
    :width: 720px
    :alt: Bitflip LoRA fine-tuning training curves
 
