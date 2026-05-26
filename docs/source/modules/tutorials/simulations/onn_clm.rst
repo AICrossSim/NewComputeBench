@@ -112,7 +112,7 @@ Run from the repository root:
    learning rate (< 1e-5) for stable training. Larger learning rates cause loss divergence.
    The larger the model, the smaller the required learning rate.
 
-   .. figure:: ../../../../_static/images/onn/onn-clm-400m-failed.png
+   .. figure:: ../../../_static/images/onn/onn-clm-400m-failed.png
       :width: 600px
       :alt: CLM-400M loss divergence with high learning rate
 
@@ -151,7 +151,7 @@ Learning rate sweep
 Results
 -------
 
-.. figure:: ../../../../_static/images/onn/onn-clm-full-ft.png
+.. figure:: ../../../_static/images/onn/onn-clm-full-ft.png
    :width: 800px
    :alt: Optical Transformer fine-tuning results on CLM models
 

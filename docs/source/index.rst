@@ -1,10 +1,6 @@
 NewComputeBench
 ===============
 
-.. figure:: _static/images/logo.png
-   :width: 200px
-   :align: center
-   :alt: NewComputeBench
 
 **NewComputeBench** (`GitHub <https://github.com/AICrossSim/NewComputeBench>`_) is a
 benchmark suite for new compute paradigms — Spiking Neural Networks, Optical computation,
