@@ -65,7 +65,7 @@ See the [Installation Guide](https://aicrosssim.github.io/NewComputeBench/module
 
 ## Pretrained Models
 
-Our pretrained AICrossSim-CLM checkpoints are available on HuggingFace:
+Our pretrained AICrossSim-CLM checkpoints are available on HuggingFace: 
 
 | Model | HuggingFace |
 |-------|-------------|
