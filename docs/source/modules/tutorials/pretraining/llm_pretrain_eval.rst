@@ -66,7 +66,7 @@ AICrossSim-CLM-60M
    .. code-block:: bash
 
       data_parallel="1"
-      batch_size="24"
+      batch_size="12"
       token_num_scale="22"
 
       python run.py generate-cfg \
@@ -77,7 +77,7 @@ AICrossSim-CLM-60M
           --save_path ./configs/tutorial-60M.yaml
 
    This generates ``configs/tutorial-60M.yaml`` for pretraining on a FineWeb-Edu subset
-   of ``22 × 60M`` tokens with per-device batch size 24 and 1-GPU data parallelism.
+   of ``22 × 60M`` tokens with per-device batch size 12 and 1-GPU data parallelism.
    The ``--compile`` flag enables ``torch.compile`` for faster training.
 
 3. Launch pretraining:
