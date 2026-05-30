@@ -35,6 +35,7 @@ Step-by-Step Setup
 
       git clone https://github.com/AICrossSim/NewComputeBench.git
       cd NewComputeBench
+      # Download the MASE dependency, which is bundled as a git submodule
       git submodule update --init
 
 
@@ -47,7 +48,7 @@ Step-by-Step Setup
    .. code-block:: bash
 
       uv sync
-      uv pip install -e ./submodules/mase
+      uv pip install ./submodules/mase
 
    .. note::
 
@@ -62,7 +63,7 @@ Step-by-Step Setup
       conda env create -f environment.yaml
       conda activate new-compute
       pip install -r requirements.txt
-      pip install -e ./submodules/mase
+      pip install ./submodules/mase
 
    .. note::
 
@@ -83,6 +84,7 @@ Step-by-Step Setup
 
       git clone https://github.com/AICrossSim/NewComputeBench.git
       cd NewComputeBench
+      # Download the MASE dependency, which is bundled as a git submodule
       git submodule update --init
       docker build -t newcomputebench .
 
