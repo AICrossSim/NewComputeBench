@@ -34,23 +34,21 @@ We demonstrate with ``AICrossSim-CLM-60M``.
 AICrossSim-CLM-60M
 ~~~~~~~~~~~~~~~~~~
 
-1. Change to the pretraining directory and activate the environment:
+1. Activate the environment and change to the pretraining directory:
 
-   .. code-block:: bash
-
-      cd experiments/llm-digital/pretrain
-
-   **uv:**
+   **uv** (run from the repository root, where ``.venv`` lives):
 
    .. code-block:: bash
 
       source .venv/bin/activate
+      cd experiments/llm-digital/pretrain
 
    **conda:**
 
    .. code-block:: bash
 
       conda activate new-compute
+      cd experiments/llm-digital/pretrain
 
 2. Generate the training config:
 
