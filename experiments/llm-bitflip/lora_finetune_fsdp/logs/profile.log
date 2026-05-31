@@ -1,0 +1,52 @@
+W0518 14:27:47.090000 3072328 torch/distributed/run.py:851] 
+W0518 14:27:47.090000 3072328 torch/distributed/run.py:851] *****************************************
+W0518 14:27:47.090000 3072328 torch/distributed/run.py:851] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0518 14:27:47.090000 3072328 torch/distributed/run.py:851] *****************************************
+2026-05-18 14:27:51,624 [INFO] Building plain Llama3 70B on meta device (dtype=torch.bfloat16)
+[rank2]:W0518 14:27:53.471000 3072434 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+[rank3]:W0518 14:27:53.472000 3072435 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+[rank1]:W0518 14:27:53.474000 3072433 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+2026-05-18 14:27:53,849 [INFO] Loading HF weights from meta-llama/Meta-Llama-3-70B
+2026-05-18 14:27:53,982 [INFO] Resolving HF model: meta-llama/Meta-Llama-3-70B
+2026-05-18 14:27:53,983 [INFO] Resolved to local path: /home/zz7522/.cache/huggingface/hub/models--meta-llama--Meta-Llama-3-70B/snapshots/c82494877ce7f6d7d317c56ec081328e382c72fe
+2026-05-18 14:28:11,224 [INFO] HF weights loaded successfully via distributed checkpoint
+2026-05-18 14:28:11,226 [INFO] Model ready (35.3 GB allocated on rank 0)
+2026-05-18 14:28:12,501 [INFO] Profiling 560 Linear layers (weights + input activations)
+2026-05-18 14:28:13,400 [INFO] HTTP Request: HEAD https://huggingface.co/meta-llama/Meta-Llama-3-70B/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-05-18 14:28:13,510 [INFO] HTTP Request: HEAD https://huggingface.co/meta-llama/Meta-Llama-3-70B/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-18 14:28:13,615 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-18 14:28:13,724 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-18 14:28:14,740 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B "HTTP/1.1 200 OK"
+2026-05-18 14:28:14,773 [INFO] Collecting first 64 sequences (seq_len=2048)...
+2026-05-18 14:29:37,844 [INFO] ============================================================
+2026-05-18 14:29:37,844 [INFO] EVAL — original Llama3-70B (no retraining)
+2026-05-18 14:29:37,844 [INFO]   condition:   no bitflip, no LoRA (clean baseline)
+2026-05-18 14:29:37,844 [INFO]   model:       meta-llama/Meta-Llama-3-70B
+2026-05-18 14:29:37,844 [INFO]   sequences:   64  (seq_len=2048)
+2026-05-18 14:29:37,844 [INFO]   tokens:      131,072
+2026-05-18 14:29:37,844 [INFO]   loss (CE):   1.8361
+2026-05-18 14:29:37,844 [INFO]   perplexity:  6.2718
+2026-05-18 14:29:37,844 [INFO] ============================================================
+2026-05-18 14:29:37,846 [INFO] ============================================================
+2026-05-18 14:29:37,847 [INFO] MAGNITUDE PROFILE — clean Llama3-70B (no bitflip)
+2026-05-18 14:29:37,957 [INFO]   [activations (inputs to Linear)]
+2026-05-18 14:29:37,957 [INFO]     p50/p99/p99.9/p99.99 (<=): 0.0312 / 0.5 / 2 / 4
+2026-05-18 14:29:37,957 [INFO]     global max |.|: 3680
+2026-05-18 14:29:37,957 [INFO]     top layers by max:
+2026-05-18 14:29:37,957 [INFO]              3680  layers.78.feed_forward.w2
+2026-05-18 14:29:37,958 [INFO]               420  layers.79.feed_forward.w2
+2026-05-18 14:29:37,958 [INFO]               188  layers.3.feed_forward.w2
+2026-05-18 14:29:37,958 [INFO]                98  layers.77.feed_forward.w2
+2026-05-18 14:29:37,958 [INFO]             51.25  layers.76.feed_forward.w2
+2026-05-18 14:29:37,958 [INFO]     x_zero_out_t: current=2000.0  [TOO LOW]  min-safe=3680  suggested=8192
+2026-05-18 14:29:37,958 [INFO]   [weights (Linear .weight)]
+2026-05-18 14:29:37,958 [INFO]     p50/p99/p99.9/p99.99 (<=): 0.0156 / 0.0625 / 0.0625 / 0.125
+2026-05-18 14:29:37,958 [INFO]     global max |.|: 126.5
+2026-05-18 14:29:37,959 [INFO]     top layers by max:
+2026-05-18 14:29:37,959 [INFO]             126.5  layers.33.feed_forward.w1
+2026-05-18 14:29:37,959 [INFO]                93  layers.0.feed_forward.w1
+2026-05-18 14:29:37,959 [INFO]                93  layers.0.attention.wv
+2026-05-18 14:29:37,959 [INFO]                85  layers.0.attention.wk
+2026-05-18 14:29:37,959 [INFO]              72.5  layers.0.attention.wq
+2026-05-18 14:29:37,959 [INFO]     w_zero_out_t: current=1.25  [TOO LOW]  min-safe=126.5  suggested=256
+2026-05-18 14:29:37,959 [INFO] ============================================================

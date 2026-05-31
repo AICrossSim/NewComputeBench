@@ -1,6 +1,29 @@
 Changelog
 =========
 
+31 May 2026
+-----------
+
+**Bitflip-aware LoRA fine-tuning of Llama-3-70B with FSDP2** (:doc:`tutorials/simulations/bitflip_lora_fsdp`)
+
+Scales the bitflip-aware LoRA recipe from 8B to 70B by replacing the HF Trainer /
+Accelerate path with a standalone ``torchrun`` + FSDP2 script built on
+``torchtitan`` model definitions. Bitflip-only eval degrades perplexity from
+6.17 → 89.28 on Llama-3-70B; bitflip-aware LoRA recovery training
+(``r = 32``, ``lr = 2e-4``) converged training loss from ~4.49 down to
+~2.5 – 2.7 and was early-stopped at 7,900 steps (original target: 21,000),
+demonstrating that the 8B recipe transfers cleanly to 70B.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - Item
+     - Link
+   * - Llama-3-70B bitflip-aware LoRA fine-tuning (FSDP2)
+     - :doc:`tutorials/simulations/bitflip_lora_fsdp`
+
+
 4 February 2026
 ---------------
 

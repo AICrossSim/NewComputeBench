@@ -59,7 +59,7 @@ Current status:
 - ✅ Software emulation of Random Bitflip, Optical Compute, Spiking Neural Networks, PIM
 - ✅ RoBERTa experiments on GLUE (sanity checks)
 - ✅ CLM bitflip-aware pretraining and LoRA fine-tuning of Llama-3.1-8B
-- ⏹️ Full CLM scaling for Optical Compute, SNN, PIM
+- ✅ Scaling bitflip-aware training to 70B parameter-efficient fine-tuning (Llama-3-70B, FSDP2)
 
 
 Roadmap
@@ -78,6 +78,7 @@ Roadmap
   - ✅ Post-training bitflip transform
   - ✅ Bitflip-aware pretraining (60M – 1.1B)
   - ✅ Bitflip-aware LoRA fine-tuning (Llama-3.1-8B)
+  - ✅ Bitflip-aware LoRA fine-tuning at scale (Llama-3-70B, FSDP2)
 
 - ✅ Optical Compute
 
@@ -99,6 +100,13 @@ Roadmap
 
 What's New
 ----------
+
+**31 May 2026** — Scaling bitflip-aware training to 70B parameter-efficient
+fine-tuning. Bitflip-only eval degrades Llama-3-70B perplexity 6.17 → 89.28;
+bitflip-aware LoRA (``r = 32``, ``lr = 2e-4``) under FSDP2 + torchtitan
+converges training loss to ~2.5 – 2.7 and was early-stopped at 7,900 steps,
+demonstrating that the 8B recipe transfers cleanly to 70B.
+See :doc:`modules/tutorials/simulations/bitflip_lora_fsdp`.
 
 **4 Feb 2026** — Bitflip-aware LoRA fine-tuning of Llama-3.1-8B.
 LoRA adapters with only 1.2% trainable parameters reduce perplexity from 1008.95 to 11.01

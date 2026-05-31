@@ -75,7 +75,7 @@ Transform and evaluate
    See the evaluation section of :doc:`../pretraining/llm_pretrain_eval` for argument details.
 
 Evaluate the original model (clean baseline, in the same path of experiments/llm-bitflip/transform)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
    model_name="unsloth/Meta-Llama-3.1-8B-Instruct"

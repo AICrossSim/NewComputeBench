@@ -163,6 +163,7 @@ Documentation Structure
            │   └── simulations/
            │       ├── bitflip_clm.rst
            │       ├── bitflip_lora.rst
+           │       ├── bitflip_lora_fsdp.rst
            │       ├── onn_roberta.rst
            │       ├── onn_clm.rst
            │       ├── snn_roberta.rst
