@@ -13,6 +13,7 @@ Tutorials
 
    simulations/bitflip_clm
    simulations/bitflip_lora
+   simulations/bitflip_lora_fsdp
    simulations/onn_roberta
    simulations/onn_clm
    simulations/snn_roberta

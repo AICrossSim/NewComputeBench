@@ -1,0 +1,27 @@
+W0518 13:01:56.820000 2854016 torch/distributed/run.py:851] 
+W0518 13:01:56.820000 2854016 torch/distributed/run.py:851] *****************************************
+W0518 13:01:56.820000 2854016 torch/distributed/run.py:851] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0518 13:01:56.820000 2854016 torch/distributed/run.py:851] *****************************************
+2026-05-18 13:02:01,677 [INFO] Building plain Llama3 70B on meta device (dtype=torch.bfloat16)
+[rank3]:W0518 13:02:03.736000 2854165 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+[rank1]:W0518 13:02:03.737000 2854163 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+[rank2]:W0518 13:02:03.736000 2854164 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+2026-05-18 13:02:04,053 [INFO] Loading HF weights from meta-llama/Meta-Llama-3-70B
+2026-05-18 13:02:04,189 [INFO] Resolving HF model: meta-llama/Meta-Llama-3-70B
+2026-05-18 13:02:04,190 [INFO] Resolved to local path: /home/zz7522/.cache/huggingface/hub/models--meta-llama--Meta-Llama-3-70B/snapshots/c82494877ce7f6d7d317c56ec081328e382c72fe
+2026-05-18 13:02:48,529 [INFO] HF weights loaded successfully via distributed checkpoint
+2026-05-18 13:02:48,531 [INFO] Model ready (35.3 GB allocated on rank 0)
+2026-05-18 13:02:49,462 [INFO] HTTP Request: HEAD https://huggingface.co/meta-llama/Meta-Llama-3-70B/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-05-18 13:02:49,573 [INFO] HTTP Request: HEAD https://huggingface.co/meta-llama/Meta-Llama-3-70B/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-18 13:02:49,830 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-18 13:02:49,938 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-18 13:02:50,816 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B "HTTP/1.1 200 OK"
+2026-05-18 13:02:50,837 [INFO] Collecting first 256 sequences (seq_len=2048)...
+2026-05-18 13:11:20,496 [INFO] ============================================================
+2026-05-18 13:11:20,497 [INFO] BASELINE EVAL — original model, no bitflip, no LoRA
+2026-05-18 13:11:20,497 [INFO]   model:       meta-llama/Meta-Llama-3-70B
+2026-05-18 13:11:20,497 [INFO]   sequences:   256  (seq_len=2048)
+2026-05-18 13:11:20,497 [INFO]   tokens:      524,288
+2026-05-18 13:11:20,497 [INFO]   loss (CE):   1.8198
+2026-05-18 13:11:20,497 [INFO]   perplexity:  6.1707
+2026-05-18 13:11:20,497 [INFO] ============================================================

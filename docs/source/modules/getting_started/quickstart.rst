@@ -11,7 +11,7 @@ Prerequisites
 - At least one CUDA-enabled GPU with ≥ 8 GB VRAM
 
 Step 1 — Activate the environment in the uv and conda
-----------------------------------
+-----------------------------------------------------
 
 **uv** (activate venv):
 
@@ -78,5 +78,6 @@ What's Next
 - :doc:`../tutorials/pretraining/llm_pretrain_eval` — pretrain your own CLM from scratch
 - :doc:`../tutorials/simulations/bitflip_clm` — simulate random bitflip noise during pretraining
 - :doc:`../tutorials/simulations/bitflip_lora` — LoRA fine-tuning of Llama-3.1-8B with bitflip noise
+- :doc:`../tutorials/simulations/bitflip_lora_fsdp` — same recipe scaled to Llama-3-70B via FSDP2 + torchtitan
 - :doc:`../tutorials/simulations/onn_roberta` — optical neural network experiments on RoBERTa
 - :doc:`../tutorials/simulations/pim_roberta` — processing-in-memory simulation on RoBERTa

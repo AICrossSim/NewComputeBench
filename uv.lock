@@ -756,7 +756,7 @@ wheels = [
 
 [[package]]
 name = "mase-triton"
-version = "0.0.6.post6"
+version = "0.0.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorlog" },
@@ -765,9 +765,9 @@ dependencies = [
     { name = "torch", version = "2.11.0", source = { registry = "https://pypi.org/simple" }, marker = "sys_platform != 'linux'" },
     { name = "triton" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/d7/9f225fac60fe7e98940cefda1942c92ead7da63a1ccbce6e1c57103e5a52/mase_triton-0.0.6.post6.tar.gz", hash = "sha256:b582c909e99487708557b079f196885b94f09b44df682e8b83d979319f04a48f", size = 54162, upload-time = "2026-05-10T12:11:51.87Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/55/2c/5ac657f88515a0239912ab507daddfea501d75824742de698140b0edf1cf/mase_triton-0.0.7.tar.gz", hash = "sha256:a3979803670fdace520a07f9151758e61ea68bdc9067957fe9f70cf989f8128f", size = 54674, upload-time = "2026-05-31T10:57:49.437Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/af/ce/767148ad5034d65347e32da238303994ed5919ebcd37f4556de68d73eafd/mase_triton-0.0.6.post6-py3-none-any.whl", hash = "sha256:2415a6230e5ddd35803ff654e27dc403fc3ffd0cfd66d8a3bd008806005deb8a", size = 61829, upload-time = "2026-05-10T12:11:50.384Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/ec/0df6507dae5a458710154d1039266d1f11ef2f03a78dc70a3b9e2b018d09/mase_triton-0.0.7-py3-none-any.whl", hash = "sha256:75f001a6fc0fa487d2b44ecb0293ba6d4fd3484edb76e649ec446a2bd8d7560c", size = 61995, upload-time = "2026-05-31T10:57:47.921Z" },
 ]
 
 [[package]]
@@ -892,7 +892,7 @@ requires-dist = [
     { name = "huggingface-hub", extras = ["hf-transfer"] },
     { name = "jsonargparse", extras = ["all"] },
     { name = "lm-eval", specifier = "==0.4.7" },
-    { name = "mase-triton", specifier = ">=0.0.6.post6" },
+    { name = "mase-triton", specifier = ">=0.0.7" },
     { name = "numpy" },
     { name = "sphinx", marker = "extra == 'docs'" },
     { name = "sphinx-autobuild", marker = "extra == 'docs'" },

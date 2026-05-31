@@ -18,7 +18,7 @@ dependencies = [
     "torchdata",
     "tensorboard",
     "lm-eval==0.4.7",
-    "mase-triton>=0.0.6.post6",
+    "mase-triton>=0.0.7",
 ]
 
 [project.optional-dependencies]
