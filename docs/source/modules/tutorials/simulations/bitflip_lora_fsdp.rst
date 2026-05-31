@@ -70,8 +70,6 @@ Entry Points
      - 70B training + bitflip + LoRA configuration.
    * - `experiments/llm-bitflip/lora_finetune_fsdp/run.sh <https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/run.sh>`_
      - Single-/multi-node ``torchrun`` launcher.
-   * - `experiments/llm-bitflip/lora_finetune_fsdp/run_slurm.sh <https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/run_slurm.sh>`_
-     - SLURM batch wrapper around ``run.sh``.
 
 
 Step-by-Step Guide
@@ -254,7 +252,7 @@ To override the step count from the command line:
    torchrun --nproc_per_node=8 train.py --config config_70b.toml --steps 21000
 
 For multi-node, set ``MASTER_ADDR`` / ``NNODES`` / ``NODE_RANK`` env vars per
-``run.sh`` usage notes, or submit ``run_slurm.sh`` to SLURM.
+``run.sh`` usage notes.
 
 Step 4 — Evaluate
 ~~~~~~~~~~~~~~~~~
