@@ -37,7 +37,14 @@ echo ""
 echo "Installing Triton..."
 pip install triton
 
-# ---- Install torchtitan (editable, from cloned repo) ----
+# ---- Install torchtitan (editable, from the submodule) ----
+# torchtitan/ is a git submodule pinned to commit 0e0590c1. If it's empty,
+# initialise it before installing.
+if [ ! -f "${SCRIPT_DIR}/torchtitan/pyproject.toml" ]; then
+    echo ""
+    echo "torchtitan submodule not initialised — running git submodule update..."
+    (cd "${SCRIPT_DIR}" && git submodule update --init torchtitan)
+fi
 echo ""
 echo "Installing torchtitan (editable)..."
 pip install -e "${SCRIPT_DIR}/torchtitan"

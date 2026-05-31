@@ -80,23 +80,25 @@ Step-by-Step Guide
 Step 0 — Environment
 ~~~~~~~~~~~~~~~~~~~~
 
-FSDP2 (``fully_shard``) requires a recent PyTorch. This experiment vendors
-``torchtitan`` (commit ``0e0590c1``) inside the experiment directory and adds
-it to ``sys.path``, so it does **not** rely on the project's
-``submodules/torchtitan`` pin. To create an isolated venv with PyTorch
-nightly, Triton, and the vendored ``torchtitan``::
+FSDP2 (``fully_shard``) requires a recent PyTorch. This experiment carries
+its **own** ``torchtitan`` submodule pinned to commit ``0e0590c1`` at
+``experiments/llm-bitflip/lora_finetune_fsdp/torchtitan/``, so it does
+**not** share the project's ``submodules/torchtitan`` pin (which is held
+back for the existing pretrain experiments). Initialise it and create the
+venv with::
 
+   git submodule update --init experiments/llm-bitflip/lora_finetune_fsdp/torchtitan
    cd experiments/llm-bitflip/lora_finetune_fsdp
    bash setup_env.sh
    source .venv/bin/activate
 
 .. note::
 
-   ``train.py`` / ``eval.py`` add the repo's ``src/`` and the vendored
-   ``torchtitan/`` to ``sys.path`` at import time, so the project does **not**
-   need to be installed (``pip install -e .`` not required). Just make sure
-   PyTorch, Triton, and the other dependencies from ``setup_env.sh`` are
-   available in the active environment.
+   ``train.py`` / ``eval.py`` add the repo's ``src/`` and the experiment's
+   ``torchtitan/`` submodule to ``sys.path`` at import time, so the project
+   does **not** need to be installed (``pip install -e .`` not required).
+   Just make sure PyTorch, Triton, and the other dependencies from
+   ``setup_env.sh`` are available in the active environment.
 
 Step 1 — Configure Bitflip, LoRA, and Training
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

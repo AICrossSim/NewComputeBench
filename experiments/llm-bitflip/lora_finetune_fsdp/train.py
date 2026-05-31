@@ -30,7 +30,7 @@ from torch.distributed.fsdp import fully_shard, MixedPrecisionPolicy
 logger = logging.getLogger(__name__)
 
 # Make this experiment runnable without `pip install -e .`:
-#   - the vendored torchtitan/ next to this file
+#   - the torchtitan/ submodule next to this file (pinned to commit 0e0590c1)
 #   - the repo's src/ tree (so `aixsim_models...` resolves)
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_SRC = _SCRIPT_DIR.parents[2] / "src"
