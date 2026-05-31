@@ -90,6 +90,13 @@ venv with::
    bash setup_env.sh
    source .venv/bin/activate
 
+``setup_env.sh`` uses `uv <https://docs.astral.sh/uv/>`_ (the same tool used by
+the parent project) to create ``.venv`` pinned to **Python 3.11**, which is
+required because ``train.py`` / ``eval.py`` use the stdlib ``tomllib`` module
+(3.11+). Install ``uv`` first if you don't have it
+(``curl -LsSf https://astral.sh/uv/install.sh | sh``); override the interpreter
+with ``PYTHON_VERSION=3.12 bash setup_env.sh`` if needed.
+
 .. note::
 
    ``train.py`` / ``eval.py`` add the repo's ``src/`` and the experiment's
@@ -237,19 +244,27 @@ training tokens, ≈ 700M tokens):
    cd experiments/llm-bitflip/lora_finetune_fsdp
    bash run.sh config_70b.toml
 
-which expands to (single 8-GPU node):
+which expands to (single 4-GPU node):
 
 .. code-block:: bash
 
-   torchrun --nproc_per_node=8 --nnodes=1 \
+   torchrun --nproc_per_node=4 --nnodes=1 \
        --master_addr=localhost --master_port=29500 \
        train.py --config config_70b.toml
+
+.. note::
+
+   ``--nproc_per_node`` must equal ``[parallelism].fsdp_degree`` in the config
+   (``4``). FSDP2 builds a 1-D device mesh of that size and ``init_device_mesh``
+   requires the mesh to span exactly ``WORLD_SIZE`` ranks, so a mismatch aborts
+   at startup. ``run.sh`` defaults to ``NPROC_PER_NODE=4`` to match; to use a
+   different GPU count, change both together.
 
 To override the step count from the command line:
 
 .. code-block:: bash
 
-   torchrun --nproc_per_node=8 train.py --config config_70b.toml --steps 21000
+   torchrun --nproc_per_node=4 train.py --config config_70b.toml --steps 21000
 
 For multi-node, set ``MASTER_ADDR`` / ``NNODES`` / ``NODE_RANK`` env vars per
 ``run.sh`` usage notes.

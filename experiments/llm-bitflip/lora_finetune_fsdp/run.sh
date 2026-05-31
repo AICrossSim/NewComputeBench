@@ -2,13 +2,13 @@
 # Launch bitflip-aware LoRA fine-tuning with FSDP2
 #
 # Usage:
-#   Single node, 8 GPUs:
+#   Single node, 4 GPUs (matches fsdp_degree=4 in config_70b.toml):
 #     bash run.sh
 #
 #   Custom config:
 #     bash run.sh config_debug.toml
 #
-#   Multi-node (2 nodes, 8 GPUs each):
+#   Multi-node (2 nodes, 4 GPUs each):
 #     # On node 0:
 #     MASTER_ADDR=<node0_ip> MASTER_PORT=29500 NNODES=2 NODE_RANK=0 bash run.sh
 #     # On node 1:
@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="${1:-${SCRIPT_DIR}/config_70b.toml}"
 
 # Distributed settings (override via env vars)
-NPROC_PER_NODE="${NPROC_PER_NODE:-8}"
+NPROC_PER_NODE="${NPROC_PER_NODE:-4}"
 NNODES="${NNODES:-1}"
 NODE_RANK="${NODE_RANK:-0}"
 MASTER_ADDR="${MASTER_ADDR:-localhost}"

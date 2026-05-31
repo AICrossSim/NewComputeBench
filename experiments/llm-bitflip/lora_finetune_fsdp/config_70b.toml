@@ -1,8 +1,10 @@
-# Llama 3 70B bitflip-aware LoRA fine-tuning with FSDP2 on 8x B200
+# Llama 3 70B bitflip-aware LoRA fine-tuning with FSDP2 on 4x B200
 # Steps configurable via --steps CLI flag (default 20 for testing)
 #
+# nproc_per_node must equal [parallelism].fsdp_degree (4 below).
+#
 # Full run: ~21,000 steps (1% of 70B params = 700M tokens)
-#   torchrun --nproc_per_node=8 train.py --config config_70b.toml --steps 21000
+#   torchrun --nproc_per_node=4 train.py --config config_70b.toml --steps 21000
 
 [model]
 flavor = "70B"
