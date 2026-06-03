@@ -1,0 +1,29 @@
+W0518 14:33:56.868000 3088262 torch/distributed/run.py:851] 
+W0518 14:33:56.868000 3088262 torch/distributed/run.py:851] *****************************************
+W0518 14:33:56.868000 3088262 torch/distributed/run.py:851] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W0518 14:33:56.868000 3088262 torch/distributed/run.py:851] *****************************************
+2026-05-18 14:34:02,154 [INFO] Building plain Llama3 70B on meta device (dtype=torch.bfloat16)
+2026-05-18 14:34:02,317 [INFO] Applied bitflip ON, no LoRA (r=0) | w_p_frac=1.52587890625e-05 x_p_frac=1.52587890625e-05 seed=0 | 560 layers
+[rank2]:W0518 14:34:03.477000 3088384 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+[rank3]:W0518 14:34:03.478000 3088385 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+[rank1]:W0518 14:34:03.477000 3088383 .venv/lib/python3.12/site-packages/torch/distributed/tensor/_random.py:212] DTensor is synchronizing RNG states of every rank with the state from rank 0. This behavior is deprecated. Please call `torch.manual_seed()` on every rank that participates in SPMD DTensor Operations with the same seed. If using Pipeline Parallelism, each pipeling state would use a different seed, but all ranks belonging to one pipeline stage would use the same seed.
+2026-05-18 14:34:03,707 [INFO] Loading HF weights from meta-llama/Meta-Llama-3-70B
+2026-05-18 14:34:03,847 [INFO] Resolving HF model: meta-llama/Meta-Llama-3-70B
+2026-05-18 14:34:03,848 [INFO] Resolved to local path: /home/zz7522/.cache/huggingface/hub/models--meta-llama--Meta-Llama-3-70B/snapshots/c82494877ce7f6d7d317c56ec081328e382c72fe
+2026-05-18 14:34:14,614 [INFO] HF weights loaded successfully via distributed checkpoint
+2026-05-18 14:34:14,616 [INFO] Model ready (35.3 GB allocated on rank 0)
+2026-05-18 14:34:15,425 [INFO] HTTP Request: HEAD https://huggingface.co/meta-llama/Meta-Llama-3-70B/resolve/main/config.json "HTTP/1.1 200 OK"
+2026-05-18 14:34:15,591 [INFO] HTTP Request: HEAD https://huggingface.co/meta-llama/Meta-Llama-3-70B/resolve/main/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-18 14:34:15,699 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-18 14:34:15,810 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-18 14:34:17,019 [INFO] HTTP Request: GET https://huggingface.co/api/models/meta-llama/Meta-Llama-3-70B "HTTP/1.1 200 OK"
+2026-05-18 14:34:17,054 [INFO] Collecting first 256 sequences (seq_len=2048)...
+2026-05-18 14:40:18,432 [INFO] ============================================================
+2026-05-18 14:40:18,432 [INFO] EVAL — original Llama3-70B (no retraining)
+2026-05-18 14:40:18,432 [INFO]   condition:   bitflip ON, no LoRA (r=0) | w_p_frac=1.52587890625e-05 x_p_frac=1.52587890625e-05 seed=0 | 560 layers
+2026-05-18 14:40:18,432 [INFO]   model:       meta-llama/Meta-Llama-3-70B
+2026-05-18 14:40:18,432 [INFO]   sequences:   256  (seq_len=2048)
+2026-05-18 14:40:18,432 [INFO]   tokens:      524,288
+2026-05-18 14:40:18,432 [INFO]   loss (CE):   4.4918
+2026-05-18 14:40:18,432 [INFO]   perplexity:  89.2820
+2026-05-18 14:40:18,432 [INFO] ============================================================

@@ -4,3 +4,6 @@
 [submodule "submodules/mase"]
 	path = submodules/mase
 	url = https://github.com/DeepWok/mase.git
+[submodule "experiments/llm-bitflip/lora_finetune_fsdp/torchtitan"]
+	path = experiments/llm-bitflip/lora_finetune_fsdp/torchtitan
+	url = https://github.com/pytorch/torchtitan.git

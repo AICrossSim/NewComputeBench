@@ -34,20 +34,10 @@ We demonstrate with ``AICrossSim-CLM-60M``.
 AICrossSim-CLM-60M
 ~~~~~~~~~~~~~~~~~~
 
-1. Activate the environment and change to the pretraining directory:
-
-   **uv** (run from the repository root, where ``.venv`` lives):
+1. Change to the pretraining directory:
 
    .. code-block:: bash
 
-      source .venv/bin/activate
-      cd experiments/llm-digital/pretrain
-
-   **conda:**
-
-   .. code-block:: bash
-
-      conda activate new-compute
       cd experiments/llm-digital/pretrain
 
 2. Generate the training config:
@@ -64,7 +54,7 @@ AICrossSim-CLM-60M
    .. code-block:: bash
 
       data_parallel="1"
-      batch_size="24"
+      batch_size="12"
       token_num_scale="22"
 
       python run.py generate-cfg \
@@ -75,7 +65,7 @@ AICrossSim-CLM-60M
           --save_path ./configs/tutorial-60M.yaml
 
    This generates ``configs/tutorial-60M.yaml`` for pretraining on a FineWeb-Edu subset
-   of ``22 × 60M`` tokens with per-device batch size 24 and 1-GPU data parallelism.
+   of ``22 × 60M`` tokens with per-device batch size 12 and 1-GPU data parallelism.
    The ``--compile`` flag enables ``torch.compile`` for faster training.
 
 3. Launch pretraining:
@@ -115,12 +105,15 @@ AICrossSim-CLM-60M
 
       The training code uses custom distributed model classes. Converting to HuggingFace
       format lets you use the full HuggingFace ecosystem (generation, evaluation, etc.).
+      This is also required if you want to use your locally trained checkpoint in the
+      bitflip simulation tutorials (see :doc:`../simulations/bitflip_clm`).
 
    .. code-block:: bash
 
-      python run.py convert-ckpt aixsim 60M \
+      python run.py convert-ckpt pt2hf \
+          aixsim 60M \
           ./outputs/checkpoints/aixsim-60M/<timestamp>/<step-xxx> \
-          path/to/huggingface/checkpoint
+          ./outputs/hf/aixsim-60M
 
 .. tip::
 

@@ -9,6 +9,7 @@ wandb/
 
 /.cache/
 
-log*
+/log*
 specific.sh
 __pycache__/
+/docs/build/
