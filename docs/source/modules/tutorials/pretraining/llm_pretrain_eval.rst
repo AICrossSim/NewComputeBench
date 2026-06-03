@@ -244,6 +244,7 @@ Evaluate a checkpoint on the pretraining dataset:
 
    # HuggingFace checkpoint
    python run.py eval hf-ppl \
+       --batch_size 8 \
        AICrossSim/clm-60m
 
 Downstream tasks (lm-eval-harness)
