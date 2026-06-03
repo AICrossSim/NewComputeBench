@@ -247,7 +247,8 @@ bitflip parameters and ``wikitext`` perplexity as the metric:
 **3. Bitflip-aware pretrained model, clean evaluation (no bitflip at inference):**
 
 .. code-block:: bash
-   model_name="AICrossSim/clm-60m"   # or your local bitflip checkpoint
+
+   model_name="AICrossSim/bitflip-fc-clm-60m"   # or your local bitflip checkpoint
    batch_size="8"
    python minimal.py eval-ori \
        --model_name ${model_name} \
