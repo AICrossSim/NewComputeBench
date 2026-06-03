@@ -54,12 +54,12 @@ Transform and evaluate
    # model_name="/path/to/experiments/llm-digital/pretrain/outputs/hf/aixsim-60M"
 
    batch_size="8"
-   x_p_exp=null
-   w_p_exp=null
-   x_zero_out_t="100"
+   x_p_exp=$(bc <<< "scale=15; 0.5^12")
+   w_p_exp=$(bc <<< "scale=15; 0.5^12")
+   x_p_frac=$(bc <<< "scale=15; 0.5^12")
+   w_p_frac=$(bc <<< "scale=15; 0.5^12")
+   x_zero_out_t="30"
    w_zero_out_t="1.25"
-   x_p_frac=$(bc <<< "scale=10; 0.5^10")
-   w_p_frac=$(bc <<< "scale=10; 0.5^10")
 
    python minimal.py eval-bitflip \
        --model_name ${model_name} \
@@ -104,12 +104,12 @@ Text generation with bitflip
 
    prompt="London is"
    max_new_tokens="100"
-   x_p_exp=null
-   w_p_exp=null
-   x_zero_out_t="100"
+   x_p_exp=$(bc <<< "scale=15; 0.5^12")
+   w_p_exp=$(bc <<< "scale=15; 0.5^12")
+   x_p_frac=$(bc <<< "scale=15; 0.5^12")
+   w_p_frac=$(bc <<< "scale=15; 0.5^12")
+   x_zero_out_t="30"
    w_zero_out_t="1.25"
-   x_p_frac=$(bc <<< "scale=10; 0.5^10")
-   w_p_frac=$(bc <<< "scale=10; 0.5^10")
 
    python minimal.py hf-gen \
        ${model_name} \
@@ -192,7 +192,7 @@ Evaluating and comparing the three settings
 Once you have converted checkpoints, you can compare three settings using the same
 bitflip parameters and ``wikitext`` perplexity as the metric:
 
-**1. Digital baseline + post-training bitflip (no bitflip-aware training):**
+**1. Digital baseline + post-training bitflip transform (no bitflip-aware training):**
 
 .. code-block:: bash
 
@@ -200,12 +200,12 @@ bitflip parameters and ``wikitext`` perplexity as the metric:
 
    model_name="AICrossSim/clm-60m"   # or your local digital checkpoint
    batch_size="8"
-   x_p_exp=null
-   w_p_exp=null
-   x_zero_out_t="100"
+   x_p_exp=$(bc <<< "scale=15; 0.5^12")
+   w_p_exp=$(bc <<< "scale=15; 0.5^12")
+   x_p_frac=$(bc <<< "scale=15; 0.5^12")
+   w_p_frac=$(bc <<< "scale=15; 0.5^12")
+   x_zero_out_t="30"
    w_zero_out_t="1.25"
-   x_p_frac=$(bc <<< "scale=10; 0.5^10")
-   w_p_frac=$(bc <<< "scale=10; 0.5^10")
 
    python minimal.py eval-bitflip \
        --model_name ${model_name} \
@@ -225,6 +225,13 @@ bitflip parameters and ``wikitext`` perplexity as the metric:
 
    model_name="AICrossSim/bitflip-fc-clm-60m"   # or your local bitflip checkpoint
    # model_name="/path/to/experiments/llm-bitflip/pretrain/outputs/hf/bitflip-60M"
+   batch_size="8"
+   x_p_exp=$(bc <<< "scale=15; 0.5^12")
+   w_p_exp=$(bc <<< "scale=15; 0.5^12")
+   x_p_frac=$(bc <<< "scale=15; 0.5^12")
+   w_p_frac=$(bc <<< "scale=15; 0.5^12")
+   x_zero_out_t="30"
+   w_zero_out_t="1.25"
 
    python minimal.py eval-bitflip \
        --model_name ${model_name} \
