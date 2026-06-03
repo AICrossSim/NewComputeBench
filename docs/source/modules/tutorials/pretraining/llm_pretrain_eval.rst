@@ -255,7 +255,9 @@ for downstream evaluation:
 
 .. code-block:: bash
 
+   # change model_name="/workspace/experiments/llm-digital/pretrain/outputs/hf/aixsim-60M" for testing the checkpoint hf model
    model_name="AICrossSim/clm-60m"
+   
 
    python run.py eval hf-lm-eval \
        ${model_name} \
