@@ -48,7 +48,11 @@ Transform and evaluate
 
    cd experiments/llm-bitflip/transform
 
-   model_name="unsloth/Meta-Llama-3.1-8B-Instruct"
+   # Use the HuggingFace pretrained checkpoint:
+   model_name="AICrossSim/clm-60m"
+   # Or use a locally trained checkpoint (convert first — see the pretraining tutorial):
+   # model_name="/path/to/experiments/llm-digital/pretrain/outputs/hf/aixsim-60M"
+
    batch_size="8"
    x_p_exp=null
    w_p_exp=null
@@ -74,11 +78,15 @@ Transform and evaluate
    ``eval-bitflip`` uses ``lm-eval-harness``'s ``simple_evaluate``.
    See the evaluation section of :doc:`../pretraining/llm_pretrain_eval` for argument details.
 
-Evaluate the original model (clean baseline, in the same path of experiments/llm-bitflip/transform)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Evaluate the original model (clean baseline)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
-   model_name="unsloth/Meta-Llama-3.1-8B-Instruct"
+
+   model_name="AICrossSim/clm-60m"
+   # Or your local checkpoint:
+   # model_name="/path/to/experiments/llm-digital/pretrain/outputs/hf/aixsim-60M"
+
    batch_size="8"
    python minimal.py eval-ori \
        --model_name ${model_name} \
@@ -90,11 +98,21 @@ Text generation with bitflip
 
 .. code-block:: bash
 
+   model_name="AICrossSim/clm-60m"
+   # Or your local checkpoint:
+   # model_name="/path/to/experiments/llm-digital/pretrain/outputs/hf/aixsim-60M"
+
    prompt="London is"
    max_new_tokens="100"
+   x_p_exp=null
+   w_p_exp=null
+   x_zero_out_t="100"
+   w_zero_out_t="1.25"
+   x_p_frac=$(bc <<< "scale=10; 0.5^10")
+   w_p_frac=$(bc <<< "scale=10; 0.5^10")
 
    python minimal.py hf-gen \
-       AICrossSim/clm-60m \
+       ${model_name} \
        --prompt "${prompt}" \
        --max_new_tokens ${max_new_tokens} \
        --do_sample true \
@@ -164,9 +182,74 @@ We demonstrate with ``AICrossSim-CLM-60M`` on 2 × H100 96 GB.
    .. code-block:: bash
 
       python run.py convert-ckpt pt2hf \
-          "aixsim" "60M" \
-          path/to/torchrun/checkpoint \
-          path/to/output/dir
+          aixsim 60M \
+          ./outputs/checkpoints/<timestamp>/<step-xxx> \
+          ./outputs/hf/bitflip-60M
+
+Evaluating and comparing the three settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once you have converted checkpoints, you can compare three settings using the same
+bitflip parameters and ``wikitext`` perplexity as the metric:
+
+**1. Digital baseline + post-training bitflip (no bitflip-aware training):**
+
+.. code-block:: bash
+
+   cd experiments/llm-bitflip/transform
+
+   model_name="AICrossSim/clm-60m"   # or your local digital checkpoint
+   batch_size="8"
+   x_p_exp=null
+   w_p_exp=null
+   x_zero_out_t="100"
+   w_zero_out_t="1.25"
+   x_p_frac=$(bc <<< "scale=10; 0.5^10")
+   w_p_frac=$(bc <<< "scale=10; 0.5^10")
+
+   python minimal.py eval-bitflip \
+       --model_name ${model_name} \
+       --batch_size ${batch_size} \
+       --bitflip_config "default" \
+       --default_bitflip_config.x_p_exp=${x_p_exp} \
+       --default_bitflip_config.x_p_frac=${x_p_frac} \
+       --default_bitflip_config.x_zero_out_t=${x_zero_out_t} \
+       --default_bitflip_config.w_p_exp=${w_p_exp} \
+       --default_bitflip_config.w_p_frac=${w_p_frac} \
+       --default_bitflip_config.w_zero_out_t=${w_zero_out_t} \
+       --tasks ['wikitext']
+
+**2. Bitflip-aware pretrained model + post-training bitflip:**
+
+.. code-block:: bash
+
+   model_name="AICrossSim/bitflip-fc-clm-60m"   # or your local bitflip checkpoint
+   # model_name="/path/to/experiments/llm-bitflip/pretrain/outputs/hf/bitflip-60M"
+
+   python minimal.py eval-bitflip \
+       --model_name ${model_name} \
+       --batch_size ${batch_size} \
+       --bitflip_config "default" \
+       --default_bitflip_config.x_p_exp=${x_p_exp} \
+       --default_bitflip_config.x_p_frac=${x_p_frac} \
+       --default_bitflip_config.x_zero_out_t=${x_zero_out_t} \
+       --default_bitflip_config.w_p_exp=${w_p_exp} \
+       --default_bitflip_config.w_p_frac=${w_p_frac} \
+       --default_bitflip_config.w_zero_out_t=${w_zero_out_t} \
+       --tasks ['wikitext']
+
+**3. Bitflip-aware pretrained model, clean evaluation (no bitflip at inference):**
+
+.. code-block:: bash
+
+   python minimal.py eval-ori \
+       --model_name ${model_name} \
+       --batch_size ${batch_size} \
+       --tasks ['wikitext']
+
+Expected outcome: setting 2 should have lower perplexity than setting 1 under the same
+bitflip noise, showing that bitflip-aware pretraining improves robustness. Setting 3
+shows the clean perplexity of the bitflip-aware model as an upper bound.
 
 
 Results Summary

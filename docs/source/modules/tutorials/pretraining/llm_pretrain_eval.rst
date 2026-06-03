@@ -105,12 +105,15 @@ AICrossSim-CLM-60M
 
       The training code uses custom distributed model classes. Converting to HuggingFace
       format lets you use the full HuggingFace ecosystem (generation, evaluation, etc.).
+      This is also required if you want to use your locally trained checkpoint in the
+      bitflip simulation tutorials (see :doc:`../simulations/bitflip_clm`).
 
    .. code-block:: bash
 
-      python run.py convert-ckpt aixsim 60M \
+      python run.py convert-ckpt pt2hf \
+          aixsim 60M \
           ./outputs/checkpoints/aixsim-60M/<timestamp>/<step-xxx> \
-          path/to/huggingface/checkpoint
+          ./outputs/hf/aixsim-60M
 
 .. tip::
 
