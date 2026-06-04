@@ -183,7 +183,7 @@ We demonstrate with ``AICrossSim-CLM-60M`` on 2 × H100 96 GB.
 
       python run.py convert-ckpt pt2hf \
           aixsim 60M \
-          ./outputs/checkpoints/<timestamp>/<step-xxx> \
+          ./outputs/checkpoints/aixsim-60M/<timestamp>/<step-xxx> \
           ./outputs/hf/bitflip-60M
 
 Evaluating and comparing the three settings
