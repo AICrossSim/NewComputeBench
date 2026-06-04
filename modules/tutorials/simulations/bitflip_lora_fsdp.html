@@ -1,0 +1,978 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Bitflip-Aware LoRA Fine-Tuning with FSDP2 (Llama-3-70B) &#8212; NewComputeBench</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=a1637f0b"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'modules/tutorials/simulations/bitflip_lora_fsdp';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Optical Neural Networks on RoBERTa" href="onn_roberta.html" />
+    <link rel="prev" title="Bitflip-Aware LoRA Fine-Tuning" href="bitflip_lora.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">NewComputeBench</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../../../index.html">
+                    NewComputeBench
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/quickstart.html">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/models.html">Supported Models</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Tutorials</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Tutorials</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../pretraining/llm_pretrain_eval.html">LLM Pretraining &amp; Evaluation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitflip_clm.html">Random Bitflip on CLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bitflip_lora.html">Bitflip-Aware LoRA Fine-Tuning</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Bitflip-Aware LoRA Fine-Tuning with FSDP2 (Llama-3-70B)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onn_roberta.html">Optical Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="onn_clm.html">Scaling Optical Transformers to Causal Language Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="snn_roberta.html">Spiking Neural Networks on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pim_roberta.html">Processing-in-Memory on RoBERTa</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pim_vit.html">Processing-in-Memory on Vision Transformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mase_triton.html">Mase-Triton</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Developer Guide</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../developer/index.html">Developer Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../developer/contributing.html">Contributing &amp; Maintaining Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../developer/sim_guidelines.html">Transform-Aware LLM Training Guidelines</a></li>
+</ul>
+</details></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Changelog</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/edit/master/docs/source/modules/tutorials/simulations/bitflip_lora_fsdp.rst" target="_blank"
+   class="btn btn-sm btn-source-edit-button dropdown-item"
+   title="Suggest edit"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="btn__text-container">Suggest edit</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/AICrossSim/NewComputeBench/issues/new?title=Issue%20on%20page%20%2Fmodules/tutorials/simulations/bitflip_lora_fsdp.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/modules/tutorials/simulations/bitflip_lora_fsdp.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Bitflip-Aware LoRA Fine-Tuning with FSDP2 (Llama-3-70B)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#entry-points">Entry Points</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-by-step-guide">Step-by-Step Guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-0-environment">Step 0 — Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-configure-bitflip-lora-and-training">Step 1 — Configure Bitflip, LoRA, and Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-profile-and-set-zero-out-thresholds">Step 2 — Profile and Set <code class="docutils literal notranslate"><span class="pre">zero_out</span></code> Thresholds</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-launch-training">Step 3 — Launch Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-evaluate">Step 4 — Evaluate</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-clean-model">Baseline — Clean Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bitflip-on-no-lora-no-retraining">Bitflip On, No LoRA, No Retraining</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bitflip-aware-lora-retraining-lr-2e-4">Bitflip-Aware LoRA Retraining (lr = 2e-4)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bitflip-aware-lora-fine-tuning-with-fsdp2-llama-3-70b">
+<h1>Bitflip-Aware LoRA Fine-Tuning with FSDP2 (Llama-3-70B)<a class="headerlink" href="#bitflip-aware-lora-fine-tuning-with-fsdp2-llama-3-70b" title="Link to this heading">#</a></h1>
+<p>This tutorial covers bitflip-aware LoRA fine-tuning of <strong>Llama-3-70B</strong> using
+<strong>FSDP2</strong> (<code class="docutils literal notranslate"><span class="pre">torch.distributed.fsdp.fully_shard</span></code>) and <code class="docutils literal notranslate"><span class="pre">torchtitan</span></code> model
+definitions. It scales the approach in <a class="reference internal" href="bitflip_lora.html"><span class="doc">Bitflip-Aware LoRA Fine-Tuning</span></a> from a 7B–8B model
+to a 70B model on a small B200 node.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you have not set up the environment yet, follow
+<a class="reference internal" href="../../getting_started/installation.html"><span class="doc">Installation</span></a> first. The FSDP2 path also requires
+a recent PyTorch nightly — see Step 0 below.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h2>
+<p>The setup is the same as <a class="reference internal" href="bitflip_lora.html"><span class="doc">Bitflip-Aware LoRA Fine-Tuning</span></a>:</p>
+<ol class="arabic simple">
+<li><p><strong>Random Bitflip Simulation</strong> — random bit flips are injected during the
+forward pass into both activations and weights of every Linear layer
+(except <code class="docutils literal notranslate"><span class="pre">lm_head</span></code>).</p></li>
+<li><p><strong>Low-Rank Adaptation (LoRA)</strong> — small <code class="docutils literal notranslate"><span class="pre">lora_A</span></code> / <code class="docutils literal notranslate"><span class="pre">lora_B</span></code> matrices are
+attached to each Linear; only these are trained, the pretrained weights stay
+frozen.</p></li>
+</ol>
+<p>The two differences from <a class="reference internal" href="bitflip_lora.html"><span class="doc">Bitflip-Aware LoRA Fine-Tuning</span></a> are:</p>
+<ul class="simple">
+<li><p><strong>Model build path</strong> — instead of <code class="docutils literal notranslate"><span class="pre">transformers.AutoModelForCausalLM</span></code>, the
+model is built from <code class="docutils literal notranslate"><span class="pre">torchtitan</span></code>’s Llama-3 definitions on a <code class="docutils literal notranslate"><span class="pre">meta</span></code> device
+and then materialised; this is required to fit a 70B model under FSDP2.</p></li>
+<li><p><strong>Sharding</strong> — parameters, gradients, and optimizer state are sharded across
+GPUs with FSDP2 (<code class="docutils literal notranslate"><span class="pre">fully_shard</span></code>), with bf16 forward and fp32 reductions.</p></li>
+</ul>
+<section id="how-it-works">
+<h3>How It Works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h3>
+<p>Each <code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> is replaced by a <code class="docutils literal notranslate"><span class="pre">BitFlipLinearLora</span></code> whose forward computes</p>
+<div class="math notranslate nohighlight">
+\[Y = \text{bitflip}(X) \cdot \text{bitflip}(W + B \cdot A \cdot \text{scaling})^T\]</div>
+<p>where <span class="math notranslate nohighlight">\(X\)</span> is the input activation, <span class="math notranslate nohighlight">\(W\)</span> is the frozen pretrained
+weight, <span class="math notranslate nohighlight">\(A\)</span> / <span class="math notranslate nohighlight">\(B\)</span> are the trainable low-rank matrices,
+<span class="math notranslate nohighlight">\(\text{scaling} = \text{lora\_alpha} / r\)</span>, and <span class="math notranslate nohighlight">\(\text{bitflip}(\cdot)\)</span>
+applies random bit flips with configurable per-component probabilities.</p>
+<p>The transform is applied by <code class="docutils literal notranslate"><span class="pre">BitFlipLoRAConverter</span></code> (from
+<code class="docutils literal notranslate"><span class="pre">aixsim_models.bitflip.lora_finetune_fsdp.converter</span></code>), which replaces all
+<code class="docutils literal notranslate"><span class="pre">nn.Linear</span></code> modules (excluding <code class="docutils literal notranslate"><span class="pre">output</span></code> / lm_head) with
+<code class="docutils literal notranslate"><span class="pre">BitFlipLinearLora</span></code> after the meta model is constructed and before FSDP2
+sharding.</p>
+</section>
+<section id="entry-points">
+<h3>Entry Points<a class="headerlink" href="#entry-points" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 55.0%" />
+<col style="width: 45.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/train.py">experiments/llm-bitflip/lora_finetune_fsdp/train.py</a></p></td>
+<td><p>Standalone training script (torchrun + FSDP2, no HF Trainer / Accelerate).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/eval.py">experiments/llm-bitflip/lora_finetune_fsdp/eval.py</a></p></td>
+<td><p>Forward-only eval (clean / <code class="docutils literal notranslate"><span class="pre">--bitflip</span></code> / <code class="docutils literal notranslate"><span class="pre">--profile</span></code> modes).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/config_70b.toml">experiments/llm-bitflip/lora_finetune_fsdp/config_70b.toml</a></p></td>
+<td><p>70B training + bitflip + LoRA configuration.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/run.sh">experiments/llm-bitflip/lora_finetune_fsdp/run.sh</a></p></td>
+<td><p>Single-/multi-node <code class="docutils literal notranslate"><span class="pre">torchrun</span></code> launcher.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<section id="step-by-step-guide">
+<h2>Step-by-Step Guide<a class="headerlink" href="#step-by-step-guide" title="Link to this heading">#</a></h2>
+<section id="step-0-environment">
+<h3>Step 0 — Environment<a class="headerlink" href="#step-0-environment" title="Link to this heading">#</a></h3>
+<p>FSDP2 (<code class="docutils literal notranslate"><span class="pre">fully_shard</span></code>) requires a recent PyTorch. This experiment carries
+its <strong>own</strong> <code class="docutils literal notranslate"><span class="pre">torchtitan</span></code> submodule pinned to commit <code class="docutils literal notranslate"><span class="pre">0e0590c1</span></code> at
+<code class="docutils literal notranslate"><span class="pre">experiments/llm-bitflip/lora_finetune_fsdp/torchtitan/</span></code>, so it does
+<strong>not</strong> share the project’s <code class="docutils literal notranslate"><span class="pre">submodules/torchtitan</span></code> pin (which is held
+back for the existing pretrain experiments). Initialise it and create the
+venv with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">submodule</span> <span class="n">update</span> <span class="o">--</span><span class="n">init</span> <span class="n">experiments</span><span class="o">/</span><span class="n">llm</span><span class="o">-</span><span class="n">bitflip</span><span class="o">/</span><span class="n">lora_finetune_fsdp</span><span class="o">/</span><span class="n">torchtitan</span>
+<span class="n">cd</span> <span class="n">experiments</span><span class="o">/</span><span class="n">llm</span><span class="o">-</span><span class="n">bitflip</span><span class="o">/</span><span class="n">lora_finetune_fsdp</span>
+<span class="n">bash</span> <span class="n">setup_env</span><span class="o">.</span><span class="n">sh</span>
+<span class="n">source</span> <span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">setup_env.sh</span></code> uses <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> (the same tool used by
+the parent project) to create <code class="docutils literal notranslate"><span class="pre">.venv</span></code> pinned to <strong>Python 3.11</strong>, which is
+required because <code class="docutils literal notranslate"><span class="pre">train.py</span></code> / <code class="docutils literal notranslate"><span class="pre">eval.py</span></code> use the stdlib <code class="docutils literal notranslate"><span class="pre">tomllib</span></code> module
+(3.11+). Install <code class="docutils literal notranslate"><span class="pre">uv</span></code> first if you don’t have it
+(<code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">-LsSf</span> <span class="pre">https://astral.sh/uv/install.sh</span> <span class="pre">|</span> <span class="pre">sh</span></code>); override the interpreter
+with <code class="docutils literal notranslate"><span class="pre">PYTHON_VERSION=3.12</span> <span class="pre">bash</span> <span class="pre">setup_env.sh</span></code> if needed.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">train.py</span></code> / <code class="docutils literal notranslate"><span class="pre">eval.py</span></code> add the repo’s <code class="docutils literal notranslate"><span class="pre">src/</span></code> and the experiment’s
+<code class="docutils literal notranslate"><span class="pre">torchtitan/</span></code> submodule to <code class="docutils literal notranslate"><span class="pre">sys.path</span></code> at import time, so the project
+does <strong>not</strong> need to be installed (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> not required).
+Just make sure PyTorch, Triton, and the other dependencies from
+<code class="docutils literal notranslate"><span class="pre">setup_env.sh</span></code> are available in the active environment.</p>
+</div>
+</section>
+<section id="step-1-configure-bitflip-lora-and-training">
+<h3>Step 1 — Configure Bitflip, LoRA, and Training<a class="headerlink" href="#step-1-configure-bitflip-lora-and-training" title="Link to this heading">#</a></h3>
+<p>The 70B run is fully configured by a single TOML file
+(<code class="docutils literal notranslate"><span class="pre">config_70b.toml</span></code>):</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[model]</span>
+<span class="n">flavor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;70B&quot;</span>
+<span class="n">hf_model_path</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;meta-llama/Meta-Llama-3-70B&quot;</span>
+
+<span class="k">[training]</span>
+<span class="n">dtype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bfloat16&quot;</span>
+<span class="n">mixed_precision_param</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;bfloat16&quot;</span>
+<span class="n">mixed_precision_reduce</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;float32&quot;</span>
+<span class="n">seq_len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2048</span>
+<span class="n">local_batch_size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">2</span>
+<span class="n">gradient_accumulation_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+<span class="n">steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">20</span><span class="w">  </span><span class="c1"># override with --steps for full run</span>
+<span class="n">lr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">2e-4</span>
+<span class="n">weight_decay</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.01</span>
+<span class="n">warmup_steps</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">100</span>
+<span class="n">max_norm</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">1.0</span>
+<span class="n">log_freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span>
+<span class="n">save_freq</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">500</span>
+
+<span class="k">[parallelism]</span>
+<span class="n">fsdp_degree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">4</span>
+
+<span class="k">[lora]</span>
+<span class="n">r</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span>
+<span class="n">lora_alpha</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">32</span>
+
+<span class="k">[bitflip]</span>
+<span class="n">w_p_exp</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">1.52587890625e-05</span><span class="w">   </span><span class="c1"># 0.5^16</span>
+<span class="n">w_p_frac</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">1.52587890625e-05</span><span class="w">   </span><span class="c1"># 0.5^16</span>
+<span class="n">w_zero_out_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">256.0</span><span class="w">               </span><span class="c1"># &gt; profiled |w| max (126.5)</span>
+<span class="n">x_p_exp</span><span class="w">      </span><span class="o">=</span><span class="w"> </span><span class="mf">1.52587890625e-05</span><span class="w">   </span><span class="c1"># 0.5^16</span>
+<span class="n">x_p_frac</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="mf">1.52587890625e-05</span><span class="w">   </span><span class="c1"># 0.5^16</span>
+<span class="n">x_zero_out_t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">8192.0</span><span class="w">              </span><span class="c1"># &gt; profiled |x| max (3680)</span>
+<span class="n">base_seed</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span>
+<span class="n">skip_patterns</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span><span class="w">         </span><span class="c1"># lm_head is not perturbed</span>
+</pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table" id="id1">
+<caption><span class="caption-text">Key parameters</span><a class="headerlink" href="#id1" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 18.0%" />
+<col style="width: 22.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Section</p></th>
+<th class="head"><p>Parameter</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[parallelism]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">fsdp_degree</span></code></p></td>
+<td><p>FSDP2 shard size. <code class="docutils literal notranslate"><span class="pre">4</span></code> means parameters/grads/opt-state are sharded across
+4 GPUs per replica.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[training]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mixed_precision_param</span></code> / <code class="docutils literal notranslate"><span class="pre">_reduce</span></code></p></td>
+<td><p>bf16 parameters, fp32 gradient reductions — the standard FSDP2 large-model
+recipe.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[lora]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">r</span></code>, <code class="docutils literal notranslate"><span class="pre">lora_alpha</span></code></p></td>
+<td><p>LoRA rank and scaling (effective scaling = <code class="docutils literal notranslate"><span class="pre">lora_alpha</span> <span class="pre">/</span> <span class="pre">r</span></code>). <code class="docutils literal notranslate"><span class="pre">r</span> <span class="pre">=</span> <span class="pre">0</span></code>
+disables LoRA entirely (used by the no-LoRA bitflip eval).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">[bitflip]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">w_zero_out_t</span></code> / <code class="docutils literal notranslate"><span class="pre">x_zero_out_t</span></code></p></td>
+<td><p>Thresholds above which a value is set to 0 after the flip — a guard
+against exponent-flip blowups. See Step 2 below.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">[bitflip]</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">skip_patterns</span></code></p></td>
+<td><p>Layer-name substrings to leave un-bitflipped. <code class="docutils literal notranslate"><span class="pre">&quot;output&quot;</span></code> excludes the
+lm_head.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Bitflip probabilities must be a power of 0.5 (e.g., <code class="docutils literal notranslate"><span class="pre">0.5^16</span> <span class="pre">≈</span> <span class="pre">1.526e-5</span></code>);
+the Triton kernel snaps to the nearest valid value. See <a class="reference internal" href="mase_triton.html"><span class="doc">Mase-Triton</span></a>.</p>
+</div>
+</section>
+<section id="step-2-profile-and-set-zero-out-thresholds">
+<h3>Step 2 — Profile and Set <code class="docutils literal notranslate"><span class="pre">zero_out</span></code> Thresholds<a class="headerlink" href="#step-2-profile-and-set-zero-out-thresholds" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">zero_out</span></code> thresholds must sit <strong>above</strong> the clean model’s legitimate range
+so that the clip catches only flip-corrupted blowups, never real signal.</p>
+<p>Profile with <code class="docutils literal notranslate"><span class="pre">eval.py</span> <span class="pre">--profile</span></code> over a few dozen sequences:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>eval.py<span class="w"> </span>--config<span class="w"> </span>config_70b.toml<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--num-samples<span class="w"> </span><span class="m">64</span><span class="w"> </span>--profile
+</pre></div>
+</div>
+<p>For Llama-3-70B (64 sequences, 131k tokens, 560 bitflip-eligible Linear
+layers) the profile is:</p>
+<div class="pst-scrollable-table-container"><table class="table" id="id2">
+<caption><span class="caption-text">Activation / weight magnitude profile</span><a class="headerlink" href="#id2" title="Link to this table">#</a></caption>
+<colgroup>
+<col style="width: 21.4%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 14.3%" />
+<col style="width: 21.4%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Tensor</p></th>
+<th class="head"><p>p50</p></th>
+<th class="head"><p>p99</p></th>
+<th class="head"><p>p99.9</p></th>
+<th class="head"><p>p99.99</p></th>
+<th class="head"><p>global max</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Activations (Linear inputs)</p></td>
+<td><p>0.031</p></td>
+<td><p>0.5</p></td>
+<td><p>2</p></td>
+<td><p>4</p></td>
+<td><p><strong>3680</strong></p></td>
+</tr>
+<tr class="row-odd"><td><p>Weights (<code class="docutils literal notranslate"><span class="pre">.weight</span></code>)</p></td>
+<td><p>0.016</p></td>
+<td><p>0.063</p></td>
+<td><p>0.063</p></td>
+<td><p>0.125</p></td>
+<td><p><strong>126.5</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A few late-layer <code class="docutils literal notranslate"><span class="pre">w2</span></code> inputs carry huge values (the “massive activations”
+seen in Llama-3) — these are legitimate, so the activation threshold must sit
+above 3680. The 70B config uses <code class="docutils literal notranslate"><span class="pre">w_zero_out_t</span> <span class="pre">=</span> <span class="pre">256.0</span></code> and
+<code class="docutils literal notranslate"><span class="pre">x_zero_out_t</span> <span class="pre">=</span> <span class="pre">8192.0</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>An earlier config used <code class="docutils literal notranslate"><span class="pre">w_zero_out_t</span> <span class="pre">=</span> <span class="pre">1.25</span></code> and <code class="docutils literal notranslate"><span class="pre">x_zero_out_t</span> <span class="pre">=</span> <span class="pre">30</span></code>.
+The profile showed these clip legitimate values, and a test run confirmed it:
+training loss exploded to 9.72 by step 5 (perplexity ~16,000) <strong>before any
+flip occurred</strong>. Always profile before changing thresholds.</p>
+</div>
+</section>
+<section id="step-3-launch-training">
+<h3>Step 3 — Launch Training<a class="headerlink" href="#step-3-launch-training" title="Link to this heading">#</a></h3>
+<p>The full 70B run targets ~21,000 optimizer steps (≈ 1% of 70B parameters in
+training tokens, ≈ 700M tokens):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>experiments/llm-bitflip/lora_finetune_fsdp
+bash<span class="w"> </span>run.sh<span class="w"> </span>config_70b.toml
+</pre></div>
+</div>
+<p>which expands to (single 4-GPU node):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>--nnodes<span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--master_addr<span class="o">=</span>localhost<span class="w"> </span>--master_port<span class="o">=</span><span class="m">29500</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>train.py<span class="w"> </span>--config<span class="w"> </span>config_70b.toml
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--nproc_per_node</span></code> must equal <code class="docutils literal notranslate"><span class="pre">[parallelism].fsdp_degree</span></code> in the config
+(<code class="docutils literal notranslate"><span class="pre">4</span></code>). FSDP2 builds a 1-D device mesh of that size and <code class="docutils literal notranslate"><span class="pre">init_device_mesh</span></code>
+requires the mesh to span exactly <code class="docutils literal notranslate"><span class="pre">WORLD_SIZE</span></code> ranks, so a mismatch aborts
+at startup. <code class="docutils literal notranslate"><span class="pre">run.sh</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">NPROC_PER_NODE=4</span></code> to match; to use a
+different GPU count, change both together.</p>
+</div>
+<p>To override the step count from the command line:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>train.py<span class="w"> </span>--config<span class="w"> </span>config_70b.toml<span class="w"> </span>--steps<span class="w"> </span><span class="m">21000</span>
+</pre></div>
+</div>
+<p>For multi-node, set <code class="docutils literal notranslate"><span class="pre">MASTER_ADDR</span></code> / <code class="docutils literal notranslate"><span class="pre">NNODES</span></code> / <code class="docutils literal notranslate"><span class="pre">NODE_RANK</span></code> env vars per
+<code class="docutils literal notranslate"><span class="pre">run.sh</span></code> usage notes.</p>
+</section>
+<section id="step-4-evaluate">
+<h3>Step 4 — Evaluate<a class="headerlink" href="#step-4-evaluate" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">eval.py</span></code> is forward-only and supports three modes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Clean baseline (no bitflip, no LoRA)</span>
+torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>eval.py<span class="w"> </span>--config<span class="w"> </span>config_70b.toml<span class="w"> </span>--num-samples<span class="w"> </span><span class="m">256</span>
+
+<span class="c1"># Bitflip ON, r=0 (no LoRA), no retraining</span>
+torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>eval.py<span class="w"> </span>--config<span class="w"> </span>config_70b.toml<span class="w"> </span>--num-samples<span class="w"> </span><span class="m">256</span><span class="w"> </span>--bitflip
+
+<span class="c1"># Profile activations + weights to choose zero-out thresholds</span>
+torchrun<span class="w"> </span>--nproc_per_node<span class="o">=</span><span class="m">4</span><span class="w"> </span>eval.py<span class="w"> </span>--config<span class="w"> </span>config_70b.toml<span class="w"> </span>--num-samples<span class="w"> </span><span class="m">64</span><span class="w"> </span>--profile
+</pre></div>
+</div>
+<p>Evaluation is the first <em>N</em> sequences of the training set, <code class="docutils literal notranslate"><span class="pre">seq_len</span> <span class="pre">=</span> <span class="pre">2048</span></code>
+chunks, token-weighted mean cross-entropy; <code class="docutils literal notranslate"><span class="pre">perplexity</span> <span class="pre">=</span> <span class="pre">exp(loss)</span></code>.</p>
+</section>
+</section>
+<section id="results">
+<h2>Results<a class="headerlink" href="#results" title="Link to this heading">#</a></h2>
+<p>All numbers below are for <code class="docutils literal notranslate"><span class="pre">meta-llama/Meta-Llama-3-70B</span></code> (70B, bf16) on
+4 × NVIDIA B200 with <code class="docutils literal notranslate"><span class="pre">fsdp_degree</span> <span class="pre">=</span> <span class="pre">4</span></code>, training data
+<code class="docutils literal notranslate"><span class="pre">Cheng98/fineweb-edu-1.25B</span></code>.</p>
+<section id="baseline-clean-model">
+<h3>Baseline — Clean Model<a class="headerlink" href="#baseline-clean-model" title="Link to this heading">#</a></h3>
+<p>Original model, no bitflip, no LoRA (<code class="docutils literal notranslate"><span class="pre">logs/eval_baseline.log</span></code>):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Sequences</p></th>
+<th class="head"><p>Tokens</p></th>
+<th class="head"><p>Loss (CE)</p></th>
+<th class="head"><p>Perplexity</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>256</p></td>
+<td><p>524,288</p></td>
+<td><p><strong>1.8198</strong></p></td>
+<td><p><strong>6.17</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="bitflip-on-no-lora-no-retraining">
+<h3>Bitflip On, No LoRA, No Retraining<a class="headerlink" href="#bitflip-on-no-lora-no-retraining" title="Link to this heading">#</a></h3>
+<p>Same 256 sequences, <code class="docutils literal notranslate"><span class="pre">r</span> <span class="pre">=</span> <span class="pre">0</span></code>, seed 0, all 560 eligible Linear layers
+perturbed (<code class="docutils literal notranslate"><span class="pre">logs/eval_bitflip.log</span></code>):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 60.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Condition</p></th>
+<th class="head"><p>Loss (CE)</p></th>
+<th class="head"><p>Perplexity</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Clean (reference)</p></td>
+<td><p>1.8198</p></td>
+<td><p>6.17</p></td>
+</tr>
+<tr class="row-odd"><td><p>Bitflip — exp + frac, on weights &amp; activations (<code class="docutils literal notranslate"><span class="pre">0.5^16</span></code>)</p></td>
+<td><p><strong>4.4918</strong></p></td>
+<td><p><strong>89.28</strong></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Observations: Adding <strong>exponent-bit flips and activation flips</strong> degrades perplexity from 6.17 → 89.28 (~14×). The degradation is large but coherent — far from the ~16,000 of the bad-threshold run — so there is meaningful headroom for LoRA to recover.</p>
+</section>
+<section id="bitflip-aware-lora-retraining-lr-2e-4">
+<h3>Bitflip-Aware LoRA Retraining (lr = 2e-4)<a class="headerlink" href="#bitflip-aware-lora-retraining-lr-2e-4" title="Link to this heading">#</a></h3>
+<p>Training was run with <code class="docutils literal notranslate"><span class="pre">r</span> <span class="pre">=</span> <span class="pre">32</span></code>, <code class="docutils literal notranslate"><span class="pre">lora_alpha</span> <span class="pre">=</span> <span class="pre">32</span></code>, <code class="docutils literal notranslate"><span class="pre">lr</span> <span class="pre">=</span> <span class="pre">2e-4</span></code>,
+<code class="docutils literal notranslate"><span class="pre">warmup</span> <span class="pre">=</span> <span class="pre">100</span></code>, <code class="docutils literal notranslate"><span class="pre">weight_decay</span> <span class="pre">=</span> <span class="pre">0.01</span></code>, <code class="docutils literal notranslate"><span class="pre">seq_len</span> <span class="pre">=</span> <span class="pre">2048</span></code>,
+<code class="docutils literal notranslate"><span class="pre">local_batch_size</span> <span class="pre">=</span> <span class="pre">2</span></code>, <code class="docutils literal notranslate"><span class="pre">grad_accum</span> <span class="pre">=</span> <span class="pre">4</span></code> (effective batch = 32
+sequences). The original step budget was 21,000; training was <strong>stopped
+early at 7,900 steps</strong> once the loss had clearly converged — the run had
+already demonstrated that bitflip-aware LoRA scales to 70B with the same
+recipe used for 8B, so the remaining budget was not needed
+(<code class="docutils literal notranslate"><span class="pre">logs/train_70b.log</span></code>).</p>
+<figure class="align-default" id="id3">
+<a class="reference internal image-reference" href="../../../_images/70b-lora-fsdp-trainloss.png"><img alt="Bitflip-aware LoRA fine-tuning training curve for Llama-3-70B (lr=2e-4)" src="../../../_images/70b-lora-fsdp-trainloss.png" style="width: 720px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Training loss for the 70B run at <code class="docutils literal notranslate"><span class="pre">lr</span> <span class="pre">=</span> <span class="pre">2e-4</span></code> (early-stopped at 7,900
+steps after convergence).</span><a class="headerlink" href="#id3" title="Link to this image">#</a></p>
+</figcaption>
+</figure>
+<div class="pst-scrollable-table-container"><table class="table">
+<colgroup>
+<col style="width: 60.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Metric</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Training steps completed</p></td>
+<td><p><strong>7,900</strong> (early-stopped; original target 21,000)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Final training loss</p></td>
+<td><p>~2.5 – 2.7 (converged)</p></td>
+</tr>
+<tr class="row-even"><td><p>Tokens/s</p></td>
+<td><p>~1,095</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The headline result: with bitflip noise injected into every eligible Linear
+layer, training loss converges from the bitflip-only ceiling
+(CE ≈ 4.49 / PPL ≈ 89.28) down to ~2.5 – 2.7. The bitflip-aware LoRA recipe
+transfers cleanly from 8B to 70B without changes to the kernel, converter,
+or optimizer setup. Scaling up this experiment, e.g., a higher lora rank <code class="docutils literal notranslate"><span class="pre">r</span></code> with more fine-tuning steps or full fine-tuning with bitflip, is very likely to further recover the model performance.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is the only learning rate kept in this tutorial; other learning rates
+(<code class="docutils literal notranslate"><span class="pre">1e-4</span></code>, <code class="docutils literal notranslate"><span class="pre">1e-5</span></code>) explored during sweeps are omitted.</p>
+</div>
+</section>
+<section id="resources">
+<h3>Resources<a class="headerlink" href="#resources" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Training log: <code class="docutils literal notranslate"><span class="pre">experiments/llm-bitflip/lora_finetune_fsdp/logs/train_70b.log</span></code></p></li>
+<li><p>Training curve: <code class="docutils literal notranslate"><span class="pre">experiments/llm-bitflip/lora_finetune_fsdp/logs/train_70b_loss.png</span></code></p></li>
+<li><p>Baseline / bitflip eval logs:
+<code class="docutils literal notranslate"><span class="pre">logs/eval_baseline.log</span></code>,
+<code class="docutils literal notranslate"><span class="pre">logs/eval_bitflip.log</span></code>,
+<code class="docutils literal notranslate"><span class="pre">logs/profile.log</span></code></p></li>
+<li><p>Training config:
+<a class="reference external" href="https://github.com/AICrossSim/NewComputeBench/blob/master/experiments/llm-bitflip/lora_finetune_fsdp/config_70b.toml">config_70b.toml</a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="bitflip_lora.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Bitflip-Aware LoRA Fine-Tuning</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="onn_roberta.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Optical Neural Networks on RoBERTa</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#overview">Overview</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How It Works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#entry-points">Entry Points</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-by-step-guide">Step-by-Step Guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-0-environment">Step 0 — Environment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-configure-bitflip-lora-and-training">Step 1 — Configure Bitflip, LoRA, and Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-profile-and-set-zero-out-thresholds">Step 2 — Profile and Set <code class="docutils literal notranslate"><span class="pre">zero_out</span></code> Thresholds</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-launch-training">Step 3 — Launch Training</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-evaluate">Step 4 — Evaluate</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#results">Results</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baseline-clean-model">Baseline — Clean Model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bitflip-on-no-lora-no-retraining">Bitflip On, No LoRA, No Retraining</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bitflip-aware-lora-retraining-lr-2e-4">Bitflip-Aware LoRA Retraining (lr = 2e-4)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By AICrossSim
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2025, AICrossSim.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
